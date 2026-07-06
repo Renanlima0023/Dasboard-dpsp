@@ -291,6 +291,19 @@
             background: #1F2A44;
             color: #fff;
         }
+        .header-filters .clear-filter {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            background: rgba(255, 107, 107, 0.08);
+            color: #FF6B6B;
+            font-size: 12px;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .header-filters .clear-filter:hover {
+            background: rgba(255, 107, 107, 0.15);
+        }
 
         .header-logos {
             display: flex;
@@ -351,6 +364,7 @@
             background: rgba(255, 255, 255, .12);
         }
 
+        /* ===== CARDS CLICÁVEIS ===== */
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -362,6 +376,18 @@
             padding: 22px 24px;
             border-radius: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            cursor: pointer;
+            transition: .25s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+        }
+        .card.active-filter {
+            border-color: #6DD5FA;
+            background: rgba(109, 213, 250, 0.08);
         }
         .card h3 {
             font-size: 13px;
@@ -385,6 +411,14 @@
             width: 0%;
             background: linear-gradient(90deg, #6DD5FA, #FF4B4B);
             border-radius: 20px;
+            transition: width .6s ease;
+        }
+        .card .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 10px;
+            opacity: .3;
         }
 
         .grid {
@@ -398,35 +432,49 @@
             padding: 20px 24px;
             border-radius: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            position: relative;
         }
         .box h2 {
             margin-bottom: 16px;
             font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .box h2 .filter-indicator {
+            font-size: 12px;
+            opacity: .5;
+            font-weight: 400;
         }
         canvas {
             height: 300px !important;
+            cursor: pointer;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* ===== BOTÃO VER TABELA ===== */
+        .table-button-wrapper {
+            margin-bottom: 20px;
+            text-align: center;
         }
-        th,
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, .06);
-            text-align: left;
-            font-size: 13px;
+        .table-button-wrapper .btn-ver-tabela {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(109, 213, 250, 0.15), rgba(74, 159, 224, 0.15));
+            border: 1.5px solid rgba(109, 213, 250, 0.2);
+            color: #6DD5FA;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
         }
-        th {
-            opacity: .5;
-            font-weight: 600;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-        tr:hover {
-            background: rgba(255, 255, 255, .03);
+        .table-button-wrapper .btn-ver-tabela:hover {
+            background: rgba(109, 213, 250, 0.2);
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(109, 213, 250, 0.15);
         }
 
         .loading {
@@ -444,6 +492,7 @@
             font-weight: bold;
         }
 
+        /* ===== PAINEL CONTROLE ===== */
         .painel-controle {
             margin-top: 30px;
             border-radius: 20px;
@@ -683,6 +732,26 @@
             display: none !important;
         }
 
+        /* ===== FILTRO ATIVO ===== */
+        .filter-badge {
+            display: inline-block;
+            background: rgba(109, 213, 250, 0.12);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            border: 1px solid rgba(109, 213, 250, 0.15);
+            color: #6DD5FA;
+            margin-left: 10px;
+        }
+        .filter-badge .remove {
+            cursor: pointer;
+            margin-left: 8px;
+            opacity: .5;
+        }
+        .filter-badge .remove:hover {
+            opacity: 1;
+        }
+
         @media(max-width:768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -762,6 +831,8 @@
                             <option value="TODOS">Todos os Estados</option>
                         </select>
                         <input type="text" id="filtroLoja" placeholder="🔍 Filtrar por loja...">
+                        <button class="clear-filter" onclick="limparFiltros()">✕ Limpar filtros</button>
+                        <span id="filterStatus"></span>
                     </div>
                 </div>
                 <div class="header-logos">
@@ -787,32 +858,52 @@
 
             <!-- CARDS -->
             <div class="cards">
-                <div class="card"><h3>Total de Lojas</h3><div class="number" id="totalLojas">0</div></div>
-                <div class="card"><h3>Total PDVs</h3><div class="number" id="totalPdvs">0</div></div>
-                <div class="card"><h3>PDVs Finalizados</h3><div class="number" id="pdvsFinalizados">0</div></div>
-                <div class="card"><h3>Lojas Finalizadas</h3><div class="number" id="lojasFinalizadas">0</div></div>
-                <div class="card"><h3>Progresso Médio</h3><div class="number" id="mediaEvolucao">0%</div><div class="progress"><div id="progressBar"></div></div></div>
+                <div class="card" data-filter="totalLojas" onclick="filtrarPorCard('totalLojas')">
+                    <span class="card-badge">📊</span>
+                    <h3>Total de Lojas</h3>
+                    <div class="number" id="totalLojas">0</div>
+                </div>
+                <div class="card" data-filter="totalPdvs" onclick="filtrarPorCard('totalPdvs')">
+                    <span class="card-badge">🖥️</span>
+                    <h3>Total PDVs</h3>
+                    <div class="number" id="totalPdvs">0</div>
+                </div>
+                <div class="card" data-filter="pdvsFinalizados" onclick="filtrarPorCard('pdvsFinalizados')">
+                    <span class="card-badge">✅</span>
+                    <h3>PDVs Finalizados</h3>
+                    <div class="number" id="pdvsFinalizados">0</div>
+                </div>
+                <div class="card" data-filter="lojasFinalizadas" onclick="filtrarPorCard('lojasFinalizadas')">
+                    <span class="card-badge">🏁</span>
+                    <h3>Lojas Finalizadas</h3>
+                    <div class="number" id="lojasFinalizadas">0</div>
+                </div>
+                <div class="card" data-filter="mediaEvolucao" onclick="filtrarPorCard('mediaEvolucao')">
+                    <span class="card-badge">📈</span>
+                    <h3>Progresso Médio</h3>
+                    <div class="number" id="mediaEvolucao">0%</div>
+                    <div class="progress"><div id="progressBar"></div></div>
+                </div>
             </div>
 
             <!-- GRÁFICOS -->
             <div class="grid">
-                <div class="box"><h2>📊 Status por UF</h2><canvas id="statusUFChart"></canvas></div>
-                <div class="box"><h2>📈 Média de Lojas Concluídas por Dia</h2><canvas id="mediaConcluidaChart"></canvas><div id="mediaConcluidaEmpty" class="empty-state">Nenhuma loja concluída ainda.</div></div>
+                <div class="box"><h2>📊 Status por UF <span class="filter-indicator"></span></h2><canvas id="statusUFChart"></canvas></div>
+                <div class="box"><h2>📈 Média de Lojas Concluídas por Dia <span class="filter-indicator"></span></h2><canvas id="mediaConcluidaChart"></canvas><div id="mediaConcluidaEmpty" class="empty-state">Nenhuma loja concluída ainda.</div></div>
             </div>
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>⏳ Linha do Tempo</h2><canvas id="timelineChart"></canvas><div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div></div>
+                <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2><canvas id="timelineChart"></canvas><div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div></div>
             </div>
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>🖥️ PDVs Concluídos vs Pendentes por UF</h2><canvas id="pdvsUFChart"></canvas></div>
-            </div>
-            <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização</h2><canvas id="authChart"></canvas><div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div></div>
+                <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2><canvas id="authChart"></canvas><div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div></div>
             </div>
 
-            <!-- TABELA -->
-            <div class="box">
-                <h2>📋 Resumo Operacional</h2>
-                <table><thead><tr><th>Loja</th><th>Cidade</th><th>UF</th><th>Status</th><th>Evolução</th><th>PDVs</th></tr></thead><tbody id="tableBody"></tbody></table>
+            <!-- BOTÃO VER TABELA COMPLETA -->
+            <div class="table-button-wrapper">
+                <button class="btn-ver-tabela" onclick="abrirTabelaCompleta()">
+                    📋 Ver Tabela Completa
+                    <span style="font-size:12px;opacity:0.5;">→</span>
+                </button>
             </div>
 
             <!-- ===== GESTÃO DE USUÁRIOS ===== -->
@@ -884,6 +975,17 @@
                         <div class="painel-secao-titulo">✨ Cor de Destaque</div>
                         <div class="cor-linha"><label>Principal</label><input type="color" id="corDestaque" value="#6DD5FA" class="color-input" oninput="aplicarCorDestaque(this.value)"><span id="corDestaqueHex" class="hex-label">#6DD5FA</span></div>
                     </div>
+                    <div class="painel-divider"></div>
+                    <div class="painel-secao">
+                        <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
+                        <div class="cor-controles">
+                            <div class="cor-linha"><label>Barras 1</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Barras 2</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>Barras 3</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -899,7 +1001,6 @@
         // ============================================================
         //  SUPABASE - CONFIGURAÇÃO
         // ============================================================
-        // TODO: preencher com os dados do SEU projeto Supabase (novo, separado do War Room)
         const SUPABASE_URL = 'https://fhneshazhuqqwczbdzks.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zaoYTt6pm46YiN-E333hDw_5_6uSXsr';
 
@@ -908,10 +1009,6 @@
         // ============================================================
         //  SISTEMA DE USUÁRIOS
         // ============================================================
-
-        // Lista local é só um fallback caso o Supabase ainda não tenha respondido
-        // (ou esteja offline). Assim que carregarUsuariosSupabase() roda, esse
-        // array é substituído pelos dados reais do banco.
         let usuarios = [
             { id: 1, nome: 'Admin', role: 'admin', senha: '123' },
             { id: 2, nome: 'Gerente', role: 'gerente', senha: '123' },
@@ -924,6 +1021,19 @@
         let charts = {};
         let userManagementVisible = false;
         let supabaseReady = false;
+
+        // ===== FILTRO ATIVO =====
+        let activeFilter = null; // 'totalLojas' | 'totalPdvs' | 'pdvsFinalizados' | 'lojasFinalizadas' | 'mediaEvolucao' | null
+        let filteredData = [];
+
+        // ===== CORES DOS GRÁFICOS =====
+        let chartColors = {
+            bar1: '#6DD5FA',
+            bar2: '#6BCB77',
+            bar3: '#FFD93D',
+            bar4: '#C77DFF',
+            line: '#FF6B6B'
+        };
 
         // ============================================================
         //  SUPABASE - CARREGAMENTO E SINCRONIZAÇÃO
@@ -982,7 +1092,6 @@
                 console.error('Erro ao carregar configurações:', error);
             }
             if (!data) {
-                // Ainda não existe registro de configuração no banco (primeiro uso) -> aplica padrão local
                 setTipoFundo('degradê');
                 return;
             }
@@ -1017,11 +1126,24 @@
                 aplicarCorDestaque(data.cor_destaque);
             }
 
+            // Cores dos gráficos
+            if (data.chart_colors) {
+                const cc = data.chart_colors;
+                if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
+                    chartColors.bar1 = cc.bar1; }
+                if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
+                    chartColors.bar2 = cc.bar2; }
+                if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
+                    chartColors.bar3 = cc.bar3; }
+                if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
+                    chartColors.bar4 = cc.bar4; }
+                if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
+                    chartColors.line = cc.line; }
+            }
+
             aplicandoConfigRemota = false;
         }
 
-        // Evita loop: quando estamos aplicando config que veio do banco,
-        // não queremos regravar ela de volta no banco.
         let aplicandoConfigRemota = false;
 
         async function salvarConfiguracoesSupabase(parcial) {
@@ -1048,10 +1170,7 @@
                 .channel('dashboard-data-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
                     await carregarDashboardDataSupabase();
-                    atualizarCards(originalData);
-                    atualizarTabela(originalData);
-                    popularFiltros(originalData);
-                    atualizarGraficos(originalData);
+                    aplicarFiltros();
                 })
                 .subscribe();
 
@@ -1095,16 +1214,9 @@
 
             if (originalData.length === 0) carregarDadosExemplo();
             else {
-                atualizarCards(originalData);
-                atualizarTabela(originalData);
-                popularFiltros(originalData);
-                atualizarGraficos(originalData);
+                aplicarFiltros();
             }
         }
-
-        // ============================================================
-        //  ATUALIZAR UI - CORREÇÃO DO BOTÃO
-        // ============================================================
 
         function atualizarUI(usuario) {
             const roleNames = { admin: 'Admin', gerente: 'Gerente', visualizador: 'Visualizador' };
@@ -1117,12 +1229,10 @@
             document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
             document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
 
-            // ===== BOTÃO GERENCIAR USUÁRIOS - CORRIGIDO =====
             const btnUser = document.getElementById('btnGerenciarUsuarios');
-            
+
             if (isAdmin) {
                 btnUser.style.display = 'flex';
-                // Remove eventos antigos e adiciona novo
                 btnUser.replaceWith(btnUser.cloneNode(true));
                 const newBtn = document.getElementById('btnGerenciarUsuarios');
                 newBtn.onclick = function() {
@@ -1134,7 +1244,6 @@
                 userManagementVisible = false;
             }
 
-            // ===== BOTÃO ADICIONAR USUÁRIO =====
             const btnAdd = document.getElementById('btnAdicionarUsuario');
             btnAdd.replaceWith(btnAdd.cloneNode(true));
             const newAdd = document.getElementById('btnAdicionarUsuario');
@@ -1142,7 +1251,6 @@
                 adicionarUsuario();
             };
 
-            // Logos
             document.querySelectorAll('.logo-box').forEach(el => {
                 if (usuario.role === 'visualizador') {
                     el.classList.remove('clickable');
@@ -1169,6 +1277,7 @@
             document.getElementById('loginError').style.display = 'none';
             document.getElementById('userManagement').classList.remove('visible');
             userManagementVisible = false;
+            activeFilter = null;
         }
 
         document.getElementById('loginBtn').addEventListener('click', doLogin);
@@ -1192,7 +1301,6 @@
             if (userManagementVisible) {
                 el.classList.add('visible');
                 renderizarUsuarios();
-                // Rola a tela até o painel, já que ele fica no final da página
                 setTimeout(() => {
                     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
@@ -1377,15 +1485,12 @@
                         originalData = dadosNormalizados;
                         console.log('✅ Planilha carregada:', originalData.length, 'registros');
 
-                        atualizarCards(originalData);
-                        atualizarTabela(originalData);
-                        popularFiltros(originalData);
-                        atualizarGraficos(originalData);
-
+                        activeFilter = null;
                         await salvarDashboardDataSupabase(originalData);
+                        aplicarFiltros();
 
                         document.getElementById('loading').style.display = 'none';
-                        alert('✅ Planilha carregada e sincronizada com sucesso!\n' + originalData.length + ' registros encontrados.\nTodos os usuários vão ver a atualização automaticamente.');
+                        alert('✅ Planilha carregada e sincronizada com sucesso!\n' + originalData.length + ' registros encontrados.');
                         event.target.value = '';
 
                     } catch (error) {
@@ -1426,15 +1531,24 @@
             return Math.round((realizado / previsto) * 100);
         }
 
+        function isConcluida(r) {
+            return (r['DATA DO ROLLOUT'] && !String(r['DATA DO ROLLOUT']).startsWith('=')) ||
+                String(r.STATUS || '').toUpperCase().includes('CONCLU');
+        }
+
+        function getDataParaExibir() {
+            if (activeFilter && filteredData.length > 0) {
+                return filteredData;
+            }
+            return originalData;
+        }
+
         function atualizarCards(data) {
             const totalLojas = data.length;
             const totalPdvs = data.reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
-            const isConcluida = r =>
-                (r['DATA DO ROLLOUT'] && !String(r['DATA DO ROLLOUT']).startsWith('=')) ||
-                String(r.STATUS || '').toUpperCase().includes('CONCLU');
             const lojasFinalizadas = data.filter(isConcluida).length;
             const pdvsFinalizados = data.filter(isConcluida).reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
-            const media = Math.round(data.reduce((s, r) => s + calcEvolucao(r), 0) / (data.length || 1));
+            const media = data.length ? Math.round(data.reduce((s, r) => s + calcEvolucao(r), 0) / data.length) : 0;
 
             document.getElementById('totalLojas').innerText = totalLojas;
             document.getElementById('totalPdvs').innerText = totalPdvs;
@@ -1442,24 +1556,6 @@
             document.getElementById('lojasFinalizadas').innerText = lojasFinalizadas;
             document.getElementById('mediaEvolucao').innerText = media + '%';
             document.getElementById('progressBar').style.width = media + '%';
-        }
-
-        function atualizarTabela(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            const limit = Math.min(data.length, 100);
-            for (let i = 0; i < limit; i++) {
-                const r = data[i];
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${r.LOJAS || ''}</td>
-                        <td>${r.CIDADE || ''}</td>
-                        <td>${r.UF || ''}</td>
-                        <td>${r.STATUS || ''}</td>
-                        <td>${calcEvolucao(r)}%</td>
-                        <td>${safeNumber(r['QTDE PDVs total'])}</td>
-                    </tr>`;
-            }
         }
 
         function popularFiltros(data) {
@@ -1473,38 +1569,106 @@
             const loja = document.getElementById('filtroLoja').value.toLowerCase();
             const uf = document.getElementById('filtroUF').value;
             let data = [...originalData];
+
+            // Aplica filtros de UF e loja
             if (uf !== 'TODOS') data = data.filter(x => String(x.UF || '') === uf);
             if (loja) data = data.filter(x => String(x.LOJAS || '').toLowerCase().includes(loja));
-            atualizarCards(data);
-            atualizarTabela(data);
-            atualizarGraficos(data);
-        }
 
-        function destroyChart(id) { if (charts[id]) { charts[id].destroy();
-                delete charts[id]; } }
-
-        const STATUS_COLORS = {
-            'CONCLUÍDA': '#6BCB77',
-            'AGENDADA': '#6DD5FA',
-            'AGUARDANDO AGENDAMENTO': '#FFD93D',
-            'PENDENCIADA': '#FF6B6B',
-            'EM EXECUÇÃO': '#C77DFF',
-            'CANCELADA': '#aaa'
-        };
-
-        function statusColor(s) {
-            const k = Object.keys(STATUS_COLORS).find(x => String(s || '').toUpperCase().includes(x));
-            return k ? STATUS_COLORS[k] : '#888';
-        }
-
-        function parseExcelDate(val) {
-            if (!val) return null;
-            if (typeof val === 'number') {
-                const d = new Date(Math.round((val - 25569) * 86400 * 1000));
-                return isNaN(d) ? null : d;
+            // Se há filtro ativo de card, aplica sobre o resultado
+            if (activeFilter) {
+                data = aplicarFiltroCard(data, activeFilter);
             }
-            const d = new Date(val);
-            return isNaN(d) ? null : d;
+
+            // Atualiza tudo
+            atualizarCards(data);
+            atualizarGraficos(data);
+            popularFiltros(originalData);
+
+            // Atualiza badge de filtro
+            atualizarBadgeFiltro();
+        }
+
+        function aplicarFiltroCard(data, filterType) {
+            switch (filterType) {
+                case 'totalLojas':
+                    // Não filtra, mostra todas
+                    return data;
+                case 'totalPdvs':
+                    // Filtra lojas com PDVs > 0
+                    return data.filter(r => safeNumber(r['QTDE PDVs total']) > 0);
+                case 'pdvsFinalizados':
+                    // Filtra lojas com PDVs finalizados > 0
+                    return data.filter(r => safeNumber(r['REALIZADO']) > 0);
+                case 'lojasFinalizadas':
+                    // Filtra lojas concluídas
+                    return data.filter(isConcluida);
+                case 'mediaEvolucao':
+                    // Filtra lojas com progresso > 0
+                    return data.filter(r => calcEvolucao(r) > 0);
+                default:
+                    return data;
+            }
+        }
+
+        function atualizarBadgeFiltro() {
+            const status = document.getElementById('filterStatus');
+            if (activeFilter) {
+                const labels = {
+                    totalLojas: 'Todas as lojas',
+                    totalPdvs: 'Lojas com PDVs > 0',
+                    pdvsFinalizados: 'Lojas com PDVs finalizados > 0',
+                    lojasFinalizadas: 'Lojas concluídas',
+                    mediaEvolucao: 'Lojas com progresso > 0'
+                };
+                status.innerHTML = `<span class="filter-badge">📌 ${labels[activeFilter] || activeFilter} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
+            } else {
+                status.innerHTML = '';
+            }
+
+            // Atualiza destaque dos cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.toggle('active-filter', card.dataset.filter === activeFilter);
+            });
+        }
+
+        function limparFiltros() {
+            activeFilter = null;
+            filteredData = [];
+            document.getElementById('filtroLoja').value = '';
+            document.getElementById('filtroUF').value = 'TODOS';
+            aplicarFiltros();
+        }
+
+        function filtrarPorCard(filterType) {
+            if (activeFilter === filterType) {
+                // Se já está ativo, desativa
+                activeFilter = null;
+                filteredData = [];
+            } else {
+                activeFilter = filterType;
+                // Aplica o filtro sobre os dados atuais (considerando UF e loja)
+                const loja = document.getElementById('filtroLoja').value.toLowerCase();
+                const uf = document.getElementById('filtroUF').value;
+                let data = [...originalData];
+                if (uf !== 'TODOS') data = data.filter(x => String(x.UF || '') === uf);
+                if (loja) data = data.filter(x => String(x.LOJAS || '').toLowerCase().includes(loja));
+                filteredData = aplicarFiltroCard(data, filterType);
+            }
+            aplicarFiltros();
+        }
+
+        // ============================================================
+        //  GRÁFICOS COM INTERAÇÃO (CLICK)
+        // ============================================================
+
+        function setupChartClick(chart, callback) {
+            chart.options.onClick = function(event, elements) {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const label = chart.data.labels[index];
+                    callback(label);
+                }
+            };
         }
 
         function chartStatusUF(data) {
@@ -1518,15 +1682,18 @@
                 if (!matrix[st]) matrix[st] = {};
                 matrix[st][uf] = (matrix[st][uf] || 0) + 1;
             });
+
+            const colorPalette = [chartColors.bar1, chartColors.bar2, chartColors.bar3, chartColors.bar4, chartColors.line];
             const datasets = statuses.map((st, i) => ({
                 label: st,
                 data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
-                backgroundColor: statusColor(st),
+                backgroundColor: colorPalette[i % colorPalette.length],
                 borderRadius: 4,
                 borderSkipped: false
             }));
+
             const ctx = document.getElementById('statusUFChart').getContext('2d');
-            charts['statusUFChart'] = new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: ufs, datasets },
                 options: {
@@ -1535,7 +1702,7 @@
                     plugins: {
                         datalabels: {
                             display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: '#0D1B2A',
+                            color: '#fff',
                             font: { weight: 'bold', size: 11 },
                             formatter: v => v,
                             anchor: 'center',
@@ -1550,6 +1717,16 @@
                     }
                 }
             });
+
+            setupChartClick(chart, function(label) {
+                // Filtra por UF
+                document.getElementById('filtroUF').value = label;
+                activeFilter = null;
+                filteredData = [];
+                aplicarFiltros();
+            });
+
+            charts['statusUFChart'] = chart;
         }
 
         function chartMediaConcluida(data) {
@@ -1561,6 +1738,7 @@
                 canvas.style.display = 'none'; return; }
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
+
             const porDia = {};
             comData.forEach(r => {
                 const d = parseExcelDate(r['DATA DO ROLLOUT']);
@@ -1578,8 +1756,9 @@
                 const [y, m, dia] = d.split('-');
                 return dia + '/' + m + '/' + y.slice(2);
             });
+
             const ctx = document.getElementById('mediaConcluidaChart').getContext('2d');
-            charts['mediaConcluidaChart'] = new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels,
@@ -1587,8 +1766,8 @@
                         type: 'bar',
                         label: 'Lojas concluídas',
                         data: values,
-                        backgroundColor: values.map(v => v >= mediaDiaria ? 'rgba(107,203,119,.75)' :
-                            'rgba(109,213,250,.55)'),
+                        backgroundColor: values.map(v => v >= mediaDiaria ? chartColors.bar2 + 'CC' :
+                            chartColors.bar1 + '88'),
                         borderRadius: 6,
                         datalabels: {
                             display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
@@ -1602,7 +1781,7 @@
                         type: 'line',
                         label: 'Média diária (' + mediaDiaria + ' lojas/dia)',
                         data: linhaMedia,
-                        borderColor: '#FFD93D',
+                        borderColor: chartColors.bar3,
                         backgroundColor: 'transparent',
                         borderWidth: 2.5,
                         borderDash: [8, 4],
@@ -1624,6 +1803,28 @@
                     }
                 }
             });
+
+            setupChartClick(chart, function(label) {
+                // Filtra pela data específica
+                const dataParts = label.split('/');
+                const dateStr = '20' + dataParts[2] + '-' + dataParts[1] + '-' + dataParts[0];
+                document.getElementById('filtroLoja').value = '';
+                document.getElementById('filtroUF').value = 'TODOS';
+                activeFilter = null;
+                filteredData = [];
+                // Aplica filtro de data
+                const dataFiltrada = originalData.filter(r => {
+                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                    return d && d.toISOString().slice(0, 10) === dateStr;
+                });
+                filteredData = dataFiltrada;
+                aplicarFiltros();
+                // Mostra indicação
+                document.getElementById('filterStatus').innerHTML =
+                    `<span class="filter-badge">📅 ${label} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
+            });
+
+            charts['mediaConcluidaChart'] = chart;
         }
 
         function chartTimeline(data) {
@@ -1635,6 +1836,7 @@
                 canvas.style.display = 'none'; return; }
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
+
             const porMes = {};
             comData.forEach(r => {
                 const d = parseExcelDate(r['DATA AUTORIZAÇÃO']);
@@ -1651,33 +1853,35 @@
             let acc = 0;
             const acumulado = sortedMeses.map(m => { acc += porMes[m]; return acc; });
             const mensal = sortedMeses.map(m => porMes[m]);
+
             const ctx = document.getElementById('timelineChart').getContext('2d');
             const grad = ctx.createLinearGradient(0, 0, 0, 280);
-            grad.addColorStop(0, 'rgba(109,213,250,.4)');
-            grad.addColorStop(1, 'rgba(109,213,250,0)');
-            charts['timelineChart'] = new Chart(ctx, {
+            grad.addColorStop(0, chartColors.bar1 + '66');
+            grad.addColorStop(1, chartColors.bar1 + '00');
+
+            const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels,
                     datasets: [{
                         label: 'Acumulado de lojas autorizadas',
                         data: acumulado,
-                        borderColor: '#6DD5FA',
+                        borderColor: chartColors.bar1,
                         backgroundColor: grad,
                         fill: true,
                         borderWidth: 2.5,
                         pointRadius: 4,
-                        pointBackgroundColor: '#6DD5FA',
+                        pointBackgroundColor: chartColors.bar1,
                         tension: .4,
                         datalabels: { display: false }
                     }, {
                         label: 'Autorizações no mês',
                         data: mensal,
-                        borderColor: '#FFD93D',
+                        borderColor: chartColors.bar3,
                         backgroundColor: 'transparent',
                         borderWidth: 2,
                         pointRadius: 3,
-                        pointBackgroundColor: '#FFD93D',
+                        pointBackgroundColor: chartColors.bar3,
                         tension: .4,
                         yAxisID: 'y2',
                         datalabels: { display: false }
@@ -1691,67 +1895,32 @@
                     },
                     scales: {
                         x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { ticks: { color: '#6DD5FA' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y2: { position: 'right', ticks: { color: '#FFD93D' }, grid: { display: false } }
+                        y: { ticks: { color: chartColors.bar1 }, grid: { color: 'rgba(255,255,255,.07)' } },
+                        y2: { position: 'right', ticks: { color: chartColors.bar3 }, grid: { display: false } }
                     }
                 }
             });
-        }
 
-        function chartPdvsUF(data) {
-            destroyChart('pdvsUFChart');
-            const ufMap = {};
-            data.forEach(r => {
-                const uf = r.UF || 'N/D';
-                const pdvs = safeNumber(r['QTDE PDVs total']);
-                const real = safeNumber(r['REALIZADO']);
-                if (!ufMap[uf]) ufMap[uf] = { concluido: 0, pendente: 0 };
-                ufMap[uf].concluido += real;
-                ufMap[uf].pendente += (pdvs - real);
+            setupChartClick(chart, function(label) {
+                // Filtra pelo mês
+                const [mes, ano] = label.split('/');
+                const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                const mesNum = meses.indexOf(mes) + 1;
+                const anoFull = '20' + ano;
+                const dataFiltrada = originalData.filter(r => {
+                    const d = parseExcelDate(r['DATA AUTORIZAÇÃO']);
+                    return d && d.getFullYear() === parseInt(anoFull) && d.getMonth() + 1 === mesNum;
+                });
+                filteredData = dataFiltrada;
+                activeFilter = null;
+                document.getElementById('filtroLoja').value = '';
+                document.getElementById('filtroUF').value = 'TODOS';
+                aplicarFiltros();
+                document.getElementById('filterStatus').innerHTML =
+                    `<span class="filter-badge">📆 ${label} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
             });
-            const ufs = Object.keys(ufMap).sort();
-            const concluidos = ufs.map(u => ufMap[u].concluido);
-            const pendentes = ufs.map(u => ufMap[u].pendente);
-            const ctx = document.getElementById('pdvsUFChart').getContext('2d');
-            charts['pdvsUFChart'] = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ufs,
-                    datasets: [{
-                        label: 'PDVs Concluídos',
-                        data: concluidos,
-                        backgroundColor: '#6BCB77',
-                        borderRadius: { bottomLeft: 6, bottomRight: 6 },
-                        borderSkipped: false
-                    }, {
-                        label: 'PDVs Pendentes',
-                        data: pendentes,
-                        backgroundColor: 'rgba(255,107,107,.7)',
-                        borderRadius: { topLeft: 6, topRight: 6 },
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: '#fff',
-                            font: { weight: 'bold', size: 11 },
-                            formatter: v => v,
-                            anchor: 'center',
-                            align: 'center'
-                        },
-                        legend: { display: true, position: 'top', labels: { color: '#fff', font: { size: 11 } } }
-                    },
-                    scales: {
-                        x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' },
-                            beginAtZero: true }
-                    }
-                }
-            });
+
+            charts['timelineChart'] = chart;
         }
 
         function chartAuth(data) {
@@ -1769,6 +1938,7 @@
                 canvas.style.display = 'none'; return; }
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
+
             const porDia = {};
             comData.forEach(r => {
                 const d = parseExcelDate(r['DATA AUTORIZAÇÃO']);
@@ -1783,11 +1953,13 @@
             const values = sortedDays.map(d => porDia[d]);
             let acc = 0;
             const acumulado = values.map(v => { acc += v; return acc; });
+
             const ctx = document.getElementById('authChart').getContext('2d');
             const grad = ctx.createLinearGradient(0, 0, 0, 300);
-            grad.addColorStop(0, 'rgba(199,125,255,.85)');
-            grad.addColorStop(1, 'rgba(199,125,255,.3)');
-            charts['authChart'] = new Chart(ctx, {
+            grad.addColorStop(0, chartColors.bar4 + 'D9');
+            grad.addColorStop(1, chartColors.bar4 + '44');
+
+            const chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels,
@@ -1796,7 +1968,7 @@
                         label: 'Lojas agendadas no dia',
                         data: values,
                         backgroundColor: grad,
-                        borderColor: '#C77DFF',
+                        borderColor: chartColors.bar4,
                         borderWidth: 1,
                         borderRadius: 6,
                         order: 2,
@@ -1812,11 +1984,11 @@
                         type: 'line',
                         label: 'Acumulado',
                         data: acumulado,
-                        borderColor: '#FFD93D',
+                        borderColor: chartColors.bar3,
                         backgroundColor: 'transparent',
                         borderWidth: 2.5,
                         pointRadius: 4,
-                        pointBackgroundColor: '#FFD93D',
+                        pointBackgroundColor: chartColors.bar3,
                         tension: .4,
                         yAxisID: 'y2',
                         order: 1,
@@ -1831,13 +2003,31 @@
                     },
                     scales: {
                         x: { ticks: { color: '#fff', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { ticks: { color: '#C77DFF' }, grid: { color: 'rgba(255,255,255,.07)' },
+                        y: { ticks: { color: chartColors.bar4 }, grid: { color: 'rgba(255,255,255,.07)' },
                             beginAtZero: true },
-                        y2: { position: 'right', ticks: { color: '#FFD93D' }, grid: { display: false },
+                        y2: { position: 'right', ticks: { color: chartColors.bar3 }, grid: { display: false },
                             beginAtZero: true }
                     }
                 }
             });
+
+            setupChartClick(chart, function(label) {
+                const dataParts = label.split('/');
+                const dateStr = '20' + dataParts[2] + '-' + dataParts[1] + '-' + dataParts[0];
+                const dataFiltrada = originalData.filter(r => {
+                    const d = parseExcelDate(r['DATA AUTORIZAÇÃO']);
+                    return d && d.toISOString().slice(0, 10) === dateStr;
+                });
+                filteredData = dataFiltrada;
+                activeFilter = null;
+                document.getElementById('filtroLoja').value = '';
+                document.getElementById('filtroUF').value = 'TODOS';
+                aplicarFiltros();
+                document.getElementById('filterStatus').innerHTML =
+                    `<span class="filter-badge">📅 ${label} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
+            });
+
+            charts['authChart'] = chart;
         }
 
         function atualizarGraficos(data) {
@@ -1845,13 +2035,276 @@
                 chartStatusUF(data);
                 setTimeout(() => chartMediaConcluida(data), 200);
                 setTimeout(() => chartTimeline(data), 400);
-                setTimeout(() => chartPdvsUF(data), 600);
-                setTimeout(() => chartAuth(data), 800);
+                setTimeout(() => chartAuth(data), 600);
             });
         }
 
-        document.getElementById('filtroLoja').addEventListener('keyup', aplicarFiltros);
-        document.getElementById('filtroUF').addEventListener('change', aplicarFiltros);
+        function destroyChart(id) {
+            if (charts[id]) {
+                charts[id].destroy();
+                delete charts[id];
+            }
+        }
+
+        const STATUS_COLORS = {
+            'CONCLUÍDA': '#6BCB77',
+            'AGENDADA': '#6DD5FA',
+            'AGUARDANDO AGENDAMENTO': '#FFD93D',
+            'PENDENCIADA': '#FF6B6B',
+            'EM EXECUÇÃO': '#C77DFF',
+            'CANCELADA': '#aaa'
+        };
+
+        function statusColor(s) {
+            const k = Object.keys(STATUS_COLORS).find(x => String(s || '').toUpperCase().includes(x));
+            return k ? STATUS_COLORS[k] : '#888';
+        }
+
+        function parseExcelDate(val) {
+            if (!val) return null;
+            if (typeof val === 'number') {
+                const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+                return isNaN(d) ? null : d;
+            }
+            if (typeof val === 'string' && val.includes('/')) {
+                const parts = val.split('/');
+                if (parts.length === 3) {
+                    const d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                    return isNaN(d) ? null : d;
+                }
+            }
+            const d = new Date(val);
+            return isNaN(d) ? null : d;
+        }
+
+        document.getElementById('filtroLoja').addEventListener('keyup', function() {
+            activeFilter = null;
+            filteredData = [];
+            aplicarFiltros();
+        });
+        document.getElementById('filtroUF').addEventListener('change', function() {
+            activeFilter = null;
+            filteredData = [];
+            aplicarFiltros();
+        });
+
+        // ============================================================
+        //  ABRIR TABELA COMPLETA EM NOVA PÁGINA
+        // ============================================================
+
+        function abrirTabelaCompleta() {
+            const data = getDataParaExibir();
+            if (!data || data.length === 0) {
+                alert('Nenhum dado disponível para exibir.');
+                return;
+            }
+
+            // Constrói a página HTML com a tabela
+            let html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Tabela Completa - Rollout</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+                    body { background: #0D1B2A; color: #fff; padding: 30px; }
+                    .container { max-width: 1400px; margin: auto; }
+                    h1 { margin-bottom: 20px; font-size: 24px; }
+                    .info { opacity: 0.5; margin-bottom: 20px; font-size: 14px; }
+                    .info span { color: #6DD5FA; }
+                    table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden; }
+                    th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; font-size: 13px; }
+                    th { background: rgba(109,213,250,0.08); opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+                    tr:hover { background: rgba(255,255,255,0.02); }
+                    .badge { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+                    .badge-concluida { background: rgba(107,203,119,0.2); color: #6BCB77; }
+                    .badge-agendada { background: rgba(109,213,250,0.2); color: #6DD5FA; }
+                    .badge-pendente { background: rgba(255,107,107,0.2); color: #FF6B6B; }
+                    .badge-execucao { background: rgba(199,125,255,0.2); color: #C77DFF; }
+                    .badge-aguardando { background: rgba(255,217,61,0.2); color: #FFD93D; }
+                    .badge-default { background: rgba(255,255,255,0.05); color: #aaa; }
+                    .export-btn { 
+                        padding: 10px 24px; 
+                        border: none; 
+                        border-radius: 12px; 
+                        background: rgba(109,213,250,0.15); 
+                        border: 1px solid rgba(109,213,250,0.2); 
+                        color: #6DD5FA; 
+                        font-weight: 700; 
+                        cursor: pointer; 
+                        margin-top: 20px;
+                        transition: .2s;
+                    }
+                    .export-btn:hover { background: rgba(109,213,250,0.25); }
+                    .back-btn {
+                        padding: 10px 24px;
+                        border: none;
+                        border-radius: 12px;
+                        background: rgba(255,255,255,0.05);
+                        color: #fff;
+                        cursor: pointer;
+                        margin-top: 20px;
+                        margin-right: 10px;
+                        transition: .2s;
+                    }
+                    .back-btn:hover { background: rgba(255,255,255,0.1); }
+                    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+                    .progress-bar { 
+                        display: inline-block; 
+                        height: 8px; 
+                        width: 80px; 
+                        background: rgba(255,255,255,0.08); 
+                        border-radius: 10px; 
+                        overflow: hidden;
+                        vertical-align: middle;
+                        margin-right: 8px;
+                    }
+                    .progress-bar div { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6DD5FA, #6BCB77); }
+                    .progress-text { font-size: 12px; opacity: 0.7; }
+                    @media(max-width:768px) { 
+                        th, td { padding: 8px 10px; font-size: 11px; }
+                        .progress-bar { width: 50px; }
+                        body { padding: 15px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>📋 Tabela Completa - Rollout</h1>
+                    <div class="info">Total de registros: <span>${data.length}</span> | 
+                        ${activeFilter ? 'Filtro ativo: <span>' + activeFilter + '</span>' : 'Sem filtros ativos'}
+                        ${document.getElementById('filtroUF').value !== 'TODOS' ? ' | UF: <span>' + document.getElementById('filtroUF').value + '</span>' : ''}
+                        ${document.getElementById('filtroLoja').value ? ' | Loja: <span>' + document.getElementById('filtroLoja').value + '</span>' : ''}
+                    </div>
+                    <div class="actions">
+                        <button class="back-btn" onclick="window.close()">← Voltar</button>
+                        <button class="export-btn" onclick="exportCSV()">📥 Exportar CSV</button>
+                        <button class="export-btn" onclick="window.print()">🖨️ Imprimir</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loja</th>
+                                <th>Cidade</th>
+                                <th>UF</th>
+                                <th>Status</th>
+                                <th>Progresso</th>
+                                <th>PDVs Total</th>
+                                <th>PDVs Realizado</th>
+                                <th>Data Rollout</th>
+                                <th>Data Autorização</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach(r => {
+                const status = r.STATUS || 'N/D';
+                let badgeClass = 'badge-default';
+                if (status.toUpperCase().includes('CONCLU')) badgeClass = 'badge-concluida';
+                else if (status.toUpperCase().includes('AGENDADA')) badgeClass = 'badge-agendada';
+                else if (status.toUpperCase().includes('PENDENCIADA')) badgeClass = 'badge-pendente';
+                else if (status.toUpperCase().includes('EXECUÇÃO')) badgeClass = 'badge-execucao';
+                else if (status.toUpperCase().includes('AGUARDANDO')) badgeClass = 'badge-aguardando';
+
+                const evol = calcEvolucao(r);
+                html += `
+                    <tr>
+                        <td><strong>${r.LOJAS || ''}</strong></td>
+                        <td>${r.CIDADE || ''}</td>
+                        <td>${r.UF || ''}</td>
+                        <td><span class="badge ${badgeClass}">${status}</span></td>
+                        <td>
+                            <div class="progress-bar"><div style="width:${evol}%"></div></div>
+                            <span class="progress-text">${evol}%</span>
+                        </td>
+                        <td>${safeNumber(r['QTDE PDVs total'])}</td>
+                        <td>${safeNumber(r['REALIZADO'])}</td>
+                        <td>${r['DATA DO ROLLOUT'] || '-'}</td>
+                        <td>${r['DATA AUTORIZAÇÃO'] || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                    <div style="margin-top:20px;opacity:0.3;font-size:12px;">
+                        Dashboard Rollout Windows → Linux | Gerado em ${new Date().toLocaleString()}
+                    </div>
+                </div>
+                <script>
+                    function exportCSV() {
+                        let csv = "Loja,Cidade,UF,Status,Progresso,PDVs Total,PDVs Realizado,Data Rollout,Data Autorização\\n";
+                        const rows = document.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            const data = [];
+                            cells.forEach((cell, i) => {
+                                if (i === 1) { // Status - pega o texto do badge
+                                    data.push('"' + cell.textContent.trim() + '"');
+                                } else if (i === 2) { // Progresso - pega o texto
+                                    data.push('"' + cell.textContent.trim() + '"');
+                                } else {
+                                    data.push('"' + cell.textContent.trim() + '"');
+                                }
+                            });
+                            csv += data.join(',') + '\\n';
+                        });
+                        const blob = new Blob([csv], { type: 'text/csv' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'rollout_tabela_completa.csv';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }
+
+                    // Permite fechar com ESC
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') window.close();
+                    });
+                <\/script>
+            </body>
+            </html>
+            `;
+
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.write(html);
+                win.document.close();
+            } else {
+                alert('Por favor, permita pop-ups para abrir a tabela completa.');
+            }
+        }
+
+        // ============================================================
+        //  CORES DOS GRÁFICOS - FUNÇÃO DE ATUALIZAÇÃO
+        // ============================================================
+
+        function atualizarCoresGraficos() {
+            chartColors.bar1 = document.getElementById('chartColor1').value;
+            chartColors.bar2 = document.getElementById('chartColor2').value;
+            chartColors.bar3 = document.getElementById('chartColor3').value;
+            chartColors.bar4 = document.getElementById('chartColor4').value;
+            chartColors.line = document.getElementById('chartLineColor').value;
+
+            salvarConfiguracoesSupabase({
+                chart_colors: {
+                    bar1: chartColors.bar1,
+                    bar2: chartColors.bar2,
+                    bar3: chartColors.bar3,
+                    bar4: chartColors.bar4,
+                    line: chartColors.line
+                }
+            });
+
+            // Recria os gráficos com as novas cores
+            const data = getDataParaExibir();
+            atualizarGraficos(data);
+        }
 
         // ============================================================
         //  DADOS DE EXEMPLO
@@ -1880,10 +2333,7 @@
                 { LOJAS: 'Loja Kappa', CIDADE: 'Manaus', UF: 'AM', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 4,
                     'REALIZADO': 4, 'DATA DO ROLLOUT': '2026-02-02', 'DATA AUTORIZAÇÃO': '2026-01-28' },
             ];
-            atualizarCards(originalData);
-            atualizarTabela(originalData);
-            popularFiltros(originalData);
-            atualizarGraficos(originalData);
+            aplicarFiltros();
         }
 
         // ============================================================
@@ -2007,14 +2457,13 @@
                 ]);
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê'); // fallback visual
+                setTipoFundo('degradê');
             }
             supabaseReady = true;
             iniciarRealtime();
         }
 
         initApp();
-
     </script>
 
 </body>
