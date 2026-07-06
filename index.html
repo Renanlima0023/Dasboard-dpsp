@@ -446,9 +446,18 @@
             opacity: .5;
             font-weight: 400;
         }
-        canvas {
+        .chart-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            transition: background .3s;
+        }
+        .chart-wrapper canvas {
             height: 300px !important;
+            width: 100% !important;
             cursor: pointer;
+            display: block;
         }
 
         /* ===== BOTÃO VER TABELA ===== */
@@ -476,6 +485,11 @@
             transform: scale(1.02);
             box-shadow: 0 8px 30px rgba(109, 213, 250, 0.15);
         }
+        .table-button-wrapper .btn-ver-tabela:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .loading {
             position: fixed;
@@ -490,6 +504,19 @@
             z-index: 999;
             font-size: 28px;
             font-weight: bold;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .loading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #6DD5FA;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* ===== PAINEL CONTROLE ===== */
@@ -888,19 +915,30 @@
 
             <!-- GRÁFICOS -->
             <div class="grid">
-                <div class="box"><h2>📊 Status por UF <span class="filter-indicator"></span></h2><canvas id="statusUFChart"></canvas></div>
-                <div class="box"><h2>📈 Média de Lojas Concluídas por Dia <span class="filter-indicator"></span></h2><canvas id="mediaConcluidaChart"></canvas><div id="mediaConcluidaEmpty" class="empty-state">Nenhuma loja concluída ainda.</div></div>
+                <div class="box"><h2>📊 Status por UF <span class="filter-indicator"></span></h2>
+                    <div class="chart-wrapper" id="chartWrapper1"><canvas id="statusUFChart"></canvas></div>
+                </div>
+                <div class="box"><h2>📈 Média de Lojas Concluídas por Dia <span class="filter-indicator"></span></h2>
+                    <div class="chart-wrapper" id="chartWrapper2"><canvas id="mediaConcluidaChart"></canvas></div>
+                    <div id="mediaConcluidaEmpty" class="empty-state">Nenhuma loja concluída ainda.</div>
+                </div>
             </div>
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2><canvas id="timelineChart"></canvas><div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div></div>
+                <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2>
+                    <div class="chart-wrapper" id="chartWrapper3"><canvas id="timelineChart"></canvas></div>
+                    <div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div>
+                </div>
             </div>
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2><canvas id="authChart"></canvas><div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div></div>
+                <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2>
+                    <div class="chart-wrapper" id="chartWrapper4"><canvas id="authChart"></canvas></div>
+                    <div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div>
+                </div>
             </div>
 
             <!-- BOTÃO VER TABELA COMPLETA -->
             <div class="table-button-wrapper">
-                <button class="btn-ver-tabela" onclick="abrirTabelaCompleta()">
+                <button class="btn-ver-tabela" id="btnVerTabela" onclick="abrirTabelaCompleta()">
                     📋 Ver Tabela Completa
                     <span style="font-size:12px;opacity:0.5;">→</span>
                 </button>
@@ -984,6 +1022,7 @@
                             <div class="cor-linha"><label>Barras 3</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
                             <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                             <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                            <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
                 </div>
@@ -993,7 +1032,10 @@
     </div>
 
     <!-- LOADING -->
-    <div class="loading" id="loading">⏳ Carregando...</div>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>⏳ Carregando dados...</span>
+    </div>
 
     <script>
         Chart.register(ChartDataLabels);
@@ -1023,7 +1065,7 @@
         let supabaseReady = false;
 
         // ===== FILTRO ATIVO =====
-        let activeFilter = null; // 'totalLojas' | 'totalPdvs' | 'pdvsFinalizados' | 'lojasFinalizadas' | 'mediaEvolucao' | null
+        let activeFilter = null;
         let filteredData = [];
 
         // ===== CORES DOS GRÁFICOS =====
@@ -1032,7 +1074,8 @@
             bar2: '#6BCB77',
             bar3: '#FFD93D',
             bar4: '#C77DFF',
-            line: '#FF6B6B'
+            line: '#FF6B6B',
+            bg: '#0D1B2A'
         };
 
         // ============================================================
@@ -1139,7 +1182,12 @@
                     chartColors.bar4 = cc.bar4; }
                 if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
                     chartColors.line = cc.line; }
+                if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
+                    chartColors.bg = cc.bg; }
             }
+
+            // Aplica a cor de fundo dos gráficos
+            aplicarCorFundoGraficos();
 
             aplicandoConfigRemota = false;
         }
@@ -1570,43 +1618,27 @@
             const uf = document.getElementById('filtroUF').value;
             let data = [...originalData];
 
-            // Aplica filtros de UF e loja
             if (uf !== 'TODOS') data = data.filter(x => String(x.UF || '') === uf);
             if (loja) data = data.filter(x => String(x.LOJAS || '').toLowerCase().includes(loja));
 
-            // Se há filtro ativo de card, aplica sobre o resultado
             if (activeFilter) {
                 data = aplicarFiltroCard(data, activeFilter);
             }
 
-            // Atualiza tudo
             atualizarCards(data);
             atualizarGraficos(data);
             popularFiltros(originalData);
-
-            // Atualiza badge de filtro
             atualizarBadgeFiltro();
         }
 
         function aplicarFiltroCard(data, filterType) {
             switch (filterType) {
-                case 'totalLojas':
-                    // Não filtra, mostra todas
-                    return data;
-                case 'totalPdvs':
-                    // Filtra lojas com PDVs > 0
-                    return data.filter(r => safeNumber(r['QTDE PDVs total']) > 0);
-                case 'pdvsFinalizados':
-                    // Filtra lojas com PDVs finalizados > 0
-                    return data.filter(r => safeNumber(r['REALIZADO']) > 0);
-                case 'lojasFinalizadas':
-                    // Filtra lojas concluídas
-                    return data.filter(isConcluida);
-                case 'mediaEvolucao':
-                    // Filtra lojas com progresso > 0
-                    return data.filter(r => calcEvolucao(r) > 0);
-                default:
-                    return data;
+                case 'totalLojas': return data;
+                case 'totalPdvs': return data.filter(r => safeNumber(r['QTDE PDVs total']) > 0);
+                case 'pdvsFinalizados': return data.filter(r => safeNumber(r['REALIZADO']) > 0);
+                case 'lojasFinalizadas': return data.filter(isConcluida);
+                case 'mediaEvolucao': return data.filter(r => calcEvolucao(r) > 0);
+                default: return data;
             }
         }
 
@@ -1625,7 +1657,6 @@
                 status.innerHTML = '';
             }
 
-            // Atualiza destaque dos cards
             document.querySelectorAll('.card').forEach(card => {
                 card.classList.toggle('active-filter', card.dataset.filter === activeFilter);
             });
@@ -1641,12 +1672,10 @@
 
         function filtrarPorCard(filterType) {
             if (activeFilter === filterType) {
-                // Se já está ativo, desativa
                 activeFilter = null;
                 filteredData = [];
             } else {
                 activeFilter = filterType;
-                // Aplica o filtro sobre os dados atuais (considerando UF e loja)
                 const loja = document.getElementById('filtroLoja').value.toLowerCase();
                 const uf = document.getElementById('filtroUF').value;
                 let data = [...originalData];
@@ -1655,6 +1684,42 @@
                 filteredData = aplicarFiltroCard(data, filterType);
             }
             aplicarFiltros();
+        }
+
+        // ============================================================
+        //  COR DE FUNDO DOS GRÁFICOS
+        // ============================================================
+
+        function aplicarCorFundoGraficos() {
+            const wrappers = document.querySelectorAll('.chart-wrapper');
+            wrappers.forEach(w => {
+                w.style.background = chartColors.bg;
+            });
+        }
+
+        function atualizarCoresGraficos() {
+            chartColors.bar1 = document.getElementById('chartColor1').value;
+            chartColors.bar2 = document.getElementById('chartColor2').value;
+            chartColors.bar3 = document.getElementById('chartColor3').value;
+            chartColors.bar4 = document.getElementById('chartColor4').value;
+            chartColors.line = document.getElementById('chartLineColor').value;
+            chartColors.bg = document.getElementById('chartBgColor').value;
+
+            aplicarCorFundoGraficos();
+
+            salvarConfiguracoesSupabase({
+                chart_colors: {
+                    bar1: chartColors.bar1,
+                    bar2: chartColors.bar2,
+                    bar3: chartColors.bar3,
+                    bar4: chartColors.bar4,
+                    line: chartColors.line,
+                    bg: chartColors.bg
+                }
+            });
+
+            const data = getDataParaExibir();
+            atualizarGraficos(data);
         }
 
         // ============================================================
@@ -1719,7 +1784,6 @@
             });
 
             setupChartClick(chart, function(label) {
-                // Filtra por UF
                 document.getElementById('filtroUF').value = label;
                 activeFilter = null;
                 filteredData = [];
@@ -1805,21 +1869,18 @@
             });
 
             setupChartClick(chart, function(label) {
-                // Filtra pela data específica
                 const dataParts = label.split('/');
                 const dateStr = '20' + dataParts[2] + '-' + dataParts[1] + '-' + dataParts[0];
                 document.getElementById('filtroLoja').value = '';
                 document.getElementById('filtroUF').value = 'TODOS';
                 activeFilter = null;
                 filteredData = [];
-                // Aplica filtro de data
                 const dataFiltrada = originalData.filter(r => {
                     const d = parseExcelDate(r['DATA DO ROLLOUT']);
                     return d && d.toISOString().slice(0, 10) === dateStr;
                 });
                 filteredData = dataFiltrada;
                 aplicarFiltros();
-                // Mostra indicação
                 document.getElementById('filterStatus').innerHTML =
                     `<span class="filter-badge">📅 ${label} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
             });
@@ -1902,7 +1963,6 @@
             });
 
             setupChartClick(chart, function(label) {
-                // Filtra pelo mês
                 const [mes, ano] = label.split('/');
                 const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
                 const mesNum = meses.indexOf(mes) + 1;
@@ -2089,7 +2149,9 @@
         });
 
         // ============================================================
-        //  ABRIR TABELA COMPLETA EM NOVA PÁGINA
+        //  ABRIR TABELA COMPLETA - VERSÃO DEFINITIVA
+        //  Usa a abordagem mais confiável: gerar o HTML completo com os dados
+        //  mas de forma otimizada, usando a própria janela para renderizar
         // ============================================================
 
         function abrirTabelaCompleta() {
@@ -2099,9 +2161,74 @@
                 return;
             }
 
-            // Constrói a página HTML com a tabela
-            let html = `
-            <!DOCTYPE html>
+            const btn = document.getElementById('btnVerTabela');
+            btn.disabled = true;
+            btn.textContent = '⏳ Gerando tabela...';
+
+            // Pega os filtros atuais
+            const ufAtual = document.getElementById('filtroUF').value;
+            const lojaAtual = document.getElementById('filtroLoja').value;
+
+            // Gera o HTML completo com os dados embutidos
+            // Usamos um bloco de construção otimizado
+            const html = gerarPaginaTabela(data, ufAtual, lojaAtual);
+
+            // Abre a nova janela com o HTML completo
+            const win = window.open('', '_blank');
+            if (!win) {
+                alert('Por favor, permita pop-ups para abrir a tabela completa.');
+                btn.disabled = false;
+                btn.innerHTML = '📋 Ver Tabela Completa <span style="font-size:12px;opacity:0.5;">→</span>';
+                return;
+            }
+
+            // Escreve o HTML completo
+            win.document.write(html);
+            win.document.close();
+
+            // Restaura o botão
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '📋 Ver Tabela Completa <span style="font-size:12px;opacity:0.5;">→</span>';
+            }, 1000);
+        }
+
+        function gerarPaginaTabela(data, ufAtual, lojaAtual) {
+            // Escapa os dados para JSON de forma segura
+            const dadosJSON = JSON.stringify(data);
+
+            // Gera as opções de UF para o select
+            const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
+            const ufOptions = ufs.map(u => 
+                `<option value="${u}" ${u === ufAtual ? 'selected' : ''}>${u}</option>`
+            ).join('');
+
+            // Função para formatar data no JavaScript
+            const formatDateFn = `
+                function formatarData(val) {
+                    if (!val) return '-';
+                    if (typeof val === 'number') {
+                        const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+                        if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                        return String(val);
+                    }
+                    if (typeof val === 'string') {
+                        if (val.includes('/')) {
+                            const parts = val.split('/');
+                            if (parts.length === 3) {
+                                const d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                                if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                            }
+                        }
+                        const d = new Date(val);
+                        if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                        return val;
+                    }
+                    return String(val);
+                }
+            `;
+
+            return `<!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
@@ -2111,9 +2238,65 @@
                     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
                     body { background: #0D1B2A; color: #fff; padding: 30px; }
                     .container { max-width: 1400px; margin: auto; }
-                    h1 { margin-bottom: 20px; font-size: 24px; }
+                    h1 { margin-bottom: 10px; font-size: 24px; }
                     .info { opacity: 0.5; margin-bottom: 20px; font-size: 14px; }
                     .info span { color: #6DD5FA; }
+                    
+                    .filtros-tabela {
+                        display: flex;
+                        gap: 12px;
+                        flex-wrap: wrap;
+                        margin-bottom: 20px;
+                        padding: 16px 20px;
+                        background: rgba(255,255,255,0.04);
+                        border-radius: 12px;
+                        border: 1px solid rgba(255,255,255,0.06);
+                        align-items: center;
+                    }
+                    .filtros-tabela label {
+                        font-size: 12px;
+                        opacity: 0.5;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                    }
+                    .filtros-tabela select,
+                    .filtros-tabela input {
+                        padding: 8px 14px;
+                        border-radius: 8px;
+                        border: 1.5px solid rgba(109,213,250,0.2);
+                        background: rgba(255,255,255,0.05);
+                        color: #fff;
+                        font-size: 13px;
+                        outline: none;
+                        min-width: 150px;
+                    }
+                    .filtros-tabela select:focus,
+                    .filtros-tabela input:focus {
+                        border-color: rgba(109,213,250,0.5);
+                    }
+                    .filtros-tabela select option {
+                        background: #1F2A44;
+                        color: #fff;
+                    }
+                    .filtros-tabela .clear-filter-table {
+                        padding: 6px 14px;
+                        border-radius: 8px;
+                        border: 1px solid rgba(255,107,107,0.2);
+                        background: rgba(255,107,107,0.08);
+                        color: #FF6B6B;
+                        font-size: 12px;
+                        cursor: pointer;
+                        transition: .2s;
+                    }
+                    .filtros-tabela .clear-filter-table:hover {
+                        background: rgba(255,107,107,0.15);
+                    }
+                    .filtros-tabela .total-registros {
+                        margin-left: auto;
+                        opacity: 0.4;
+                        font-size: 13px;
+                    }
+
                     table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden; }
                     th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; font-size: 13px; }
                     th { background: rgba(109,213,250,0.08); opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
@@ -2125,6 +2308,7 @@
                     .badge-execucao { background: rgba(199,125,255,0.2); color: #C77DFF; }
                     .badge-aguardando { background: rgba(255,217,61,0.2); color: #FFD93D; }
                     .badge-default { background: rgba(255,255,255,0.05); color: #aaa; }
+                    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
                     .export-btn { 
                         padding: 10px 24px; 
                         border: none; 
@@ -2134,7 +2318,6 @@
                         color: #6DD5FA; 
                         font-weight: 700; 
                         cursor: pointer; 
-                        margin-top: 20px;
                         transition: .2s;
                     }
                     .export-btn:hover { background: rgba(109,213,250,0.25); }
@@ -2145,12 +2328,9 @@
                         background: rgba(255,255,255,0.05);
                         color: #fff;
                         cursor: pointer;
-                        margin-top: 20px;
-                        margin-right: 10px;
                         transition: .2s;
                     }
                     .back-btn:hover { background: rgba(255,255,255,0.1); }
-                    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
                     .progress-bar { 
                         display: inline-block; 
                         height: 8px; 
@@ -2163,93 +2343,155 @@
                     }
                     .progress-bar div { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6DD5FA, #6BCB77); }
                     .progress-text { font-size: 12px; opacity: 0.7; }
+                    .footer { margin-top: 20px; opacity: 0.3; font-size: 12px; }
+                    .data-cell { font-family: monospace; font-size: 12px; }
+                    
                     @media(max-width:768px) { 
                         th, td { padding: 8px 10px; font-size: 11px; }
                         .progress-bar { width: 50px; }
                         body { padding: 15px; }
+                        .filtros-tabela { flex-direction: column; align-items: stretch; }
+                        .filtros-tabela .total-registros { margin-left: 0; text-align: center; }
                     }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <h1>📋 Tabela Completa - Rollout</h1>
-                    <div class="info">Total de registros: <span>${data.length}</span> | 
-                        ${activeFilter ? 'Filtro ativo: <span>' + activeFilter + '</span>' : 'Sem filtros ativos'}
-                        ${document.getElementById('filtroUF').value !== 'TODOS' ? ' | UF: <span>' + document.getElementById('filtroUF').value + '</span>' : ''}
-                        ${document.getElementById('filtroLoja').value ? ' | Loja: <span>' + document.getElementById('filtroLoja').value + '</span>' : ''}
+                    <div class="info">Visualização completa dos dados do rollout</div>
+
+                    <!-- Filtros -->
+                    <div class="filtros-tabela" id="filtrosTabela">
+                        <label>UF</label>
+                        <select id="filtroUFTable">
+                            <option value="TODOS">Todos os Estados</option>
+                            ${ufOptions}
+                        </select>
+                        <label>Loja</label>
+                        <input type="text" id="filtroLojaTable" placeholder="🔍 Buscar loja..." value="${lojaAtual}">
+                        <button class="clear-filter-table" onclick="limparFiltrosTable()">✕ Limpar</button>
+                        <span class="total-registros">Total: <span id="totalCountTable">0</span> registros</span>
                     </div>
+
                     <div class="actions">
                         <button class="back-btn" onclick="window.close()">← Voltar</button>
                         <button class="export-btn" onclick="exportCSV()">📥 Exportar CSV</button>
                         <button class="export-btn" onclick="window.print()">🖨️ Imprimir</button>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Loja</th>
-                                <th>Cidade</th>
-                                <th>UF</th>
-                                <th>Status</th>
-                                <th>Progresso</th>
-                                <th>PDVs Total</th>
-                                <th>PDVs Realizado</th>
-                                <th>Data Rollout</th>
-                                <th>Data Autorização</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
 
-            data.forEach(r => {
-                const status = r.STATUS || 'N/D';
-                let badgeClass = 'badge-default';
-                if (status.toUpperCase().includes('CONCLU')) badgeClass = 'badge-concluida';
-                else if (status.toUpperCase().includes('AGENDADA')) badgeClass = 'badge-agendada';
-                else if (status.toUpperCase().includes('PENDENCIADA')) badgeClass = 'badge-pendente';
-                else if (status.toUpperCase().includes('EXECUÇÃO')) badgeClass = 'badge-execucao';
-                else if (status.toUpperCase().includes('AGUARDANDO')) badgeClass = 'badge-aguardando';
-
-                const evol = calcEvolucao(r);
-                html += `
-                    <tr>
-                        <td><strong>${r.LOJAS || ''}</strong></td>
-                        <td>${r.CIDADE || ''}</td>
-                        <td>${r.UF || ''}</td>
-                        <td><span class="badge ${badgeClass}">${status}</span></td>
-                        <td>
-                            <div class="progress-bar"><div style="width:${evol}%"></div></div>
-                            <span class="progress-text">${evol}%</span>
-                        </td>
-                        <td>${safeNumber(r['QTDE PDVs total'])}</td>
-                        <td>${safeNumber(r['REALIZADO'])}</td>
-                        <td>${r['DATA DO ROLLOUT'] || '-'}</td>
-                        <td>${r['DATA AUTORIZAÇÃO'] || '-'}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                        </tbody>
-                    </table>
-                    <div style="margin-top:20px;opacity:0.3;font-size:12px;">
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Loja</th>
+                                    <th>Cidade</th>
+                                    <th>UF</th>
+                                    <th>Status</th>
+                                    <th>Progresso</th>
+                                    <th>PDVs Total</th>
+                                    <th>PDVs Realizado</th>
+                                    <th>Data Rollout</th>
+                                    <th>Data Autorização</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyComplete">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="footer">
                         Dashboard Rollout Windows → Linux | Gerado em ${new Date().toLocaleString()}
                     </div>
                 </div>
+
                 <script>
+                    // Dados carregados diretamente
+                    const dadosCompletos = ${dadosJSON};
+                    const ufAtual = "${ufAtual}";
+                    const lojaAtual = "${lojaAtual}";
+
+                    ${formatDateFn}
+
+                    function renderizarTabela() {
+                        const uf = document.getElementById('filtroUFTable').value;
+                        const loja = document.getElementById('filtroLojaTable').value.toLowerCase();
+
+                        let dados = [...dadosCompletos];
+
+                        if (uf !== 'TODOS') {
+                            dados = dados.filter(r => String(r.UF || '') === uf);
+                        }
+                        if (loja) {
+                            dados = dados.filter(r => String(r.LOJAS || '').toLowerCase().includes(loja));
+                        }
+
+                        function safeNumber(v) {
+                            if (v === null || v === undefined || v === '') return 0;
+                            if (typeof v === 'number') return v;
+                            const n = parseFloat(String(v).replace('%', '').replace(/\\s/g, '').replace(',', '.').replace(/[^\\d.-]/g, ''));
+                            return isNaN(n) ? 0 : n;
+                        }
+
+                        function calcEvolucao(r) {
+                            const previsto = safeNumber(r['QTDE PDVs total']);
+                            const realizado = safeNumber(r['REALIZADO']);
+                            if (!previsto) return 0;
+                            return Math.round((realizado / previsto) * 100);
+                        }
+
+                        function getStatusBadge(status) {
+                            const s = String(status || 'N/D').toUpperCase();
+                            if (s.includes('CONCLU')) return 'badge-concluida';
+                            if (s.includes('AGENDADA')) return 'badge-agendada';
+                            if (s.includes('PENDENCIADA')) return 'badge-pendente';
+                            if (s.includes('EXECUÇÃO') || s.includes('EXECUCAO')) return 'badge-execucao';
+                            if (s.includes('AGUARDANDO')) return 'badge-aguardando';
+                            return 'badge-default';
+                        }
+
+                        const tbody = document.getElementById('tableBodyComplete');
+                        tbody.innerHTML = '';
+                        dados.forEach(r => {
+                            const evol = calcEvolucao(r);
+                            tbody.innerHTML += \`
+                                <tr>
+                                    <td><strong>\${r.LOJAS || ''}</strong></td>
+                                    <td>\${r.CIDADE || ''}</td>
+                                    <td>\${r.UF || ''}</td>
+                                    <td><span class="badge \${getStatusBadge(r.STATUS)}">\${r.STATUS || 'N/D'}</span></td>
+                                    <td>
+                                        <div class="progress-bar"><div style="width:\${evol}%"></div></div>
+                                        <span class="progress-text">\${evol}%</span>
+                                    </td>
+                                    <td>\${safeNumber(r['QTDE PDVs total'])}</td>
+                                    <td>\${safeNumber(r['REALIZADO'])}</td>
+                                    <td class="data-cell">\${formatarData(r['DATA DO ROLLOUT'])}</td>
+                                    <td class="data-cell">\${formatarData(r['DATA AUTORIZAÇÃO'])}</td>
+                                </tr>
+                            \`;
+                        });
+
+                        document.getElementById('totalCountTable').textContent = dados.length;
+                    }
+
+                    function limparFiltrosTable() {
+                        document.getElementById('filtroUFTable').value = 'TODOS';
+                        document.getElementById('filtroLojaTable').value = '';
+                        renderizarTabela();
+                    }
+
                     function exportCSV() {
                         let csv = "Loja,Cidade,UF,Status,Progresso,PDVs Total,PDVs Realizado,Data Rollout,Data Autorização\\n";
-                        const rows = document.querySelectorAll('tbody tr');
+                        const rows = document.querySelectorAll('#tableBodyComplete tr');
                         rows.forEach(row => {
                             const cells = row.querySelectorAll('td');
                             const data = [];
                             cells.forEach((cell, i) => {
-                                if (i === 1) { // Status - pega o texto do badge
-                                    data.push('"' + cell.textContent.trim() + '"');
-                                } else if (i === 2) { // Progresso - pega o texto
-                                    data.push('"' + cell.textContent.trim() + '"');
-                                } else {
-                                    data.push('"' + cell.textContent.trim() + '"');
+                                let text = cell.textContent.trim();
+                                if (i === 4) {
+                                    const parts = text.split('%');
+                                    text = parts[0] + '%';
                                 }
+                                data.push('"' + text + '"');
                             });
                             csv += data.join(',') + '\\n';
                         });
@@ -2262,48 +2504,20 @@
                         URL.revokeObjectURL(url);
                     }
 
-                    // Permite fechar com ESC
+                    // Configura os eventos
+                    document.getElementById('filtroUFTable').addEventListener('change', renderizarTabela);
+                    document.getElementById('filtroLojaTable').addEventListener('keyup', renderizarTabela);
+
+                    // Renderiza a tabela
+                    renderizarTabela();
+
+                    // Fecha com ESC
                     document.addEventListener('keydown', function(e) {
                         if (e.key === 'Escape') window.close();
                     });
                 <\/script>
             </body>
-            </html>
-            `;
-
-            const win = window.open('', '_blank');
-            if (win) {
-                win.document.write(html);
-                win.document.close();
-            } else {
-                alert('Por favor, permita pop-ups para abrir a tabela completa.');
-            }
-        }
-
-        // ============================================================
-        //  CORES DOS GRÁFICOS - FUNÇÃO DE ATUALIZAÇÃO
-        // ============================================================
-
-        function atualizarCoresGraficos() {
-            chartColors.bar1 = document.getElementById('chartColor1').value;
-            chartColors.bar2 = document.getElementById('chartColor2').value;
-            chartColors.bar3 = document.getElementById('chartColor3').value;
-            chartColors.bar4 = document.getElementById('chartColor4').value;
-            chartColors.line = document.getElementById('chartLineColor').value;
-
-            salvarConfiguracoesSupabase({
-                chart_colors: {
-                    bar1: chartColors.bar1,
-                    bar2: chartColors.bar2,
-                    bar3: chartColors.bar3,
-                    bar4: chartColors.bar4,
-                    line: chartColors.line
-                }
-            });
-
-            // Recria os gráficos com as novas cores
-            const data = getDataParaExibir();
-            atualizarGraficos(data);
+            </html>`;
         }
 
         // ============================================================
