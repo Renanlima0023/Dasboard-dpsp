@@ -586,10 +586,13 @@
             font-weight: bold;
             margin-top: 4px;
         }
-        /* Campo para data manual da previsão */
+        /* Campo para data manual da previsão - visível apenas para admin */
         .previsao-manual-container {
             display: none;
             margin-top: 4px;
+        }
+        .previsao-manual-container.admin-only {
+            display: block;
         }
         .previsao-manual-container input[type="date"] {
             padding: 4px 10px;
@@ -1172,6 +1175,11 @@
             border-color: rgba(255, 217, 61, 0.15);
             color: #FFD93D;
         }
+        .filter-badge.admin-badge {
+            background: rgba(255, 217, 61, 0.12);
+            border-color: rgba(255, 217, 61, 0.15);
+            color: #FFD93D;
+        }
 
         /* ===== TOAST ===== */
         .toast {
@@ -1588,18 +1596,23 @@
                     <div class="painel-secao">
                         <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
                         <div class="cor-controles">
-                            <div class="cor-linha"><label>Barras 1</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>Barras 2</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>Barras 3</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
-                            <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
-                            <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
-                            <div class="cor-linha"><label>Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>Status 4</label><input type="color" id="statusColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <!-- Gráfico: Média de Lojas Concluídas por Dia -->
+                            <div class="cor-linha"><label>📈 Barras (Média)</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>📈 Acima da Média</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>📈 Linha Média</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <!-- Gráfico: Lojas Agendadas por Data -->
+                            <div class="cor-linha"><label>📅 Barras Agendadas</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <div class="cor-linha"><label>📅 Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                            <!-- Gráfico: Gap por UF -->
+                            <div class="cor-linha"><label>📊 Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>📊 Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <!-- Gráfico: Status por UF -->
+                            <div class="cor-linha"><label>📊 Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>📊 Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>📊 Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>📊 Status 4</label><input type="color" id="statusColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <!-- Fundo dos gráficos -->
+                            <div class="cor-linha"><label>🎨 Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
                 </div>
@@ -2035,9 +2048,14 @@
         }
 
         // ============================================================
-        //  PREVISÃO MANUAL
+        //  PREVISÃO MANUAL (visível apenas para Admin)
         // ============================================================
         function togglePrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
+                return;
+            }
+            
             previsaoManualAtiva = !previsaoManualAtiva;
             atualizarStatusPrevisaoManual();
             
@@ -2059,15 +2077,20 @@
             const btn = document.getElementById('btnPrevisaoManual');
             const container = document.getElementById('previsaoManualContainer');
             const dataInput = document.getElementById('previsaoManualDate');
+            const isAdmin = currentRole === 'admin';
             
             if (previsaoManualAtiva) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
-                container.style.display = 'block';
+                // Apenas admin vê o campo de data
+                if (isAdmin) {
+                    container.classList.add('admin-only');
+                } else {
+                    container.classList.remove('admin-only');
+                }
                 if (previsaoManualData) {
                     dataInput.value = previsaoManualData;
                 } else {
-                    // Definir data padrão como 30 dias a partir de hoje
                     const hoje = new Date();
                     hoje.setDate(hoje.getDate() + 30);
                     dataInput.value = hoje.toISOString().slice(0, 10);
@@ -2076,11 +2099,17 @@
             } else {
                 statusEl.textContent = 'OFF';
                 btn.classList.remove('active-auto');
+                container.classList.remove('admin-only');
                 container.style.display = 'none';
             }
         }
 
         function atualizarPrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
+                return;
+            }
+            
             const dataInput = document.getElementById('previsaoManualDate');
             previsaoManualData = dataInput.value;
             salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
@@ -2191,6 +2220,16 @@
             newAdd.onclick = function() {
                 adicionarUsuario();
             };
+
+            // Atualizar visibilidade da previsão manual baseado no perfil
+            const container = document.getElementById('previsaoManualContainer');
+            if (isAdmin && previsaoManualAtiva) {
+                container.classList.add('admin-only');
+                container.style.display = 'block';
+            } else {
+                container.classList.remove('admin-only');
+                container.style.display = 'none';
+            }
         }
 
         function logout() {
@@ -2523,7 +2562,7 @@
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
             
-            // Cálculo do ritmo diário - baseado na média do gráfico
+            // Cálculo do ritmo diário - baseado na média do gráfico "Média de Lojas Concluídas por Dia"
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
@@ -2658,8 +2697,9 @@
                 badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
             }
 
-            if (previsaoManualAtiva) {
-                badges.push(`<span class="filter-badge" style="background:rgba(255,217,61,0.12);border-color:rgba(255,217,61,0.15);color:#FFD93D;">📅 Previsão Manual</span>`);
+            // Badge da previsão manual - visível apenas para admin
+            if (previsaoManualAtiva && currentRole === 'admin') {
+                badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
             }
 
             status.innerHTML = badges.join('');
