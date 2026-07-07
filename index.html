@@ -555,11 +555,15 @@
             opacity: 0.6;
         }
 
-        /* ===== NOVO: CARD DE STATUS GERAL ===== */
+        /* ===== CARD DE STATUS GERAL ===== */
         .card-status-geral {
             grid-column: span 2;
-            background: linear-gradient(135deg, rgba(109, 213, 250, 0.12), rgba(109, 213, 250, 0.02));
-            border: 2px solid rgba(109, 213, 250, 0.1);
+            background: rgba(8, 15, 25, .82);
+            border: 2px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+        }
+        .card-status-geral:hover {
+            border-color: rgba(255, 255, 255, 0.08);
         }
         .card-status-geral .status-items {
             display: flex;
@@ -1374,24 +1378,6 @@
             <!-- ===== UF PROGRESS CARDS ===== -->
             <div class="uf-progress-container" id="ufProgressContainer"></div>
 
-            <!-- ===== ALERTAS (movido para antes das Últimas Atualizações) ===== -->
-            <div class="box box-alertas" id="alertasBox">
-                <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
-                <div id="alertasContainer">
-                    <div class="empty-state">✅ Nenhum alerta no momento</div>
-                </div>
-            </div>
-
-            <!-- ===== ÚLTIMAS ATUALIZAÇÕES ===== -->
-            <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box">
-                    <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
-                    <div id="ultimasAtualizacoes">
-                        <div class="empty-state">Nenhuma atualização recente</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- ===== GRÁFICOS ===== -->
             <div class="grid">
                 <div class="box"><h2>📊 Status por UF <span class="filter-indicator"></span></h2>
@@ -1420,6 +1406,24 @@
                 <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper4"><canvas id="authChart"></canvas></div>
                     <div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div>
+                </div>
+            </div>
+
+            <!-- ===== ALERTAS (penúltimo) ===== -->
+            <div class="box box-alertas" id="alertasBox">
+                <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
+                <div id="alertasContainer">
+                    <div class="empty-state">✅ Nenhum alerta no momento</div>
+                </div>
+            </div>
+
+            <!-- ===== ÚLTIMAS ATUALIZAÇÕES (último) ===== -->
+            <div class="grid" style="grid-template-columns:1fr;">
+                <div class="box">
+                    <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
+                    <div id="ultimasAtualizacoes">
+                        <div class="empty-state">Nenhuma atualização recente</div>
+                    </div>
                 </div>
             </div>
 
