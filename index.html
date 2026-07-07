@@ -1354,80 +1354,121 @@
         }
 
         async function carregarConfiguracoesSupabase() {
-            const { data, error } = await supabaseClient
-                .from('configuracoes')
-                .select('*')
-                .eq('id', 1)
-                .single();
+            try {
+                const { data, error } = await supabaseClient
+                    .from('configuracoes')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
 
-            if (error && error.code !== 'PGRST116') {
-                console.error('Erro ao carregar configurações:', error);
+                if (error) {
+                    console.error('Erro ao carregar configurações:', error);
+                    return;
+                }
+
+                if (!data) {
+                    // Primeira execução - cria configuração padrão
+                    const { error: insertError } = await supabaseClient
+                        .from('configuracoes')
+                        .insert({
+                            id: 1,
+                            tipo_fundo: 'degrade',
+                            cor_grad1: '#1F2A44',
+                            cor_grad2: '#243B55',
+                            cor_grad3: '#3A506B',
+                            angulo_grad: 135,
+                            cor_destaque: '#6DD5FA',
+                            chart_colors: JSON.stringify({
+                                bar1: '#6DD5FA',
+                                bar2: '#6BCB77',
+                                bar3: '#FFD93D',
+                                bar4: '#C77DFF',
+                                line: '#FF6B6B',
+                                bg: '#0D1B2A'
+                            }),
+                            updated_at: new Date().toISOString()
+                        });
+
+                    if (insertError) {
+                        console.error('Erro ao criar configuração padrão:', insertError);
+                        return;
+                    }
+
+                    // Carrega novamente
+                    await carregarConfiguracoesSupabase();
+                    return;
+                }
+
+                aplicandoConfigRemota = true;
+
+                // ===== CARREGA LOGOS =====
+                if (data.logo_cliente) {
+                    document.getElementById('logoClienteImg').src = data.logo_cliente;
+                    document.getElementById('logoClienteImg').style.display = 'block';
+                    document.getElementById('logoClientePlaceholder').style.display = 'none';
+                }
+                if (data.logo_empresa) {
+                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
+                    document.getElementById('logoEmpresaImg').style.display = 'block';
+                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
+                }
+
+                // ===== CARREGA COR DE FUNDO =====
+                if (data.tipo_fundo === 'solido') {
+                    document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
+                    setTipoFundo('solido');
+                } else {
+                    document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
+                    document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
+                    document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
+                    document.getElementById('anguloGrad').value = data.angulo_grad || 135;
+                    document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
+                    setTipoFundo('degradê');
+                }
+
+                // ===== CARREGA COR DE DESTAQUE =====
+                if (data.cor_destaque) {
+                    document.getElementById('corDestaque').value = data.cor_destaque;
+                    aplicarCorDestaque(data.cor_destaque);
+                }
+
+                // ===== CARREGA CORES DOS GRÁFICOS =====
+                if (data.chart_colors) {
+                    try {
+                        const cc = typeof data.chart_colors === 'string' ? 
+                            JSON.parse(data.chart_colors) : data.chart_colors;
+                        
+                        if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
+                            chartColors.bar1 = cc.bar1; }
+                        if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
+                            chartColors.bar2 = cc.bar2; }
+                        if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
+                            chartColors.bar3 = cc.bar3; }
+                        if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
+                            chartColors.bar4 = cc.bar4; }
+                        if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
+                            chartColors.line = cc.line; }
+                        if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
+                            chartColors.bg = cc.bg; }
+                    } catch (e) {
+                        console.error('Erro ao parsear chart_colors:', e);
+                    }
+                }
+
+                // Aplica a cor de fundo dos gráficos
+                aplicarCorFundoGraficos();
+
+                // Atualiza os gráficos com as cores carregadas
+                if (originalData && originalData.length > 0) {
+                    const data = getDataParaExibir();
+                    atualizarGraficos(data);
+                }
+
+                aplicandoConfigRemota = false;
+            } catch (e) {
+                console.error('Erro ao carregar configurações:', e);
+                aplicandoConfigRemota = false;
             }
-            if (!data) {
-                setTipoFundo('degradê');
-                return;
-            }
-
-            aplicandoConfigRemota = true;
-
-            // ===== CARREGA LOGOS =====
-            if (data.logo_cliente) {
-                document.getElementById('logoClienteImg').src = data.logo_cliente;
-                document.getElementById('logoClienteImg').style.display = 'block';
-                document.getElementById('logoClientePlaceholder').style.display = 'none';
-            }
-            if (data.logo_empresa) {
-                document.getElementById('logoEmpresaImg').src = data.logo_empresa;
-                document.getElementById('logoEmpresaImg').style.display = 'block';
-                document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
-            }
-
-            // ===== CARREGA COR DE FUNDO =====
-            if (data.tipo_fundo === 'solido') {
-                document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                setTipoFundo('solido');
-            } else {
-                document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
-                document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
-                document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
-                document.getElementById('anguloGrad').value = data.angulo_grad || 135;
-                document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                setTipoFundo('degradê');
-            }
-
-            // ===== CARREGA COR DE DESTAQUE =====
-            if (data.cor_destaque) {
-                document.getElementById('corDestaque').value = data.cor_destaque;
-                aplicarCorDestaque(data.cor_destaque);
-            }
-
-            // ===== CARREGA CORES DOS GRÁFICOS =====
-            if (data.chart_colors) {
-                const cc = data.chart_colors;
-                if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
-                    chartColors.bar1 = cc.bar1; }
-                if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
-                    chartColors.bar2 = cc.bar2; }
-                if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
-                    chartColors.bar3 = cc.bar3; }
-                if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
-                    chartColors.bar4 = cc.bar4; }
-                if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
-                    chartColors.line = cc.line; }
-                if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
-                    chartColors.bg = cc.bg; }
-            }
-
-            // Aplica a cor de fundo dos gráficos
-            aplicarCorFundoGraficos();
-
-            // Atualiza os gráficos com as cores carregadas
-            if (originalData && originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarGraficos(data);
-            }
-
-            aplicandoConfigRemota = false;
         }
 
         let aplicandoConfigRemota = false;
@@ -1435,24 +1476,57 @@
         async function salvarConfiguracoesSupabase(parcial) {
             // Se está aplicando configuração remota, não salva de volta para evitar loop
             if (aplicandoConfigRemota) return;
-            
+
             try {
+                // Busca a configuração atual para fazer merge
+                const { data: currentData, error: fetchError } = await supabaseClient
+                    .from('configuracoes')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (fetchError) {
+                    console.error('Erro ao buscar configuração atual:', fetchError);
+                    return;
+                }
+
+                // Prepara os dados para atualização
+                const updateData = {
+                    id: 1,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Se tem dados atuais, faz merge
+                if (currentData) {
+                    Object.assign(updateData, currentData);
+                }
+
+                // Aplica as mudanças parciais
+                Object.assign(updateData, parcial);
+
+                // Se chart_colors for objeto, converte para string JSON
+                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
+                    updateData.chart_colors = JSON.stringify(parcial.chart_colors);
+                }
+
+                // Remove campos undefined
+                Object.keys(updateData).forEach(key => {
+                    if (updateData[key] === undefined) delete updateData[key];
+                });
+
                 const { error } = await supabaseClient
                     .from('configuracoes')
-                    .upsert({ 
-                        id: 1, 
-                        ...parcial, 
-                        updated_at: new Date().toISOString() 
-                    });
+                    .upsert(updateData, { onConflict: 'id' });
 
                 if (error) {
                     console.error('Erro ao salvar configurações:', error);
-                    showToast('❌ Erro ao salvar configurações', 'error');
+                    showToast('❌ Erro ao salvar configurações: ' + error.message, 'error');
                 } else {
                     showToast('✅ Configurações salvas para todos os usuários!', 'success', 2000);
                 }
             } catch (e) {
                 console.error('Erro ao salvar configurações:', e);
+                showToast('❌ Erro ao salvar configurações', 'error');
             }
         }
 
@@ -2953,7 +3027,6 @@
                 const c = document.getElementById('corFundo1').value;
                 document.getElementById('corFundo1Hex').textContent = c;
                 document.body.style.background = c;
-                // SALVA NO SUPABASE
                 salvarConfiguracoesSupabase({ 
                     tipo_fundo: 'solido', 
                     cor_fundo1: c 
@@ -2969,7 +3042,6 @@
                 document.body.style.background =
                     'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
                 document.body.style.backgroundAttachment = 'fixed';
-                // SALVA NO SUPABASE
                 salvarConfiguracoesSupabase({
                     tipo_fundo: 'degrade',
                     cor_grad1: c1, 
@@ -3011,7 +3083,6 @@
                 el.style.borderColor = cor + '44';
                 el.style.background = cor + '20';
             });
-            // SALVA NO SUPABASE
             salvarConfiguracoesSupabase({ cor_destaque: cor });
         }
 
@@ -3029,7 +3100,6 @@
                     ph.style.display = 'none';
 
                     const campo = inputId === 'logoClienteInput' ? 'logo_cliente' : 'logo_empresa';
-                    // SALVA NO SUPABASE
                     salvarConfiguracoesSupabase({ [campo]: e.target.result });
                     showToast('✅ Logo atualizada para todos os usuários!', 'success', 2000);
                 };
@@ -3046,9 +3116,11 @@
             try {
                 await Promise.all([
                     carregarUsuariosSupabase(),
-                    carregarDashboardDataSupabase(),
-                    carregarConfiguracoesSupabase()
+                    carregarDashboardDataSupabase()
                 ]);
+                
+                // Carrega configurações (cria registro se não existir)
+                await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
                 setTipoFundo('degradê');
