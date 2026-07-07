@@ -164,6 +164,30 @@
             margin-top: 10px;
             display: none;
         }
+        .login-info {
+            color: #6DD5FA;
+            font-size: 12px;
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(109, 213, 250, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(109, 213, 250, 0.08);
+        }
+        .login-info strong {
+            color: #fff;
+        }
+        .login-info .demo-users {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .login-info .demo-users span {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
 
         /* ===== DASHBOARD ===== */
         #dashboardContent {
@@ -419,7 +443,7 @@
             background: rgba(255, 255, 255, .12);
         }
 
-        /* ===== CARDS CLICÁVEIS ===== */
+        /* ===== CARDS ===== */
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -529,6 +553,170 @@
         }
         .card.active-filter .card-badge {
             opacity: 0.6;
+        }
+
+        /* ===== NOVO: CARD DE STATUS GERAL ===== */
+        .card-status-geral {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(109, 213, 250, 0.12), rgba(109, 213, 250, 0.02));
+            border: 2px solid rgba(109, 213, 250, 0.1);
+        }
+        .card-status-geral .status-items {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .card-status-geral .status-item {
+            flex: 1;
+            min-width: 120px;
+        }
+        .card-status-geral .status-item .label {
+            opacity: 0.5;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-status-geral .status-item .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        /* ===== UF PROGRESS CARDS ===== */
+        .uf-progress-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .uf-card {
+            background: rgba(8, 15, 25, .6);
+            padding: 12px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            min-width: 100px;
+            flex: 1;
+            max-width: 200px;
+            transition: .2s;
+            cursor: pointer;
+        }
+        .uf-card:hover {
+            background: rgba(8, 15, 25, .8);
+            border-color: rgba(109, 213, 250, .2);
+            transform: translateY(-2px);
+        }
+        .uf-card .uf-nome {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .uf-card .uf-nome .uf-count {
+            font-size: 11px;
+            opacity: 0.4;
+            font-weight: 400;
+        }
+        .uf-card .uf-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .uf-card .uf-progress div {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .uf-card .uf-percent {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* ===== ALERTAS ===== */
+        .box-alertas {
+            border-left: 4px solid #FF6B6B;
+        }
+        .alerta-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 10px;
+            background: rgba(255, 107, 107, 0.06);
+            border: 1px solid rgba(255, 107, 107, 0.08);
+            font-size: 13px;
+            transition: .2s;
+        }
+        .alerta-item:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .alerta-item .alerta-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .alerta-item .alerta-texto {
+            flex: 1;
+        }
+        .alerta-item .alerta-tag {
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: rgba(255, 107, 107, 0.15);
+            color: #FF6B6B;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* ===== ÚLTIMAS ATUALIZAÇÕES ===== */
+        .ultima-atualizacao-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            font-size: 13px;
+        }
+        .ultima-atualizacao-item:last-child {
+            border-bottom: none;
+        }
+        .ultima-atualizacao-item .loja-nome {
+            font-weight: 600;
+        }
+        .ultima-atualizacao-item .loja-status {
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .ultima-atualizacao-item .loja-status.concluida {
+            background: rgba(107, 203, 119, 0.15);
+            color: #6BCB77;
+        }
+        .ultima-atualizacao-item .loja-status.execucao {
+            background: rgba(109, 213, 250, 0.15);
+            color: #6DD5FA;
+        }
+        .ultima-atualizacao-item .loja-status.pendente {
+            background: rgba(255, 107, 107, 0.15);
+            color: #FF6B6B;
+        }
+        .ultima-atualizacao-item .loja-status.agendada {
+            background: rgba(255, 217, 61, 0.15);
+            color: #FFD93D;
+        }
+        .ultima-atualizacao-item .loja-status.default {
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+        }
+        .ultima-atualizacao-item .loja-data {
+            font-size: 11px;
+            opacity: 0.4;
         }
 
         .grid {
@@ -952,6 +1140,15 @@
             border-color: rgba(109, 213, 250, 0.3);
         }
 
+        /* ===== ULTIMA SINCRONIZAÇÃO ===== */
+        .ultima-sincronizacao {
+            font-size: 11px;
+            opacity: 0.3;
+            text-align: center;
+            margin-top: 10px;
+            padding: 6px;
+        }
+
         @media(max-width:768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -990,6 +1187,13 @@
                 left: 20px;
                 max-width: none;
             }
+            .card-status-geral {
+                grid-column: span 1;
+            }
+            .card-status-geral .status-items {
+                flex-direction: column;
+                gap: 12px;
+            }
         }
     </style>
 </head>
@@ -1004,15 +1208,24 @@
 
             <label>Selecione seu perfil</label>
             <div class="role-selector">
-                <button class="role-btn admin" data-role="admin" onclick="selecionarPerfil('admin')">👑 Admin</button>
+                <button class="role-btn admin active" data-role="admin" onclick="selecionarPerfil('admin')">👑 Admin</button>
                 <button class="role-btn gerente" data-role="gerente" onclick="selecionarPerfil('gerente')">📋 Gerente</button>
-                <button class="role-btn visualizador active" data-role="visualizador" onclick="selecionarPerfil('visualizador')">👀 Visualizador</button>
+                <button class="role-btn visualizador" data-role="visualizador" onclick="selecionarPerfil('visualizador')">👀 Visualizador</button>
             </div>
 
             <label>Senha</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" value="123">
-            <div id="loginError" class="login-error">❌ Senha inválida</div>
+            <input type="password" id="loginPassword" placeholder="Digite a senha" value="123">
+            <div id="loginError" class="login-error">❌ Senha inválida. Tente novamente.</div>
             <button class="login-btn" id="loginBtn">Entrar</button>
+
+            <div class="login-info">
+                <strong>🔑 Credenciais de teste:</strong>
+                <div class="demo-users">
+                    <span>👑 Admin: <strong>123</strong></span>
+                    <span>📋 Gerente: <strong>123</strong></span>
+                    <span>👀 Visualizador: <strong>123</strong></span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1033,8 +1246,8 @@
                 </div>
                 <div class="toolbar-right">
                     <span class="user-badge">
-                        <span id="userRoleDisplay">Visualizador</span>
-                        <span class="role-tag" id="userRoleTag">VISUALIZADOR</span>
+                        <span id="userRoleDisplay">Admin</span>
+                        <span class="role-tag" id="userRoleTag">ADMIN</span>
                     </span>
                     <button class="toolbar-btn danger" onclick="logout()">🚪 Sair</button>
                 </div>
@@ -1087,8 +1300,33 @@
                 <input type="file" id="logoEmpresaInput" hidden accept="image/*">
             </div>
 
-            <!-- CARDS -->
+            <!-- ===== CARDS ===== -->
             <div class="cards">
+                <!-- Card de Status Geral -->
+                <div class="card card-status-geral" onclick="limparFiltros()">
+                    <span class="card-badge">🚀</span>
+                    <h3>Status Geral do Projeto</h3>
+                    <div class="status-items">
+                        <div class="status-item">
+                            <div class="label">Progresso Geral</div>
+                            <div class="value" id="progressoGeral">0%</div>
+                            <div class="progress" style="width:100%;margin-top:4px;"><div id="progressoGeralBar" style="width:0%;"></div></div>
+                        </div>
+                        <div class="status-item">
+                            <div class="label">Previsão de Conclusão</div>
+                            <div class="value" id="previsaoConclusao" style="font-size:22px;">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="label">Ritmo (lojas/dia)</div>
+                            <div class="value" id="ritmoDiario" style="font-size:22px;">0</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="label">Lojas Restantes</div>
+                            <div class="value" id="lojasRestantes" style="font-size:22px;">0</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card" data-filter="totalLojas" onclick="filtrarPorCard('totalLojas')">
                     <span class="card-badge">📊</span>
                     <h3>Total de Lojas</h3>
@@ -1117,7 +1355,18 @@
                 </div>
             </div>
 
-            <!-- GRÁFICOS -->
+            <!-- ===== UF PROGRESS CARDS ===== -->
+            <div class="uf-progress-container" id="ufProgressContainer"></div>
+
+            <!-- ===== ALERTAS ===== -->
+            <div class="box box-alertas" id="alertasBox">
+                <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
+                <div id="alertasContainer">
+                    <div class="empty-state">✅ Nenhum alerta no momento</div>
+                </div>
+            </div>
+
+            <!-- ===== GRÁFICOS ===== -->
             <div class="grid">
                 <div class="box"><h2>📊 Status por UF <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper1"><canvas id="statusUFChart"></canvas></div>
@@ -1127,6 +1376,14 @@
                     <div id="mediaConcluidaEmpty" class="empty-state">Nenhuma loja concluída ainda.</div>
                 </div>
             </div>
+
+            <!-- ===== NOVO: Gráfico de Gap ===== -->
+            <div class="grid" style="grid-template-columns:1fr;">
+                <div class="box"><h2>📊 Gap por UF (Planejado vs Realizado) <span class="filter-indicator"></span></h2>
+                    <div class="chart-wrapper" id="chartWrapperGap"><canvas id="gapChart"></canvas></div>
+                </div>
+            </div>
+
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper3"><canvas id="timelineChart"></canvas></div>
@@ -1140,7 +1397,17 @@
                 </div>
             </div>
 
-            <!-- BOTÕES -->
+            <!-- ===== ÚLTIMAS ATUALIZAÇÕES ===== -->
+            <div class="grid" style="grid-template-columns:1fr;">
+                <div class="box">
+                    <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
+                    <div id="ultimasAtualizacoes">
+                        <div class="empty-state">Nenhuma atualização recente</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== BOTÕES ===== -->
             <div class="table-button-wrapper">
                 <button class="btn-ver-tabela" id="btnVerTabela" onclick="abrirTabelaCompleta()">
                     📋 Ver Tabela Completa
@@ -1152,6 +1419,11 @@
                 <button class="btn-ver-tabela btn-auto" id="btnAutoRefresh" onclick="toggleAutoRefresh()">
                     🔄 Auto-Refresh: <span id="autoRefreshStatus">OFF</span>
                 </button>
+            </div>
+
+            <!-- ===== ÚLTIMA SINCRONIZAÇÃO ===== -->
+            <div class="ultima-sincronizacao" id="ultimaSincronizacao">
+                Última atualização: carregando...
             </div>
 
             <!-- ===== GESTÃO DE USUÁRIOS ===== -->
@@ -1267,8 +1539,8 @@
             { id: 2, nome: 'Gerente', role: 'gerente', senha: '123' },
             { id: 3, nome: 'Visualizador', role: 'visualizador', senha: '123' }
         ];
-        let currentRole = 'visualizador';
-        let selectedRole = 'visualizador';
+        let currentRole = 'admin';
+        let selectedRole = 'admin';
         let isLoggedIn = false;
         let originalData = [];
         let charts = {};
@@ -1310,46 +1582,67 @@
         // ============================================================
 
         async function carregarUsuariosSupabase() {
-            const { data, error } = await supabaseClient
-                .from('usuarios')
-                .select('*')
-                .order('id', { ascending: true });
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .order('id', { ascending: true });
 
-            if (error) {
-                console.error('Erro ao carregar usuários do Supabase:', error);
-                return;
-            }
-            if (data && data.length > 0) {
-                usuarios = data;
+                if (error) {
+                    console.error('Erro ao carregar usuários do Supabase:', error);
+                    return;
+                }
+                if (data && data.length > 0) {
+                    usuarios = data;
+                }
+            } catch (e) {
+                console.error('Erro ao carregar usuários:', e);
             }
         }
 
         async function carregarDashboardDataSupabase() {
-            const { data, error } = await supabaseClient
-                .from('dashboard_data')
-                .select('dados')
-                .eq('id', 1)
-                .single();
+            try {
+                const { data, error } = await supabaseClient
+                    .from('dashboard_data')
+                    .select('dados')
+                    .eq('id', 1)
+                    .single();
 
-            if (error) {
-                console.error('Erro ao carregar dados do dashboard:', error);
-                return;
-            }
-            if (data && Array.isArray(data.dados)) {
-                originalData = data.dados;
+                if (error) {
+                    console.error('Erro ao carregar dados do dashboard:', error);
+                    return;
+                }
+                if (data && Array.isArray(data.dados)) {
+                    originalData = data.dados;
+                    atualizarUltimaSincronizacao();
+                }
+            } catch (e) {
+                console.error('Erro ao carregar dados:', e);
             }
         }
 
-        async function salvarDashboardDataSupabase(dados) {
-            const { error } = await supabaseClient
-                .from('dashboard_data')
-                .upsert({ id: 1, dados: dados, updated_at: new Date().toISOString() });
+        function atualizarUltimaSincronizacao() {
+            const el = document.getElementById('ultimaSincronizacao');
+            const agora = new Date().toLocaleString('pt-BR');
+            el.textContent = '🔄 Última atualização: ' + agora;
+        }
 
-            if (error) {
-                console.error('Erro ao salvar dados do dashboard:', error);
-                showToast('❌ Erro ao sincronizar com o Supabase', 'error');
-            } else {
-                showToast('✅ Dados sincronizados com sucesso!', 'success');
+        async function salvarDashboardDataSupabase(dados) {
+            try {
+                const { error } = await supabaseClient
+                    .from('dashboard_data')
+                    .upsert({ id: 1, dados: dados, updated_at: new Date().toISOString() });
+
+                if (error) {
+                    console.error('Erro ao salvar dados do dashboard:', error);
+                    showToast('❌ Erro ao sincronizar com o Supabase', 'error');
+                } else {
+                    showToast('✅ Dados sincronizados com sucesso!', 'success');
+                    atualizarUltimaSincronizacao();
+                }
+            } catch (e) {
+                console.error('Erro ao salvar dados:', e);
+                showToast('❌ Erro ao sincronizar', 'error');
             }
         }
 
@@ -1367,7 +1660,6 @@
                 }
 
                 if (!data) {
-                    // Primeira execução - cria configuração padrão
                     const { error: insertError } = await supabaseClient
                         .from('configuracoes')
                         .insert({
@@ -1394,14 +1686,12 @@
                         return;
                     }
 
-                    // Carrega novamente
                     await carregarConfiguracoesSupabase();
                     return;
                 }
 
                 aplicandoConfigRemota = true;
 
-                // ===== CARREGA LOGOS =====
                 if (data.logo_cliente) {
                     document.getElementById('logoClienteImg').src = data.logo_cliente;
                     document.getElementById('logoClienteImg').style.display = 'block';
@@ -1413,7 +1703,6 @@
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                 }
 
-                // ===== CARREGA COR DE FUNDO =====
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
                     setTipoFundo('solido');
@@ -1426,13 +1715,11 @@
                     setTipoFundo('degradê');
                 }
 
-                // ===== CARREGA COR DE DESTAQUE =====
                 if (data.cor_destaque) {
                     document.getElementById('corDestaque').value = data.cor_destaque;
                     aplicarCorDestaque(data.cor_destaque);
                 }
 
-                // ===== CARREGA CORES DOS GRÁFICOS =====
                 if (data.chart_colors) {
                     try {
                         const cc = typeof data.chart_colors === 'string' ? 
@@ -1455,10 +1742,8 @@
                     }
                 }
 
-                // Aplica a cor de fundo dos gráficos
                 aplicarCorFundoGraficos();
 
-                // Atualiza os gráficos com as cores carregadas
                 if (originalData && originalData.length > 0) {
                     const data = getDataParaExibir();
                     atualizarGraficos(data);
@@ -1474,11 +1759,9 @@
         let aplicandoConfigRemota = false;
 
         async function salvarConfiguracoesSupabase(parcial) {
-            // Se está aplicando configuração remota, não salva de volta para evitar loop
             if (aplicandoConfigRemota) return;
 
             try {
-                // Busca a configuração atual para fazer merge
                 const { data: currentData, error: fetchError } = await supabaseClient
                     .from('configuracoes')
                     .select('*')
@@ -1490,26 +1773,21 @@
                     return;
                 }
 
-                // Prepara os dados para atualização
                 const updateData = {
                     id: 1,
                     updated_at: new Date().toISOString()
                 };
 
-                // Se tem dados atuais, faz merge
                 if (currentData) {
                     Object.assign(updateData, currentData);
                 }
 
-                // Aplica as mudanças parciais
                 Object.assign(updateData, parcial);
 
-                // Se chart_colors for objeto, converte para string JSON
                 if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
                     updateData.chart_colors = JSON.stringify(parcial.chart_colors);
                 }
 
-                // Remove campos undefined
                 Object.keys(updateData).forEach(key => {
                     if (updateData[key] === undefined) delete updateData[key];
                 });
@@ -1531,34 +1809,35 @@
         }
 
         function iniciarRealtime() {
-            // Canal para usuários
-            supabaseClient
-                .channel('usuarios-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
-                    await carregarUsuariosSupabase();
-                    if (userManagementVisible) renderizarUsuarios();
-                })
-                .subscribe();
+            try {
+                supabaseClient
+                    .channel('usuarios-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
+                        await carregarUsuariosSupabase();
+                        if (userManagementVisible) renderizarUsuarios();
+                    })
+                    .subscribe();
 
-            // Canal para dados do dashboard
-            supabaseClient
-                .channel('dashboard-data-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
-                    await carregarDashboardDataSupabase();
-                    aplicarFiltros();
-                    if (autoRefreshActive) {
-                        showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
-                    }
-                })
-                .subscribe();
+                supabaseClient
+                    .channel('dashboard-data-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
+                        await carregarDashboardDataSupabase();
+                        aplicarFiltros();
+                        if (autoRefreshActive) {
+                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
+                        }
+                    })
+                    .subscribe();
 
-            // Canal para configurações (cores, logos)
-            supabaseClient
-                .channel('configuracoes-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
-                    carregarConfiguracoesSupabase();
-                })
-                .subscribe();
+                supabaseClient
+                    .channel('configuracoes-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                        carregarConfiguracoesSupabase();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.error('Erro ao iniciar Realtime:', e);
+            }
         }
 
         // ============================================================
@@ -1593,14 +1872,17 @@
             document.querySelectorAll('.role-btn').forEach(el => {
                 el.classList.toggle('active', el.dataset.role === role);
             });
+            document.getElementById('loginError').style.display = 'none';
         }
 
         function doLogin() {
             const pass = document.getElementById('loginPassword').value.trim();
+            
             const usuario = usuarios.find(u => u.role === selectedRole && u.senha === pass);
 
             if (!usuario) {
                 document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent = '❌ Senha inválida para o perfil selecionado. Tente novamente.';
                 return;
             }
 
@@ -1614,10 +1896,13 @@
 
             atualizarUI(usuario);
 
-            if (originalData.length === 0) carregarDadosExemplo();
-            else {
+            if (originalData.length === 0) {
+                carregarDadosExemplo();
+            } else {
                 aplicarFiltros();
             }
+            
+            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
         }
 
         function atualizarUI(usuario) {
@@ -1628,11 +1913,9 @@
             const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
             const isAdmin = usuario.role === 'admin';
 
-            // Controles de upload e configurações (apenas Admin/Gerente)
             document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
             document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
 
-            // Logos: apenas Admin/Gerente podem clicar
             document.querySelectorAll('.logo-box').forEach(el => {
                 if (usuario.role === 'visualizador') {
                     el.classList.remove('clickable');
@@ -1648,7 +1931,6 @@
                 }
             });
 
-            // Ocultar labels das logos para visualizadores
             const labelEmpresa = document.getElementById('labelEmpresa');
             const labelCliente = document.getElementById('labelCliente');
             if (usuario.role === 'visualizador') {
@@ -1659,7 +1941,6 @@
                 labelCliente.classList.remove('hidden-label');
             }
 
-            // Gerenciar usuários (apenas Admin)
             const btnUser = document.getElementById('btnGerenciarUsuarios');
             if (isAdmin) {
                 btnUser.style.display = 'flex';
@@ -1674,7 +1955,6 @@
                 userManagementVisible = false;
             }
 
-            // Botão adicionar usuário
             const btnAdd = document.getElementById('btnAdicionarUsuario');
             btnAdd.replaceWith(btnAdd.cloneNode(true));
             const newAdd = document.getElementById('btnAdicionarUsuario');
@@ -1685,8 +1965,8 @@
 
         function logout() {
             isLoggedIn = false;
-            currentRole = 'visualizador';
-            window._role = 'visualizador';
+            currentRole = 'admin';
+            window._role = 'admin';
             document.getElementById('dashboardContent').style.display = 'none';
             document.getElementById('loginOverlay').classList.remove('hidden');
             document.getElementById('loginPassword').value = '';
@@ -1700,6 +1980,11 @@
                 document.getElementById('autoRefreshStatus').textContent = 'OFF';
                 document.getElementById('btnAutoRefresh').classList.remove('active-auto');
             }
+            selectedRole = 'admin';
+            document.querySelectorAll('.role-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.role === 'admin');
+            });
+            showToast('👋 Logout realizado com sucesso', 'info', 1500);
         }
 
         document.getElementById('loginBtn').addEventListener('click', doLogin);
@@ -1762,22 +2047,26 @@
                 return;
             }
 
-            const { data, error } = await supabaseClient
-                .from('usuarios')
-                .insert({ nome, role, senha })
-                .select()
-                .single();
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .insert({ nome, role, senha })
+                    .select()
+                    .single();
 
-            if (error) {
-                alert('❌ Erro ao adicionar usuário no Supabase:\n' + error.message);
-                return;
+                if (error) {
+                    alert('❌ Erro ao adicionar usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                usuarios.push(data);
+                renderizarUsuarios();
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserPassword').value = '123';
+                showToast('✅ Usuário adicionado com sucesso!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao adicionar usuário: ' + e.message);
             }
-
-            usuarios.push(data);
-            renderizarUsuarios();
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserPassword').value = '123';
-            showToast('✅ Usuário adicionado com sucesso!', 'success');
         }
 
         async function editarUsuario(id) {
@@ -1803,18 +2092,22 @@
                 usuario.role = novoRole.trim().toLowerCase();
             }
 
-            const { error } = await supabaseClient
-                .from('usuarios')
-                .update({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
-                .eq('id', id);
+            try {
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .update({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
+                    .eq('id', id);
 
-            if (error) {
-                alert('❌ Erro ao atualizar usuário no Supabase:\n' + error.message);
-                return;
+                if (error) {
+                    alert('❌ Erro ao atualizar usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                renderizarUsuarios();
+                showToast('✅ Usuário atualizado!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao atualizar usuário: ' + e.message);
             }
-
-            renderizarUsuarios();
-            showToast('✅ Usuário atualizado!', 'success');
         }
 
         async function excluirUsuario(id) {
@@ -1824,19 +2117,23 @@
             }
             if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
-            const { error } = await supabaseClient
-                .from('usuarios')
-                .delete()
-                .eq('id', id);
+            try {
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .delete()
+                    .eq('id', id);
 
-            if (error) {
-                alert('❌ Erro ao excluir usuário no Supabase:\n' + error.message);
-                return;
+                if (error) {
+                    alert('❌ Erro ao excluir usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                usuarios = usuarios.filter(u => u.id !== id);
+                renderizarUsuarios();
+                showToast('✅ Usuário removido!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao excluir usuário: ' + e.message);
             }
-
-            usuarios = usuarios.filter(u => u.id !== id);
-            renderizarUsuarios();
-            showToast('✅ Usuário removido!', 'success');
         }
 
         // ============================================================
@@ -1992,6 +2289,36 @@
             const pdvsFinalizados = data.filter(isConcluida).reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
             const media = data.length ? Math.round(data.reduce((s, r) => s + calcEvolucao(r), 0) / data.length) : 0;
 
+            // Status Geral
+            const lojasRestantes = totalLojas - lojasFinalizadas;
+            const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
+            
+            const dataAtual = new Date();
+            const dataLimite = new Date(dataAtual);
+            dataLimite.setDate(dataLimite.getDate() - 30);
+            const ultimos30Dias = data.filter(r => {
+                const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                return d && d >= dataLimite && d <= dataAtual;
+            });
+            const ritmoDiario = ultimos30Dias.length > 0 ? 
+                Math.round((ultimos30Dias.filter(isConcluida).length / 30) * 10) / 10 : 0;
+
+            let previsao = '-';
+            if (ritmoDiario > 0 && lojasRestantes > 0) {
+                const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
+                const dataPrevisao = new Date(dataAtual);
+                dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
+                previsao = dataPrevisao.toLocaleDateString('pt-BR');
+            } else if (lojasRestantes === 0) {
+                previsao = '✅ Concluído';
+            }
+
+            document.getElementById('progressoGeral').textContent = progressoGeral + '%';
+            document.getElementById('progressoGeralBar').style.width = progressoGeral + '%';
+            document.getElementById('previsaoConclusao').textContent = previsao;
+            document.getElementById('ritmoDiario').textContent = ritmoDiario;
+            document.getElementById('lojasRestantes').textContent = lojasRestantes;
+
             animarNumero('totalLojas', totalLojas);
             animarNumero('totalPdvs', totalPdvs);
             animarNumero('pdvsFinalizados', pdvsFinalizados);
@@ -1999,6 +2326,10 @@
             animarNumero('mediaEvolucao', media + '%');
 
             document.getElementById('progressBar').style.width = media + '%';
+
+            atualizarUFProgress(data);
+            gerarAlertas(data);
+            atualizarUltimasAtualizacoes(data);
         }
 
         function animarNumero(elementId, novoValor) {
@@ -2027,6 +2358,7 @@
             atualizarGraficos(data);
             popularFiltros(originalData);
             atualizarBadgeFiltro();
+            atualizarUltimaSincronizacao();
         }
 
         function aplicarFiltroCard(data, filterType) {
@@ -2093,6 +2425,169 @@
         }
 
         // ============================================================
+        //  UF PROGRESS CARDS
+        // ============================================================
+        
+        function atualizarUFProgress(data) {
+            const container = document.getElementById('ufProgressContainer');
+            const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
+            
+            if (ufs.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum dado por UF disponível</div>';
+                return;
+            }
+
+            const ufData = ufs.map(uf => {
+                const lojas = data.filter(r => r.UF === uf);
+                const total = lojas.length;
+                const concluidas = lojas.filter(isConcluida).length;
+                const progresso = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+                return { uf, total, concluidas, progresso };
+            });
+
+            const cores = ['#6DD5FA', '#6BCB77', '#FFD93D', '#C77DFF', '#FF6B6B', '#FF9F43', '#00D2D3', '#F368E0'];
+            
+            container.innerHTML = ufData.map((item, index) => `
+                <div class="uf-card" onclick="filtrarPorUF('${item.uf}')" title="Clique para filtrar por ${item.uf}">
+                    <div class="uf-nome">
+                        ${item.uf}
+                        <span class="uf-count">${item.concluidas}/${item.total}</span>
+                    </div>
+                    <div class="uf-progress">
+                        <div style="width:${item.progresso}%;background:${cores[index % cores.length]};"></div>
+                    </div>
+                    <div class="uf-percent">${item.progresso}%</div>
+                </div>
+            `).join('');
+        }
+
+        function filtrarPorUF(uf) {
+            document.getElementById('filtroUF').value = uf;
+            activeFilter = null;
+            filteredData = [];
+            aplicarFiltros();
+            showToast(`🔍 Filtrando por ${uf}`, 'info', 1500);
+        }
+
+        // ============================================================
+        //  ALERTAS
+        // ============================================================
+
+        function gerarAlertas(data) {
+            const container = document.getElementById('alertasContainer');
+            const hoje = new Date();
+            const alertas = [];
+
+            data.forEach(r => {
+                const status = (r.STATUS || '').toUpperCase();
+                const evol = calcEvolucao(r);
+                const dataAut = parseExcelDate(r['DATA AUTORIZAÇÃO']);
+                const loja = r.LOJAS || 'Loja sem nome';
+                const uf = r.UF || '??';
+
+                if (dataAut) {
+                    const diffDias = Math.floor((hoje - dataAut) / (1000 * 60 * 60 * 24));
+                    if (diffDias > 7 && evol < 30 && !isConcluida(r)) {
+                        alertas.push({
+                            icon: '⚠️',
+                            texto: `${loja} (${uf}): ${diffDias} dias sem evolução significativa (${evol}%)`,
+                            tag: 'Atraso Crítico',
+                            nivel: 'critico'
+                        });
+                    } else if (diffDias > 14 && evol < 50 && !isConcluida(r)) {
+                        alertas.push({
+                            icon: '🔴',
+                            texto: `${loja} (${uf}): ${diffDias} dias desde autorização e apenas ${evol}% concluído`,
+                            tag: 'Risco Alto',
+                            nivel: 'alto'
+                        });
+                    }
+                }
+
+                if (evol === 0 && status.includes('AGENDADA')) {
+                    const diasDesdeAut = dataAut ? Math.floor((hoje - dataAut) / (1000 * 60 * 60 * 24)) : 0;
+                    if (diasDesdeAut > 3) {
+                        alertas.push({
+                            icon: '⏳',
+                            texto: `${loja} (${uf}): Agendada há ${diasDesdeAut} dias mas sem início`,
+                            tag: 'Sem Início',
+                            nivel: 'medio'
+                        });
+                    }
+                }
+
+                if (status.includes('PENDENCIADA') || status.includes('PENDENTE')) {
+                    alertas.push({
+                        icon: '📌',
+                        texto: `${loja} (${uf}): Status pendente - aguardando ação`,
+                        tag: 'Pendente',
+                        nivel: 'medio'
+                    });
+                }
+            });
+
+            const alertasFinais = alertas.slice(0, 10);
+
+            if (alertasFinais.length === 0) {
+                container.innerHTML = '<div class="empty-state">✅ Nenhum alerta no momento. Tudo sob controle!</div>';
+                return;
+            }
+
+            container.innerHTML = alertasFinais.map(a => `
+                <div class="alerta-item" style="${a.nivel === 'critico' ? 'border-left:3px solid #FF6B6B;' : a.nivel === 'alto' ? 'border-left:3px solid #FF9F43;' : 'border-left:3px solid #FFD93D;'}">
+                    <span class="alerta-icon">${a.icon}</span>
+                    <span class="alerta-texto">${a.texto}</span>
+                    <span class="alerta-tag">${a.tag}</span>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        //  ÚLTIMAS ATUALIZAÇÕES
+        // ============================================================
+
+        function atualizarUltimasAtualizacoes(data) {
+            const container = document.getElementById('ultimasAtualizacoes');
+            
+            const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
+            
+            if (comData.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhuma atualização recente</div>';
+                return;
+            }
+
+            const ordenados = comData.sort((a, b) => {
+                const da = parseExcelDate(a['DATA DO ROLLOUT']);
+                const db = parseExcelDate(b['DATA DO ROLLOUT']);
+                return db - da;
+            });
+
+            const ultimos = ordenados.slice(0, 10);
+
+            const getStatusClass = (status) => {
+                const s = String(status || '').toUpperCase();
+                if (s.includes('CONCLU')) return 'concluida';
+                if (s.includes('EXECUÇÃO') || s.includes('EXECUCAO')) return 'execucao';
+                if (s.includes('PENDENCIADA') || s.includes('PENDENTE')) return 'pendente';
+                if (s.includes('AGENDADA')) return 'agendada';
+                return 'default';
+            };
+
+            container.innerHTML = ultimos.map(r => {
+                const dataRollout = parseExcelDate(r['DATA DO ROLLOUT']);
+                const dataStr = dataRollout ? dataRollout.toLocaleDateString('pt-BR') : '-';
+                const status = r.STATUS || 'N/D';
+                return `
+                    <div class="ultima-atualizacao-item">
+                        <span class="loja-nome">${r.LOJAS || 'Sem nome'}</span>
+                        <span class="loja-status ${getStatusClass(status)}">${status}</span>
+                        <span class="loja-data">📅 ${dataStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
         //  COR DE FUNDO DOS GRÁFICOS
         // ============================================================
 
@@ -2113,7 +2608,6 @@
 
             aplicarCorFundoGraficos();
 
-            // SALVA NO SUPABASE PARA TODOS OS USUÁRIOS
             salvarConfiguracoesSupabase({
                 chart_colors: {
                     bar1: chartColors.bar1,
@@ -2343,6 +2837,79 @@
             charts['mediaConcluidaChart'] = chart;
         }
 
+        function chartGap(data) {
+            destroyChart('gapChart');
+            const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
+            
+            if (ufs.length === 0) {
+                document.getElementById('gapChart').style.display = 'none';
+                return;
+            }
+            document.getElementById('gapChart').style.display = 'block';
+
+            const planejado = ufs.map(uf => {
+                return data.filter(r => r.UF === uf).reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
+            });
+            const realizado = ufs.map(uf => {
+                return data.filter(r => r.UF === uf).reduce((s, r) => s + safeNumber(r['REALIZADO']), 0);
+            });
+
+            const ctx = document.getElementById('gapChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ufs,
+                    datasets: [
+                        {
+                            label: 'PDVs Planejados',
+                            data: planejado,
+                            backgroundColor: chartColors.bar1 + '88',
+                            borderColor: chartColors.bar1,
+                            borderWidth: 2,
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'PDVs Realizados',
+                            data: realizado,
+                            backgroundColor: chartColors.bar2 + '88',
+                            borderColor: chartColors.bar2,
+                            borderWidth: 2,
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: v => v,
+                            anchor: 'end',
+                            align: 'end'
+                        },
+                        legend: { display: true, position: 'top', labels: { color: '#fff', boxWidth: 14,
+                                font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
+                        y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } }
+                    }
+                }
+            });
+
+            setupChartClick(chart, function(label) {
+                document.getElementById('filtroUF').value = label;
+                activeFilter = null;
+                filteredData = [];
+                aplicarFiltros();
+            });
+
+            charts['gapChart'] = chart;
+        }
+
         function chartTimeline(data) {
             destroyChart('timelineChart');
             const comData = data.filter(r => r['DATA AUTORIZAÇÃO']);
@@ -2549,6 +3116,7 @@
             requestAnimationFrame(() => {
                 chartStatusUF(data);
                 setTimeout(() => chartMediaConcluida(data), 200);
+                setTimeout(() => chartGap(data), 300);
                 setTimeout(() => chartTimeline(data), 400);
                 setTimeout(() => chartAuth(data), 600);
             });
@@ -2964,31 +3532,31 @@
         }
 
         // ============================================================
-        //  DADOS DE EXEMPLO
+        //  DADOS DE EXEMPLO COM ALERTAS
         // ============================================================
 
         function carregarDadosExemplo() {
             originalData = [
-                { LOJAS: 'Loja Alpha', CIDADE: 'São Paulo', UF: 'SP', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 12,
-                    'REALIZADO': 12, 'DATA DO ROLLOUT': '2026-01-15', 'DATA AUTORIZAÇÃO': '2026-01-10' },
-                { LOJAS: 'Loja Beta', CIDADE: 'Rio de Janeiro', UF: 'RJ', STATUS: 'AGENDADA', 'QTDE PDVs total': 8,
-                    'REALIZADO': 3, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-02-01' },
-                { LOJAS: 'Loja Gama', CIDADE: 'Belo Horizonte', UF: 'MG', STATUS: 'EM EXECUÇÃO', 'QTDE PDVs total': 10,
-                    'REALIZADO': 6, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-01-25' },
-                { LOJAS: 'Loja Delta', CIDADE: 'Curitiba', UF: 'PR', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 6,
-                    'REALIZADO': 6, 'DATA DO ROLLOUT': '2026-01-22', 'DATA AUTORIZAÇÃO': '2026-01-18' },
-                { LOJAS: 'Loja Épsilon', CIDADE: 'Porto Alegre', UF: 'RS', STATUS: 'PENDENCIADA', 'QTDE PDVs total': 15,
-                    'REALIZADO': 2, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-02-05' },
-                { LOJAS: 'Loja Zeta', CIDADE: 'Salvador', UF: 'BA', STATUS: 'AGUARDANDO AGENDAMENTO',
-                    'QTDE PDVs total': 9, 'REALIZADO': 0, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '' },
-                { LOJAS: 'Loja Eta', CIDADE: 'Brasília', UF: 'DF', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 5,
-                    'REALIZADO': 5, 'DATA DO ROLLOUT': '2026-01-28', 'DATA AUTORIZAÇÃO': '2026-01-20' },
+                { LOJAS: 'Loja Alpha', CIDADE: 'São Paulo', UF: 'SP', STATUS: 'AGENDADA', 'QTDE PDVs total': 10,
+                    'REALIZADO': 0, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-06-20' },
+                { LOJAS: 'Loja Beta', CIDADE: 'Rio de Janeiro', UF: 'RJ', STATUS: 'EM EXECUÇÃO', 'QTDE PDVs total': 8,
+                    'REALIZADO': 2, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-06-25' },
+                { LOJAS: 'Loja Gama', CIDADE: 'Belo Horizonte', UF: 'MG', STATUS: 'PENDENCIADA', 'QTDE PDVs total': 5,
+                    'REALIZADO': 0, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-07-01' },
+                { LOJAS: 'Loja Delta', CIDADE: 'Curitiba', UF: 'PR', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 12,
+                    'REALIZADO': 12, 'DATA DO ROLLOUT': '2026-07-05', 'DATA AUTORIZAÇÃO': '2026-07-01' },
+                { LOJAS: 'Loja Épsilon', CIDADE: 'Porto Alegre', UF: 'RS', STATUS: 'AGENDADA', 'QTDE PDVs total': 15,
+                    'REALIZADO': 0, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-07-04' },
+                { LOJAS: 'Loja Zeta', CIDADE: 'Salvador', UF: 'BA', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 9,
+                    'REALIZADO': 9, 'DATA DO ROLLOUT': '2026-07-08', 'DATA AUTORIZAÇÃO': '2026-07-02' },
+                { LOJAS: 'Loja Eta', CIDADE: 'Brasília', UF: 'DF', STATUS: 'EM EXECUÇÃO', 'QTDE PDVs total': 6,
+                    'REALIZADO': 3, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-07-03' },
                 { LOJAS: 'Loja Teta', CIDADE: 'Fortaleza', UF: 'CE', STATUS: 'AGENDADA', 'QTDE PDVs total': 7,
-                    'REALIZADO': 1, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-02-10' },
-                { LOJAS: 'Loja Iota', CIDADE: 'Recife', UF: 'PE', STATUS: 'EM EXECUÇÃO', 'QTDE PDVs total': 11,
-                    'REALIZADO': 8, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-01-30' },
+                    'REALIZADO': 1, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-07-07' },
+                { LOJAS: 'Loja Iota', CIDADE: 'Recife', UF: 'PE', STATUS: 'PENDENCIADA', 'QTDE PDVs total': 11,
+                    'REALIZADO': 2, 'DATA DO ROLLOUT': '', 'DATA AUTORIZAÇÃO': '2026-06-28' },
                 { LOJAS: 'Loja Kappa', CIDADE: 'Manaus', UF: 'AM', STATUS: 'CONCLUÍDA', 'QTDE PDVs total': 4,
-                    'REALIZADO': 4, 'DATA DO ROLLOUT': '2026-02-02', 'DATA AUTORIZAÇÃO': '2026-01-28' },
+                    'REALIZADO': 4, 'DATA DO ROLLOUT': '2026-07-10', 'DATA AUTORIZAÇÃO': '2026-07-05' },
             ];
             aplicarFiltros();
         }
@@ -3119,7 +3687,6 @@
                     carregarDashboardDataSupabase()
                 ]);
                 
-                // Carrega configurações (cria registro se não existir)
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
