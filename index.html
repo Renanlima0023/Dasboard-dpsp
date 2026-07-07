@@ -815,6 +815,22 @@
             border-color: #6BCB77;
         }
 
+        /* ===== BOTÃO DE CÁLCULO AUTOMÁTICO ===== */
+        .btn-calculo-auto {
+            background: linear-gradient(135deg, rgba(199, 125, 255, 0.15), rgba(150, 80, 200, 0.15));
+            border-color: rgba(199, 125, 255, 0.2);
+            color: #C77DFF;
+            font-size: 13px;
+            padding: 10px 20px;
+        }
+        .btn-calculo-auto:hover {
+            background: rgba(199, 125, 255, 0.2);
+        }
+        .btn-calculo-auto.active-auto {
+            background: rgba(199, 125, 255, 0.25);
+            border-color: #C77DFF;
+        }
+
         .loading {
             position: fixed;
             top: 0;
@@ -1358,11 +1374,21 @@
             <!-- ===== UF PROGRESS CARDS ===== -->
             <div class="uf-progress-container" id="ufProgressContainer"></div>
 
-            <!-- ===== ALERTAS ===== -->
+            <!-- ===== ALERTAS (movido para antes das Últimas Atualizações) ===== -->
             <div class="box box-alertas" id="alertasBox">
                 <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
                 <div id="alertasContainer">
                     <div class="empty-state">✅ Nenhum alerta no momento</div>
+                </div>
+            </div>
+
+            <!-- ===== ÚLTIMAS ATUALIZAÇÕES ===== -->
+            <div class="grid" style="grid-template-columns:1fr;">
+                <div class="box">
+                    <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
+                    <div id="ultimasAtualizacoes">
+                        <div class="empty-state">Nenhuma atualização recente</div>
+                    </div>
                 </div>
             </div>
 
@@ -1394,16 +1420,6 @@
                 <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper4"><canvas id="authChart"></canvas></div>
                     <div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div>
-                </div>
-            </div>
-
-            <!-- ===== ÚLTIMAS ATUALIZAÇÕES ===== -->
-            <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box">
-                    <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
-                    <div id="ultimasAtualizacoes">
-                        <div class="empty-state">Nenhuma atualização recente</div>
-                    </div>
                 </div>
             </div>
 
@@ -1465,6 +1481,10 @@
                         <button class="toolbar-btn acao-btn" onclick="abrirUpload()">📂 Atualizar Planilha</button>
                         <button class="toolbar-btn acao-btn" onclick="togglePresentation()">🖥️ Modo Apresentação</button>
                         <button class="toolbar-btn acao-btn" onclick="exportarPDF()">📄 Exportar PDF</button>
+                        <!-- NOVO: Botão para alternar cálculo automático do progresso -->
+                        <button class="toolbar-btn acao-btn btn-calculo-auto" id="btnCalculoAuto" onclick="toggleCalculoAuto()">
+                            📊 Cálculo Automático: <span id="calculoAutoStatus">ON</span>
+                        </button>
                     </div>
                     <div class="painel-divider"></div>
                     <div class="painel-secao">
@@ -1506,6 +1526,14 @@
                             <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                             <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
                             <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
+                            <!-- NOVO: Cores específicas para o gráfico de Gap -->
+                            <div class="cor-linha"><label>Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <!-- NOVO: Cores do gráfico de Status por UF -->
+                            <div class="cor-linha"><label>Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>Status 4</label><input type="color" id="statusColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                         </div>
                     </div>
                 </div>
@@ -1549,6 +1577,9 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
+        // ===== NOVO: Controle de cálculo automático do progresso =====
+        let calculoAutoAtivo = true;
+
         // ===== FILTRO ATIVO =====
         let activeFilter = null;
         let filteredData = [];
@@ -1560,7 +1591,13 @@
             bar3: '#FFD93D',
             bar4: '#C77DFF',
             line: '#FF6B6B',
-            bg: '#0D1B2A'
+            bg: '#0D1B2A',
+            gap1: '#6DD5FA',
+            gap2: '#6BCB77',
+            status1: '#6DD5FA',
+            status2: '#6BCB77',
+            status3: '#FFD93D',
+            status4: '#C77DFF'
         };
 
         // ============================================================
@@ -1670,13 +1707,20 @@
                             cor_grad3: '#3A506B',
                             angulo_grad: 135,
                             cor_destaque: '#6DD5FA',
+                            calculo_auto: true,
                             chart_colors: JSON.stringify({
                                 bar1: '#6DD5FA',
                                 bar2: '#6BCB77',
                                 bar3: '#FFD93D',
                                 bar4: '#C77DFF',
                                 line: '#FF6B6B',
-                                bg: '#0D1B2A'
+                                bg: '#0D1B2A',
+                                gap1: '#6DD5FA',
+                                gap2: '#6BCB77',
+                                status1: '#6DD5FA',
+                                status2: '#6BCB77',
+                                status3: '#FFD93D',
+                                status4: '#C77DFF'
                             }),
                             updated_at: new Date().toISOString()
                         });
@@ -1701,6 +1745,12 @@
                     document.getElementById('logoEmpresaImg').src = data.logo_empresa;
                     document.getElementById('logoEmpresaImg').style.display = 'block';
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
+                }
+
+                // Carregar estado do cálculo automático
+                if (data.calculo_auto !== undefined) {
+                    calculoAutoAtivo = data.calculo_auto;
+                    atualizarStatusCalculoAuto();
                 }
 
                 if (data.tipo_fundo === 'solido') {
@@ -1737,6 +1787,18 @@
                             chartColors.line = cc.line; }
                         if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
                             chartColors.bg = cc.bg; }
+                        if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
+                            chartColors.gap1 = cc.gap1; }
+                        if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
+                            chartColors.gap2 = cc.gap2; }
+                        if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
+                            chartColors.status1 = cc.status1; }
+                        if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
+                            chartColors.status2 = cc.status2; }
+                        if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
+                            chartColors.status3 = cc.status3; }
+                        if (cc.status4) { document.getElementById('statusColor4').value = cc.status4;
+                            chartColors.status4 = cc.status4; }
                     } catch (e) {
                         console.error('Erro ao parsear chart_colors:', e);
                     }
@@ -1860,6 +1922,37 @@
                 btn.classList.remove('active-auto');
                 clearInterval(autoRefreshInterval);
                 showToast('⏹️ Auto-Refresh desativado', 'info');
+            }
+        }
+
+        // ============================================================
+        //  CÁLCULO AUTOMÁTICO DO PROGRESSO
+        // ============================================================
+        function toggleCalculoAuto() {
+            calculoAutoAtivo = !calculoAutoAtivo;
+            atualizarStatusCalculoAuto();
+            
+            salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
+            
+            // Recalcula o ritmo diário com base na nova configuração
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            
+            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado', 'info', 2000);
+        }
+
+        function atualizarStatusCalculoAuto() {
+            const statusEl = document.getElementById('calculoAutoStatus');
+            const btn = document.getElementById('btnCalculoAuto');
+            
+            if (calculoAutoAtivo) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
             }
         }
 
@@ -2293,15 +2386,38 @@
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
             
+            // Cálculo do ritmo diário
+            let ritmoDiario = 0;
             const dataAtual = new Date();
-            const dataLimite = new Date(dataAtual);
-            dataLimite.setDate(dataLimite.getDate() - 30);
-            const ultimos30Dias = data.filter(r => {
-                const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                return d && d >= dataLimite && d <= dataAtual;
-            });
-            const ritmoDiario = ultimos30Dias.length > 0 ? 
-                Math.round((ultimos30Dias.filter(isConcluida).length / 30) * 10) / 10 : 0;
+            
+            if (calculoAutoAtivo) {
+                // Cálculo automático: baseado nos últimos 30 dias
+                const dataLimite = new Date(dataAtual);
+                dataLimite.setDate(dataLimite.getDate() - 30);
+                const ultimos30Dias = data.filter(r => {
+                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                    return d && d >= dataLimite && d <= dataAtual;
+                });
+                const concluidasUltimos30 = ultimos30Dias.filter(isConcluida).length;
+                const diasComDados = new Set(ultimos30Dias.map(r => {
+                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                    return d ? d.toISOString().slice(0, 10) : null;
+                }).filter(Boolean)).size;
+                
+                ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 : 0;
+            } else {
+                // Cálculo manual: baseado no total de lojas concluídas desde o início
+                const todasConcluidas = data.filter(isConcluida);
+                if (todasConcluidas.length > 0) {
+                    const datas = todasConcluidas.map(r => parseExcelDate(r['DATA DO ROLLOUT'])).filter(Boolean);
+                    if (datas.length > 0) {
+                        const primeiraData = new Date(Math.min(...datas));
+                        const ultimaData = new Date(Math.max(...datas));
+                        const diffDias = Math.max(1, Math.ceil((ultimaData - primeiraData) / (1000 * 60 * 60 * 24)));
+                        ritmoDiario = Math.round((todasConcluidas.length / diffDias) * 10) / 10;
+                    }
+                }
+            }
 
             let previsao = '-';
             if (ritmoDiario > 0 && lojasRestantes > 0) {
@@ -2392,6 +2508,11 @@
             if (inicio || fim) {
                 const periodo = (inicio ? inicio : '...') + ' → ' + (fim ? fim : '...');
                 badges.push(`<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`);
+            }
+
+            // Mostrar status do cálculo
+            if (!calculoAutoAtivo) {
+                badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
             }
 
             status.innerHTML = badges.join('');
@@ -2605,6 +2726,12 @@
             chartColors.bar4 = document.getElementById('chartColor4').value;
             chartColors.line = document.getElementById('chartLineColor').value;
             chartColors.bg = document.getElementById('chartBgColor').value;
+            chartColors.gap1 = document.getElementById('gapColor1').value;
+            chartColors.gap2 = document.getElementById('gapColor2').value;
+            chartColors.status1 = document.getElementById('statusColor1').value;
+            chartColors.status2 = document.getElementById('statusColor2').value;
+            chartColors.status3 = document.getElementById('statusColor3').value;
+            chartColors.status4 = document.getElementById('statusColor4').value;
 
             aplicarCorFundoGraficos();
 
@@ -2615,7 +2742,13 @@
                     bar3: chartColors.bar3,
                     bar4: chartColors.bar4,
                     line: chartColors.line,
-                    bg: chartColors.bg
+                    bg: chartColors.bg,
+                    gap1: chartColors.gap1,
+                    gap2: chartColors.gap2,
+                    status1: chartColors.status1,
+                    status2: chartColors.status2,
+                    status3: chartColors.status3,
+                    status4: chartColors.status4
                 }
             });
 
@@ -2697,7 +2830,7 @@
                 matrix[st][uf] = (matrix[st][uf] || 0) + 1;
             });
 
-            const colorPalette = [chartColors.bar1, chartColors.bar2, chartColors.bar3, chartColors.bar4, chartColors.line];
+            const colorPalette = [chartColors.status1, chartColors.status2, chartColors.status3, chartColors.status4, chartColors.line];
             const datasets = statuses.map((st, i) => ({
                 label: st,
                 data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
@@ -2863,16 +2996,16 @@
                         {
                             label: 'PDVs Planejados',
                             data: planejado,
-                            backgroundColor: chartColors.bar1 + '88',
-                            borderColor: chartColors.bar1,
+                            backgroundColor: chartColors.gap1 + '88',
+                            borderColor: chartColors.gap1,
                             borderWidth: 2,
                             borderRadius: 4,
                         },
                         {
                             label: 'PDVs Realizados',
                             data: realizado,
-                            backgroundColor: chartColors.bar2 + '88',
-                            borderColor: chartColors.bar2,
+                            backgroundColor: chartColors.gap2 + '88',
+                            borderColor: chartColors.gap2,
                             borderWidth: 2,
                             borderRadius: 4,
                         }
