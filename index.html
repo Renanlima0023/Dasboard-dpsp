@@ -586,6 +586,30 @@
             font-weight: bold;
             margin-top: 4px;
         }
+        /* Campo para data manual da previsão */
+        .previsao-manual-container {
+            display: none;
+            margin-top: 4px;
+        }
+        .previsao-manual-container input[type="date"] {
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(109, 213, 250, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+            color: #fff;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 150px;
+        }
+        .previsao-manual-container input[type="date"]:focus {
+            border-color: rgba(109, 213, 250, 0.6);
+        }
+        .previsao-manual-container input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
 
         /* ===== UF PROGRESS CARDS ===== */
         .uf-progress-container {
@@ -691,12 +715,15 @@
         }
         .ultima-atualizacao-item .loja-nome {
             font-weight: 600;
+            flex: 1;
         }
         .ultima-atualizacao-item .loja-status {
             padding: 2px 12px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
+            text-align: center;
+            min-width: 100px;
         }
         .ultima-atualizacao-item .loja-status.concluida {
             background: rgba(107, 203, 119, 0.15);
@@ -721,6 +748,8 @@
         .ultima-atualizacao-item .loja-data {
             font-size: 11px;
             opacity: 0.4;
+            min-width: 80px;
+            text-align: right;
         }
 
         .grid {
@@ -833,6 +862,22 @@
         .btn-calculo-auto.active-auto {
             background: rgba(199, 125, 255, 0.25);
             border-color: #C77DFF;
+        }
+
+        /* ===== BOTÃO DE PREVISÃO MANUAL ===== */
+        .btn-previsao-manual {
+            background: linear-gradient(135deg, rgba(255, 217, 61, 0.15), rgba(200, 170, 50, 0.15));
+            border-color: rgba(255, 217, 61, 0.2);
+            color: #FFD93D;
+            font-size: 13px;
+            padding: 10px 20px;
+        }
+        .btn-previsao-manual:hover {
+            background: rgba(255, 217, 61, 0.2);
+        }
+        .btn-previsao-manual.active-auto {
+            background: rgba(255, 217, 61, 0.25);
+            border-color: #FFD93D;
         }
 
         .loading {
@@ -1214,6 +1259,18 @@
                 flex-direction: column;
                 gap: 12px;
             }
+            .ultima-atualizacao-item {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .ultima-atualizacao-item .loja-data {
+                text-align: left;
+                min-width: auto;
+            }
+            .ultima-atualizacao-item .loja-status {
+                min-width: 80px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -1335,6 +1392,9 @@
                         <div class="status-item">
                             <div class="label">Previsão de Conclusão</div>
                             <div class="value" id="previsaoConclusao" style="font-size:22px;">-</div>
+                            <div class="previsao-manual-container" id="previsaoManualContainer">
+                                <input type="date" id="previsaoManualDate" onchange="atualizarPrevisaoManual()">
+                            </div>
                         </div>
                         <div class="status-item">
                             <div class="label">Ritmo (lojas/dia)</div>
@@ -1485,9 +1545,13 @@
                         <button class="toolbar-btn acao-btn" onclick="abrirUpload()">📂 Atualizar Planilha</button>
                         <button class="toolbar-btn acao-btn" onclick="togglePresentation()">🖥️ Modo Apresentação</button>
                         <button class="toolbar-btn acao-btn" onclick="exportarPDF()">📄 Exportar PDF</button>
-                        <!-- NOVO: Botão para alternar cálculo automático do progresso -->
+                        <!-- Botão para alternar cálculo automático do progresso -->
                         <button class="toolbar-btn acao-btn btn-calculo-auto" id="btnCalculoAuto" onclick="toggleCalculoAuto()">
                             📊 Cálculo Automático: <span id="calculoAutoStatus">ON</span>
+                        </button>
+                        <!-- Botão para alternar previsão manual -->
+                        <button class="toolbar-btn acao-btn btn-previsao-manual" id="btnPrevisaoManual" onclick="togglePrevisaoManual()">
+                            📅 Previsão Manual: <span id="previsaoManualStatus">OFF</span>
                         </button>
                     </div>
                     <div class="painel-divider"></div>
@@ -1530,10 +1594,8 @@
                             <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                             <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
                             <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
-                            <!-- NOVO: Cores específicas para o gráfico de Gap -->
                             <div class="cor-linha"><label>Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <!-- NOVO: Cores do gráfico de Status por UF -->
                             <div class="cor-linha"><label>Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
                             <div class="cor-linha"><label>Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
@@ -1581,8 +1643,12 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
-        // ===== NOVO: Controle de cálculo automático do progresso =====
+        // ===== Controle de cálculo automático do progresso =====
         let calculoAutoAtivo = true;
+
+        // ===== Controle de previsão manual =====
+        let previsaoManualAtiva = false;
+        let previsaoManualData = null;
 
         // ===== FILTRO ATIVO =====
         let activeFilter = null;
@@ -1712,6 +1778,8 @@
                             angulo_grad: 135,
                             cor_destaque: '#6DD5FA',
                             calculo_auto: true,
+                            previsao_manual: false,
+                            previsao_data: null,
                             chart_colors: JSON.stringify({
                                 bar1: '#6DD5FA',
                                 bar2: '#6BCB77',
@@ -1755,6 +1823,13 @@
                 if (data.calculo_auto !== undefined) {
                     calculoAutoAtivo = data.calculo_auto;
                     atualizarStatusCalculoAuto();
+                }
+
+                // Carregar estado da previsão manual
+                if (data.previsao_manual !== undefined) {
+                    previsaoManualAtiva = data.previsao_manual;
+                    previsaoManualData = data.previsao_data || null;
+                    atualizarStatusPrevisaoManual();
                 }
 
                 if (data.tipo_fundo === 'solido') {
@@ -1938,7 +2013,6 @@
             
             salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
             
-            // Recalcula o ritmo diário com base na nova configuração
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
@@ -1958,6 +2032,65 @@
                 statusEl.textContent = 'OFF';
                 btn.classList.remove('active-auto');
             }
+        }
+
+        // ============================================================
+        //  PREVISÃO MANUAL
+        // ============================================================
+        function togglePrevisaoManual() {
+            previsaoManualAtiva = !previsaoManualAtiva;
+            atualizarStatusPrevisaoManual();
+            
+            salvarConfiguracoesSupabase({ 
+                previsao_manual: previsaoManualAtiva,
+                previsao_data: previsaoManualAtiva ? previsaoManualData : null
+            });
+            
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            
+            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada - defina a data no card' : '📅 Previsão manual desativada', 'info', 2000);
+        }
+
+        function atualizarStatusPrevisaoManual() {
+            const statusEl = document.getElementById('previsaoManualStatus');
+            const btn = document.getElementById('btnPrevisaoManual');
+            const container = document.getElementById('previsaoManualContainer');
+            const dataInput = document.getElementById('previsaoManualDate');
+            
+            if (previsaoManualAtiva) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+                container.style.display = 'block';
+                if (previsaoManualData) {
+                    dataInput.value = previsaoManualData;
+                } else {
+                    // Definir data padrão como 30 dias a partir de hoje
+                    const hoje = new Date();
+                    hoje.setDate(hoje.getDate() + 30);
+                    dataInput.value = hoje.toISOString().slice(0, 10);
+                    previsaoManualData = dataInput.value;
+                }
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+                container.style.display = 'none';
+            }
+        }
+
+        function atualizarPrevisaoManual() {
+            const dataInput = document.getElementById('previsaoManualDate');
+            previsaoManualData = dataInput.value;
+            salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
+            
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            
+            showToast('📅 Data de previsão atualizada para ' + previsaoManualData, 'success', 1500);
         }
 
         // ============================================================
@@ -2390,7 +2523,7 @@
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
             
-            // Cálculo do ritmo diário
+            // Cálculo do ritmo diário - baseado na média do gráfico
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
@@ -2423,8 +2556,15 @@
                 }
             }
 
+            // Previsão de conclusão
             let previsao = '-';
-            if (ritmoDiario > 0 && lojasRestantes > 0) {
+            
+            if (previsaoManualAtiva && previsaoManualData) {
+                // Usar data manual definida pelo administrador
+                const dataParts = previsaoManualData.split('-');
+                const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
+                previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
+            } else if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
                 dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
@@ -2514,9 +2654,12 @@
                 badges.push(`<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`);
             }
 
-            // Mostrar status do cálculo
             if (!calculoAutoAtivo) {
                 badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
+            }
+
+            if (previsaoManualAtiva) {
+                badges.push(`<span class="filter-badge" style="background:rgba(255,217,61,0.12);border-color:rgba(255,217,61,0.15);color:#FFD93D;">📅 Previsão Manual</span>`);
             }
 
             status.innerHTML = badges.join('');
@@ -2668,7 +2811,7 @@
         }
 
         // ============================================================
-        //  ÚLTIMAS ATUALIZAÇÕES
+        //  ÚLTIMAS ATUALIZAÇÕES (centralizadas)
         // ============================================================
 
         function atualizarUltimasAtualizacoes(data) {
