@@ -1359,10 +1359,8 @@
 
         function renderizarUsuarios() {
             const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '';
-            usuarios.forEach(u => {
-                const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
-                tbody.innerHTML += `
+            const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
+            const linhas = usuarios.map(u => `
                     <tr>
                         <td>${u.nome}</td>
                         <td>${roleNames[u.role] || u.role}</td>
@@ -1371,8 +1369,8 @@
                             <button class="delete-btn" onclick="excluirUsuario(${u.id})">🗑️</button>
                         </td>
                     </tr>
-                `;
-            });
+                `);
+            tbody.innerHTML = linhas.join('');
         }
 
         async function adicionarUsuario() {
@@ -2449,10 +2447,9 @@
                         }
 
                         const tbody = document.getElementById('tableBodyComplete');
-                        tbody.innerHTML = '';
-                        dados.forEach(r => {
+                        const linhas = dados.map(r => {
                             const evol = calcEvolucao(r);
-                            tbody.innerHTML += \`
+                            return \`
                                 <tr>
                                     <td><strong>\${r.LOJAS || ''}</strong></td>
                                     <td>\${r.CIDADE || ''}</td>
@@ -2469,6 +2466,7 @@
                                 </tr>
                             \`;
                         });
+                        tbody.innerHTML = linhas.join('');
 
                         document.getElementById('totalCountTable').textContent = dados.length;
                     }
