@@ -419,7 +419,7 @@
             background: rgba(255, 255, 255, .12);
         }
 
-        /* ===== CARDS CLICÁVEIS - ESTILO MELHORADO ===== */
+        /* ===== CARDS CLICÁVEIS ===== */
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1370,6 +1370,7 @@
 
             aplicandoConfigRemota = true;
 
+            // ===== CARREGA LOGOS =====
             if (data.logo_cliente) {
                 document.getElementById('logoClienteImg').src = data.logo_cliente;
                 document.getElementById('logoClienteImg').style.display = 'block';
@@ -1381,6 +1382,7 @@
                 document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
             }
 
+            // ===== CARREGA COR DE FUNDO =====
             if (data.tipo_fundo === 'solido') {
                 document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
                 setTipoFundo('solido');
@@ -1393,11 +1395,13 @@
                 setTipoFundo('degradê');
             }
 
+            // ===== CARREGA COR DE DESTAQUE =====
             if (data.cor_destaque) {
                 document.getElementById('corDestaque').value = data.cor_destaque;
                 aplicarCorDestaque(data.cor_destaque);
             }
 
+            // ===== CARREGA CORES DOS GRÁFICOS =====
             if (data.chart_colors) {
                 const cc = data.chart_colors;
                 if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
@@ -1414,8 +1418,10 @@
                     chartColors.bg = cc.bg; }
             }
 
+            // Aplica a cor de fundo dos gráficos
             aplicarCorFundoGraficos();
 
+            // Atualiza os gráficos com as cores carregadas
             if (originalData && originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarGraficos(data);
@@ -1427,11 +1433,17 @@
         let aplicandoConfigRemota = false;
 
         async function salvarConfiguracoesSupabase(parcial) {
+            // Se está aplicando configuração remota, não salva de volta para evitar loop
             if (aplicandoConfigRemota) return;
+            
             try {
                 const { error } = await supabaseClient
                     .from('configuracoes')
-                    .upsert({ id: 1, ...parcial, updated_at: new Date().toISOString() });
+                    .upsert({ 
+                        id: 1, 
+                        ...parcial, 
+                        updated_at: new Date().toISOString() 
+                    });
 
                 if (error) {
                     console.error('Erro ao salvar configurações:', error);
@@ -1445,6 +1457,7 @@
         }
 
         function iniciarRealtime() {
+            // Canal para usuários
             supabaseClient
                 .channel('usuarios-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
@@ -1453,6 +1466,7 @@
                 })
                 .subscribe();
 
+            // Canal para dados do dashboard
             supabaseClient
                 .channel('dashboard-data-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
@@ -1464,6 +1478,7 @@
                 })
                 .subscribe();
 
+            // Canal para configurações (cores, logos)
             supabaseClient
                 .channel('configuracoes-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
@@ -1539,9 +1554,11 @@
             const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
             const isAdmin = usuario.role === 'admin';
 
+            // Controles de upload e configurações (apenas Admin/Gerente)
             document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
             document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
 
+            // Logos: apenas Admin/Gerente podem clicar
             document.querySelectorAll('.logo-box').forEach(el => {
                 if (usuario.role === 'visualizador') {
                     el.classList.remove('clickable');
@@ -1557,6 +1574,7 @@
                 }
             });
 
+            // Ocultar labels das logos para visualizadores
             const labelEmpresa = document.getElementById('labelEmpresa');
             const labelCliente = document.getElementById('labelCliente');
             if (usuario.role === 'visualizador') {
@@ -1567,6 +1585,7 @@
                 labelCliente.classList.remove('hidden-label');
             }
 
+            // Gerenciar usuários (apenas Admin)
             const btnUser = document.getElementById('btnGerenciarUsuarios');
             if (isAdmin) {
                 btnUser.style.display = 'flex';
@@ -1581,6 +1600,7 @@
                 userManagementVisible = false;
             }
 
+            // Botão adicionar usuário
             const btnAdd = document.getElementById('btnAdicionarUsuario');
             btnAdd.replaceWith(btnAdd.cloneNode(true));
             const newAdd = document.getElementById('btnAdicionarUsuario');
@@ -2019,6 +2039,7 @@
 
             aplicarCorFundoGraficos();
 
+            // SALVA NO SUPABASE PARA TODOS OS USUÁRIOS
             salvarConfiguracoesSupabase({
                 chart_colors: {
                     bar1: chartColors.bar1,
@@ -2491,7 +2512,6 @@
         });
 
         document.getElementById('filtroUF').addEventListener('change', function() {
-            // CORREÇÃO: Quando mudar o UF, reseta o filtro ativo e aplica
             activeFilter = null;
             filteredData = [];
             aplicarFiltros();
@@ -2933,6 +2953,7 @@
                 const c = document.getElementById('corFundo1').value;
                 document.getElementById('corFundo1Hex').textContent = c;
                 document.body.style.background = c;
+                // SALVA NO SUPABASE
                 salvarConfiguracoesSupabase({ 
                     tipo_fundo: 'solido', 
                     cor_fundo1: c 
@@ -2948,6 +2969,7 @@
                 document.body.style.background =
                     'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
                 document.body.style.backgroundAttachment = 'fixed';
+                // SALVA NO SUPABASE
                 salvarConfiguracoesSupabase({
                     tipo_fundo: 'degrade',
                     cor_grad1: c1, 
@@ -2989,10 +3011,11 @@
                 el.style.borderColor = cor + '44';
                 el.style.background = cor + '20';
             });
+            // SALVA NO SUPABASE
             salvarConfiguracoesSupabase({ cor_destaque: cor });
         }
 
-        // Logo upload
+        // ===== LOGO UPLOAD =====
         function setupLogoUpload(inputId, imgId, placeholderId) {
             document.getElementById(inputId).addEventListener('change', function() {
                 const file = this.files[0];
@@ -3006,7 +3029,9 @@
                     ph.style.display = 'none';
 
                     const campo = inputId === 'logoClienteInput' ? 'logo_cliente' : 'logo_empresa';
+                    // SALVA NO SUPABASE
                     salvarConfiguracoesSupabase({ [campo]: e.target.result });
+                    showToast('✅ Logo atualizada para todos os usuários!', 'success', 2000);
                 };
                 reader.readAsDataURL(file);
             });
