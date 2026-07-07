@@ -164,30 +164,6 @@
             margin-top: 10px;
             display: none;
         }
-        .login-info {
-            color: #6DD5FA;
-            font-size: 12px;
-            margin-top: 16px;
-            padding: 12px;
-            background: rgba(109, 213, 250, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(109, 213, 250, 0.08);
-        }
-        .login-info strong {
-            color: #fff;
-        }
-        .login-info .demo-users {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-            font-size: 12px;
-        }
-        .login-info .demo-users span {
-            background: rgba(255,255,255,0.05);
-            padding: 2px 10px;
-            border-radius: 6px;
-        }
 
         /* ===== DASHBOARD ===== */
         #dashboardContent {
@@ -260,6 +236,14 @@
         .toolbar-btn.success:hover {
             background: rgba(107, 203, 119, 0.2);
         }
+        .toolbar-btn.info {
+            background: rgba(255, 217, 61, 0.12);
+            color: #FFD93D;
+            border: 1px solid rgba(255, 217, 61, 0.15);
+        }
+        .toolbar-btn.info:hover {
+            background: rgba(255, 217, 61, 0.2);
+        }
         .user-badge {
             font-size: 13px;
             opacity: 0.7;
@@ -275,6 +259,127 @@
             background: rgba(109, 213, 250, 0.12);
             color: #6DD5FA;
             border: 1px solid rgba(109, 213, 250, 0.15);
+        }
+
+        /* ===== GUIA DE GRÁFICOS - MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content {
+            background: rgba(8, 15, 25, 0.98);
+            border: 1px solid rgba(109, 213, 250, 0.15);
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px 45px;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+        }
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(109, 213, 250, 0.3);
+            border-radius: 10px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: .2s;
+            background: none;
+            border: none;
+            color: #fff;
+        }
+        .modal-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+        .modal-content h2 {
+            font-size: 26px;
+            margin-bottom: 6px;
+            color: #6DD5FA;
+        }
+        .modal-content .subtitle-modal {
+            opacity: 0.4;
+            font-size: 14px;
+            margin-bottom: 30px;
+            border-left: 3px solid #6DD5FA;
+            padding-left: 14px;
+        }
+        .guia-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin-bottom: 16px;
+            border-left: 4px solid rgba(109, 213, 250, 0.2);
+            transition: .2s;
+        }
+        .guia-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: #6DD5FA;
+        }
+        .guia-item .guia-titulo {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .guia-item .guia-titulo .icon {
+            font-size: 20px;
+        }
+        .guia-item .guia-descricao {
+            opacity: 0.7;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .guia-item .guia-dicas {
+            margin-top: 8px;
+            font-size: 13px;
+            opacity: 0.5;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .guia-item .guia-dicas span {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+        .guia-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 20px 0;
         }
 
         .header {
@@ -436,11 +541,6 @@
             text-align: center;
             padding: 4px;
             pointer-events: none;
-        }
-        .logo-divider {
-            width: 1px;
-            height: 50px;
-            background: rgba(255, 255, 255, .12);
         }
 
         /* ===== CARDS ===== */
@@ -855,54 +955,6 @@
             border-color: #6BCB77;
         }
 
-        /* ===== BOTÃO DE CÁLCULO AUTOMÁTICO ===== */
-        .btn-calculo-auto {
-            background: linear-gradient(135deg, rgba(199, 125, 255, 0.15), rgba(150, 80, 200, 0.15));
-            border-color: rgba(199, 125, 255, 0.2);
-            color: #C77DFF;
-            font-size: 13px;
-            padding: 10px 20px;
-        }
-        .btn-calculo-auto:hover {
-            background: rgba(199, 125, 255, 0.2);
-        }
-        .btn-calculo-auto.active-auto {
-            background: rgba(199, 125, 255, 0.25);
-            border-color: #C77DFF;
-        }
-
-        /* ===== BOTÃO DE PREVISÃO MANUAL ===== */
-        .btn-previsao-manual {
-            background: linear-gradient(135deg, rgba(255, 217, 61, 0.15), rgba(200, 170, 50, 0.15));
-            border-color: rgba(255, 217, 61, 0.2);
-            color: #FFD93D;
-            font-size: 13px;
-            padding: 10px 20px;
-        }
-        .btn-previsao-manual:hover {
-            background: rgba(255, 217, 61, 0.2);
-        }
-        .btn-previsao-manual.active-auto {
-            background: rgba(255, 217, 61, 0.25);
-            border-color: #FFD93D;
-        }
-
-        /* ===== BOTÃO DE RITMO MANUAL ===== */
-        .btn-ritmo-manual {
-            background: linear-gradient(135deg, rgba(107, 203, 119, 0.15), rgba(70, 180, 80, 0.15));
-            border-color: rgba(107, 203, 119, 0.2);
-            color: #6BCB77;
-            font-size: 13px;
-            padding: 10px 20px;
-        }
-        .btn-ritmo-manual:hover {
-            background: rgba(107, 203, 119, 0.2);
-        }
-        .btn-ritmo-manual.active-auto {
-            background: rgba(107, 203, 119, 0.25);
-            border-color: #6BCB77;
-        }
-
         .loading {
             position: fixed;
             top: 0;
@@ -1304,6 +1356,13 @@
                 min-width: 80px;
                 font-size: 10px;
             }
+            .modal-content {
+                padding: 25px 20px;
+            }
+            .guia-item .guia-dicas {
+                flex-direction: column;
+                gap: 4px;
+            }
         }
     </style>
 </head>
@@ -1330,6 +1389,93 @@
         </div>
     </div>
 
+    <!-- ===== GUIA DE GRÁFICOS - MODAL ===== -->
+    <div class="modal-overlay" id="guiaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharGuia()">✕</button>
+            <h2>📖 Guia dos Gráficos</h2>
+            <div class="subtitle-modal">Entenda o que cada gráfico representa no dashboard</div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">📊</span> Status por UF</div>
+                <div class="guia-descricao">
+                    Apresenta a distribuição das lojas por estado (UF) e seus respectivos status (Agendada, Em Execução, Concluída, Pendente, etc). 
+                    Cada barra representa um estado e as cores indicam a quantidade de lojas em cada status.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em uma UF para filtrar o dashboard</span>
+                    <span>📌 As cores ajudam a identificar rapidamente a situação de cada região</span>
+                </div>
+            </div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">📈</span> Média de Lojas Concluídas por Dia</div>
+                <div class="guia-descricao">
+                    Mostra a quantidade de lojas concluídas por dia (barras) e a média diária (linha amarela tracejada). 
+                    Este gráfico permite visualizar o ritmo de conclusão do projeto e identificar dias com desempenho acima ou abaixo da média.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em um dia para ver os detalhes daquele dia</span>
+                    <span>📌 Barras verdes = acima da média | Barras azuis = abaixo da média</span>
+                </div>
+            </div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">📊</span> Gap por UF (Planejado vs Realizado)</div>
+                <div class="guia-descricao">
+                    Compara o total de PDVs planejados versus os PDVs realizados por estado. 
+                    Permite identificar rapidamente quais estados estão com execução abaixo do planejado.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em uma UF para filtrar o dashboard</span>
+                    <span>📌 Quanto menor a diferença entre as barras, melhor a execução</span>
+                </div>
+            </div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">📊</span> Semanal: Planejado vs Realizado</div>
+                <div class="guia-descricao">
+                    Compara o total de PDVs planejados versus os PDVs realizados por semana de rollout. 
+                    Este gráfico é útil para entender a evolução semanal do projeto e identificar tendências.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em uma semana para filtrar o dashboard</span>
+                    <span>📌 Acompanhe se a execução está acompanhando o planejamento semana a semana</span>
+                </div>
+            </div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">⏳</span> Linha do Tempo</div>
+                <div class="guia-descricao">
+                    Exibe o acumulado de lojas autorizadas ao longo do tempo (linha azul) e as novas autorizações por mês (barras amarelas). 
+                    Permite visualizar o fluxo de autorizações e o crescimento do projeto.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em um mês para filtrar o dashboard</span>
+                    <span>📌 A linha ascendente mostra o acúmulo total de autorizações</span>
+                </div>
+            </div>
+
+            <div class="guia-item">
+                <div class="guia-titulo"><span class="icon">📅</span> Lojas Agendadas por Data de Autorização</div>
+                <div class="guia-descricao">
+                    Mostra a distribuição das lojas agendadas por data de autorização (barras roxas) e o acumulado diário (linha vermelha). 
+                    Útil para visualizar a concentração de autorizações e o ritmo de agendamento.
+                </div>
+                <div class="guia-dicas">
+                    <span>💡 Clique em um dia para filtrar o dashboard</span>
+                    <span>📌 A linha vermelha mostra o total acumulado de autorizações</span>
+                </div>
+            </div>
+
+            <div class="guia-divider"></div>
+
+            <div style="opacity:0.4;font-size:13px;text-align:center;">
+                🔍 Todos os gráficos são interativos — clique em qualquer barra ou ponto para filtrar os dados do dashboard.
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div id="toast" class="toast"></div>
 
@@ -1344,6 +1490,7 @@
                     <button class="toolbar-btn" onclick="togglePresentation()">🖥️ Apresentação</button>
                     <button class="toolbar-btn primary" id="btnGerenciarUsuarios">👥 Gerenciar Usuários</button>
                     <button class="toolbar-btn success" onclick="exportarPDF()">📄 Exportar PDF</button>
+                    <button class="toolbar-btn info" onclick="abrirGuia()">📖 Guia dos Gráficos</button>
                 </div>
                 <div class="toolbar-right">
                     <span class="user-badge">
@@ -1706,6 +1853,33 @@
             semanal1: '#6DD5FA',
             semanal2: '#6BCB77'
         };
+
+        // ============================================================
+        //  GUIA DE GRÁFICOS
+        // ============================================================
+        function abrirGuia() {
+            document.getElementById('guiaModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharGuia() {
+            document.getElementById('guiaModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Fechar guia com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharGuia();
+            }
+        });
+
+        // Fechar guia clicando fora do modal
+        document.getElementById('guiaModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharGuia();
+            }
+        });
 
         // ============================================================
         //  TOAST
