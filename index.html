@@ -586,7 +586,6 @@
             font-weight: bold;
             margin-top: 4px;
         }
-        /* Campos manuais - visíveis apenas para admin */
         .manual-container {
             display: none;
             margin-top: 4px;
@@ -1328,16 +1327,6 @@
             <input type="password" id="loginPassword" placeholder="Digite a senha" value="">
             <div id="loginError" class="login-error">❌ Senha inválida. Tente novamente.</div>
             <button class="login-btn" id="loginBtn">Entrar</button>
-
-            <div class="login-info">
-                <strong>🔑 Credenciais de teste:</strong>
-                <div class="demo-users">
-                    <span>👑 Admin: <strong>•••</strong></span>
-                    <span>📋 Gerente: <strong>•••</strong></span>
-                    <span>👀 Visualizador: <strong>•••</strong></span>
-                </div>
-                <div style="font-size:11px;opacity:0.5;margin-top:6px;">Senha padrão: 123 para todos os perfis</div>
-            </div>
         </div>
     </div>
 
@@ -1591,15 +1580,12 @@
                         <button class="toolbar-btn acao-btn" onclick="abrirUpload()">📂 Atualizar Planilha</button>
                         <button class="toolbar-btn acao-btn" onclick="togglePresentation()">🖥️ Modo Apresentação</button>
                         <button class="toolbar-btn acao-btn" onclick="exportarPDF()">📄 Exportar PDF</button>
-                        <!-- Botão para alternar cálculo automático do progresso -->
                         <button class="toolbar-btn acao-btn btn-calculo-auto" id="btnCalculoAuto" onclick="toggleCalculoAuto()">
                             📊 Cálculo Automático: <span id="calculoAutoStatus">ON</span>
                         </button>
-                        <!-- Botão para alternar previsão manual -->
                         <button class="toolbar-btn acao-btn btn-previsao-manual" id="btnPrevisaoManual" onclick="togglePrevisaoManual()">
                             📅 Previsão Manual: <span id="previsaoManualStatus">OFF</span>
                         </button>
-                        <!-- Botão para alternar ritmo manual -->
                         <button class="toolbar-btn acao-btn btn-ritmo-manual" id="btnRitmoManual" onclick="toggleRitmoManual()">
                             📊 Ritmo Manual: <span id="ritmoManualStatus">OFF</span>
                         </button>
@@ -1638,25 +1624,19 @@
                     <div class="painel-secao">
                         <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
                         <div class="cor-controles">
-                            <!-- Gráfico: Média de Lojas Concluídas por Dia -->
                             <div class="cor-linha"><label>📈 Barras (Média)</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>📈 Acima da Média</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
                             <div class="cor-linha"><label>📈 Linha Média</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <!-- Gráfico: Lojas Agendadas por Data -->
                             <div class="cor-linha"><label>📅 Barras Agendadas</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                             <div class="cor-linha"><label>📅 Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
-                            <!-- Gráfico: Gap por UF -->
                             <div class="cor-linha"><label>📊 Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>📊 Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <!-- Gráfico: Status por UF -->
                             <div class="cor-linha"><label>📊 Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>📊 Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
                             <div class="cor-linha"><label>📊 Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
                             <div class="cor-linha"><label>📊 Status 4</label><input type="color" id="statusColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
-                            <!-- Gráfico: Semanal -->
                             <div class="cor-linha"><label>📊 Semanal Planejado</label><input type="color" id="semanalColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>📊 Semanal Realizado</label><input type="color" id="semanalColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <!-- Fundo dos gráficos -->
                             <div class="cor-linha"><label>🎨 Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
@@ -1701,22 +1681,15 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
-        // ===== Controle de cálculo automático do progresso =====
         let calculoAutoAtivo = true;
-
-        // ===== Controle de previsão manual =====
         let previsaoManualAtiva = false;
         let previsaoManualData = null;
-
-        // ===== Controle de ritmo manual =====
         let ritmoManualAtivo = false;
         let ritmoManualValor = null;
 
-        // ===== FILTRO ATIVO =====
         let activeFilter = null;
         let filteredData = [];
 
-        // ===== CORES DOS GRÁFICOS =====
         let chartColors = {
             bar1: '#6DD5FA',
             bar2: '#6BCB77',
@@ -1735,7 +1708,7 @@
         };
 
         // ============================================================
-        //  TOAST NOTIFICATION
+        //  TOAST
         // ============================================================
         function showToast(message, type = 'info', duration = 4000) {
             const toast = document.getElementById('toast');
@@ -1749,7 +1722,7 @@
         }
 
         // ============================================================
-        //  SUPABASE - CARREGAMENTO E SINCRONIZAÇÃO
+        //  SUPABASE - CARREGAMENTO
         // ============================================================
 
         async function carregarUsuariosSupabase() {
@@ -1887,20 +1860,17 @@
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                 }
 
-                // Carregar estado do cálculo automático
                 if (data.calculo_auto !== undefined) {
                     calculoAutoAtivo = data.calculo_auto;
                     atualizarStatusCalculoAuto();
                 }
 
-                // Carregar estado da previsão manual
                 if (data.previsao_manual !== undefined) {
                     previsaoManualAtiva = data.previsao_manual;
                     previsaoManualData = data.previsao_data || null;
                     atualizarStatusPrevisaoManual();
                 }
 
-                // Carregar estado do ritmo manual
                 if (data.ritmo_manual !== undefined) {
                     ritmoManualAtivo = data.ritmo_manual;
                     ritmoManualValor = data.ritmo_valor || null;
@@ -2084,26 +2054,23 @@
         }
 
         // ============================================================
-        //  CÁLCULO AUTOMÁTICO DO PROGRESSO
+        //  CONTROLES MANUAIS
         // ============================================================
+        
         function toggleCalculoAuto() {
             calculoAutoAtivo = !calculoAutoAtivo;
             atualizarStatusCalculoAuto();
-            
             salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            
             showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado', 'info', 2000);
         }
 
         function atualizarStatusCalculoAuto() {
             const statusEl = document.getElementById('calculoAutoStatus');
             const btn = document.getElementById('btnCalculoAuto');
-            
             if (calculoAutoAtivo) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
@@ -2113,28 +2080,21 @@
             }
         }
 
-        // ============================================================
-        //  PREVISÃO MANUAL
-        // ============================================================
         function togglePrevisaoManual() {
             if (currentRole !== 'admin') {
                 showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
                 return;
             }
-            
             previsaoManualAtiva = !previsaoManualAtiva;
             atualizarStatusPrevisaoManual();
-            
             salvarConfiguracoesSupabase({ 
                 previsao_manual: previsaoManualAtiva,
                 previsao_data: previsaoManualAtiva ? previsaoManualData : null
             });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            
             showToast(previsaoManualAtiva ? '📅 Previsão manual ativada - defina a data no card' : '📅 Previsão manual desativada', 'info', 2000);
         }
 
@@ -2176,41 +2136,31 @@
                 showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
                 return;
             }
-            
             const dataInput = document.getElementById('previsaoManualDate');
             previsaoManualData = dataInput.value;
             salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            
             showToast('📅 Data de previsão atualizada para ' + previsaoManualData, 'success', 1500);
         }
 
-        // ============================================================
-        //  RITMO MANUAL
-        // ============================================================
         function toggleRitmoManual() {
             if (currentRole !== 'admin') {
                 showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
                 return;
             }
-            
             ritmoManualAtivo = !ritmoManualAtivo;
             atualizarStatusRitmoManual();
-            
             salvarConfiguracoesSupabase({ 
                 ritmo_manual: ritmoManualAtivo,
                 ritmo_valor: ritmoManualAtivo ? ritmoManualValor : null
             });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            
             showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado - defina o valor no card' : '📊 Ritmo manual desativado', 'info', 2000);
         }
 
@@ -2249,18 +2199,15 @@
                 showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
                 return;
             }
-            
             const input = document.getElementById('ritmoManualInput');
             const valor = parseFloat(input.value);
             if (!isNaN(valor) && valor >= 0) {
                 ritmoManualValor = valor;
                 salvarConfiguracoesSupabase({ ritmo_valor: ritmoManualValor });
-                
                 if (originalData.length > 0) {
                     const data = getDataParaExibir();
                     atualizarCards(data);
                 }
-                
                 showToast('📊 Ritmo atualizado para ' + ritmoManualValor + ' lojas/dia', 'success', 1500);
             } else {
                 showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
@@ -2366,7 +2313,6 @@
                 adicionarUsuario();
             };
 
-            // Atualizar visibilidade dos campos manuais baseado no perfil
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
             
@@ -2713,19 +2659,15 @@
             const pdvsFinalizados = data.filter(isConcluida).reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
             const media = data.length ? Math.round(data.reduce((s, r) => s + calcEvolucao(r), 0) / data.length) : 0;
 
-            // Status Geral
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
             
-            // Cálculo do ritmo diário
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
             if (ritmoManualAtivo && ritmoManualValor !== null) {
-                // Usar ritmo manual definido pelo administrador
                 ritmoDiario = ritmoManualValor;
             } else if (calculoAutoAtivo) {
-                // Cálculo automático: baseado nos últimos 30 dias
                 const dataLimite = new Date(dataAtual);
                 dataLimite.setDate(dataLimite.getDate() - 30);
                 const ultimos30Dias = data.filter(r => {
@@ -2737,10 +2679,8 @@
                     const d = parseExcelDate(r['DATA DO ROLLOUT']);
                     return d ? d.toISOString().slice(0, 10) : null;
                 }).filter(Boolean)).size;
-                
                 ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 : 0;
             } else {
-                // Cálculo manual: baseado no total de lojas concluídas desde o início
                 const todasConcluidas = data.filter(isConcluida);
                 if (todasConcluidas.length > 0) {
                     const datas = todasConcluidas.map(r => parseExcelDate(r['DATA DO ROLLOUT'])).filter(Boolean);
@@ -2753,11 +2693,9 @@
                 }
             }
 
-            // Previsão de conclusão
             let previsao = '-';
             
             if (previsaoManualAtiva && previsaoManualData) {
-                // Usar data manual definida pelo administrador
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
                 previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
@@ -3057,7 +2995,7 @@
         }
 
         // ============================================================
-        //  COR DE FUNDO DOS GRÁFICOS
+        //  CORES DOS GRÁFICOS
         // ============================================================
 
         function aplicarCorFundoGraficos() {
@@ -3157,7 +3095,7 @@
         }
 
         // ============================================================
-        //  GRÁFICOS COM INTERAÇÃO (CLICK)
+        //  GRÁFICOS
         // ============================================================
 
         function setupChartClick(chart, callback) {
@@ -3409,7 +3347,6 @@
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
 
-            // Agrupar por semana (número da semana)
             const porSemana = {};
             const planejadoPorSemana = {};
             
@@ -3417,7 +3354,6 @@
                 const d = parseExcelDate(r['DATA DO ROLLOUT']);
                 if (!d) return;
                 
-                // Calcular número da semana (ISO)
                 const primeiroDia = new Date(d.getFullYear(), 0, 1);
                 const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
                 const semana = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
@@ -3431,7 +3367,6 @@
                 planejadoPorSemana[key] += safeNumber(r['QTDE PDVs total']);
             });
 
-            // Ordenar por semana
             const sortedKeys = Object.keys(porSemana).sort();
             const labels = sortedKeys.map(k => k);
             const realizado = sortedKeys.map(k => porSemana[k]);
@@ -4128,7 +4063,7 @@
         }
 
         // ============================================================
-        //  DADOS DE EXEMPLO COM ALERTAS
+        //  DADOS DE EXEMPLO
         // ============================================================
 
         function carregarDadosExemplo() {
@@ -4274,7 +4209,7 @@
         setupLogoUpload('logoEmpresaInput', 'logoEmpresaImg', 'logoEmpresaPlaceholder');
 
         // ============================================================
-        //  INICIALIZAÇÃO GERAL (Supabase)
+        //  INICIALIZAÇÃO
         // ============================================================
         async function initApp() {
             try {
