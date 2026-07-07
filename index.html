@@ -252,6 +252,24 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        .header-logo-col {
+            display: flex;
+            flex-shrink: 0;
+        }
+        .header-logo-col.left {
+            justify-content: flex-start;
+        }
+        .header-logo-col.right {
+            justify-content: flex-end;
+        }
+        .header-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 260px;
+        }
         .header h1 {
             font-size: 32px;
             margin-bottom: 4px;
@@ -265,6 +283,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            justify-content: center;
             flex-wrap: wrap;
             margin-top: 6px;
         }
@@ -785,7 +804,11 @@
             }
             .header {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center;
+            }
+            .header-logo-col.left,
+            .header-logo-col.right {
+                justify-content: center;
             }
             .painel-body {
                 flex-direction: column;
@@ -850,7 +873,17 @@
 
             <!-- HEADER -->
             <div class="header">
-                <div>
+                <div class="header-logo-col left">
+                    <div class="logo-slot">
+                        <div class="logo-box clickable" id="logoEmpresaBox" onclick="if(window._role!=='visualizador') document.getElementById('logoEmpresaInput').click()">
+                            <img id="logoEmpresaImg" src="" style="display:none;">
+                            <span class="logo-placeholder" id="logoEmpresaPlaceholder">⚡<br>Sua Empresa</span>
+                        </div>
+                        <span class="logo-label">Executora</span>
+                    </div>
+                </div>
+
+                <div class="header-center">
                     <h1>Dashboard</h1>
                     <p>Rollout Windows → Linux</p>
                     <div class="header-filters">
@@ -862,7 +895,8 @@
                         <span id="filterStatus"></span>
                     </div>
                 </div>
-                <div class="header-logos">
+
+                <div class="header-logo-col right">
                     <div class="logo-slot">
                         <div class="logo-box clickable" id="logoClienteBox" onclick="if(window._role!=='visualizador') document.getElementById('logoClienteInput').click()">
                             <img id="logoClienteImg" src="" style="display:none;">
@@ -870,17 +904,10 @@
                         </div>
                         <span class="logo-label">Cliente</span>
                     </div>
-                    <div class="logo-divider"></div>
-                    <div class="logo-slot">
-                        <div class="logo-box clickable" id="logoEmpresaBox" onclick="if(window._role!=='visualizador') document.getElementById('logoEmpresaInput').click()">
-                            <img id="logoEmpresaImg" src="" style="display:none;">
-                            <span class="logo-placeholder" id="logoEmpresaPlaceholder">⚡<br>Sua Empresa</span>
-                        </div>
-                        <span class="logo-label">Executora</span>
-                    </div>
-                    <input type="file" id="logoClienteInput" hidden accept="image/*">
-                    <input type="file" id="logoEmpresaInput" hidden accept="image/*">
                 </div>
+
+                <input type="file" id="logoClienteInput" hidden accept="image/*">
+                <input type="file" id="logoEmpresaInput" hidden accept="image/*">
             </div>
 
             <!-- CARDS -->
