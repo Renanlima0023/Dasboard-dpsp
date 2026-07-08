@@ -1178,6 +1178,148 @@
             padding: 6px;
         }
 
+        /* ===== GUIA DE GRÁFICOS - MODAL DINÂMICO ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content {
+            background: rgba(8, 15, 25, 0.98);
+            border: 1px solid rgba(109, 213, 250, 0.15);
+            border-radius: 24px;
+            max-width: 950px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px 45px;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+        }
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(109, 213, 250, 0.3);
+            border-radius: 10px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: .2s;
+            background: none;
+            border: none;
+            color: #fff;
+        }
+        .modal-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+        .modal-content h2 {
+            font-size: 26px;
+            margin-bottom: 6px;
+            color: #6DD5FA;
+        }
+        .modal-content .subtitle-modal {
+            opacity: 0.4;
+            font-size: 14px;
+            margin-bottom: 30px;
+            border-left: 3px solid #6DD5FA;
+            padding-left: 14px;
+        }
+        .guia-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin-bottom: 16px;
+            border-left: 4px solid rgba(109, 213, 250, 0.2);
+            transition: .2s;
+        }
+        .guia-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: #6DD5FA;
+        }
+        .guia-item .guia-titulo {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .guia-item .guia-titulo .icon {
+            font-size: 20px;
+        }
+        .guia-item .guia-descricao {
+            opacity: 0.7;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .guia-item .guia-cores {
+            margin-top: 8px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .guia-item .guia-cores .cor-amostra {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .guia-item .guia-cores .cor-amostra .bolinha {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            display: inline-block;
+        }
+        .guia-item .guia-dicas {
+            margin-top: 8px;
+            font-size: 13px;
+            opacity: 0.5;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .guia-item .guia-dicas span {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+        .guia-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 20px 0;
+        }
+
         @media(max-width:768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -1245,6 +1387,10 @@
             .chart-wrapper canvas {
                 height: 250px !important;
             }
+            .guia-item .guia-cores {
+                flex-direction: column;
+                gap: 4px;
+            }
         }
     </style>
 </head>
@@ -1268,6 +1414,25 @@
             <input type="password" id="loginPassword" placeholder="Digite a senha" value="">
             <div id="loginError" class="login-error">❌ Senha inválida. Tente novamente.</div>
             <button class="login-btn" id="loginBtn">Entrar</button>
+        </div>
+    </div>
+
+    <!-- ===== GUIA DE GRÁFICOS - MODAL DINÂMICO ===== -->
+    <div class="modal-overlay" id="guiaModal">
+        <div class="modal-content" id="guiaModalContent">
+            <button class="modal-close" onclick="fecharGuia()">✕</button>
+            <h2>📖 Guia dos Gráficos</h2>
+            <div class="subtitle-modal">Entenda o que cada gráfico representa no dashboard</div>
+            <div id="guiaContainer">
+                <!-- Itens gerados dinamicamente pelo JavaScript -->
+            </div>
+            <div class="guia-divider"></div>
+            <div style="opacity:0.4;font-size:13px;text-align:center;">
+                🔍 Todos os gráficos são interativos — clique em qualquer barra ou ponto para filtrar os dados do dashboard.
+            </div>
+            <div style="opacity:0.3;font-size:11px;text-align:center;margin-top:10px;">
+                🎨 As cores exibidas abaixo são atualizadas automaticamente conforme suas configurações no painel de controle.
+            </div>
         </div>
     </div>
 
@@ -1646,6 +1811,121 @@
             semanal1: '#6DD5FA',
             semanal2: '#6BCB77'
         };
+
+        // ============================================================
+        //  GUIA DE GRÁFICOS - DINÂMICO
+        // ============================================================
+        function abrirGuia() {
+            gerarGuiaDinamico();
+            document.getElementById('guiaModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharGuia() {
+            document.getElementById('guiaModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function gerarGuiaDinamico() {
+            const container = document.getElementById('guiaContainer');
+            
+            const itens = [
+                {
+                    icon: '📊',
+                    titulo: 'Status por UF',
+                    descricao: 'Apresenta a distribuição das lojas por estado (UF) e seus respectivos status (Concluída, Aguardando Agendamento, Agendada). Cada barra horizontal representa um estado e as cores indicam a porcentagem de lojas em cada status.',
+                    cores: [
+                        { label: 'Concluída', cor: chartColors.status1 || '#6BCB77' },
+                        { label: 'Aguardando Agend.', cor: chartColors.status2 || '#FFD93D' },
+                        { label: 'Agendada', cor: chartColors.status3 || '#6DD5FA' }
+                    ],
+                    dicas: ['💡 Clique em uma UF para filtrar o dashboard', '📌 As cores ajudam a identificar rapidamente a situação de cada região']
+                },
+                {
+                    icon: '📈',
+                    titulo: 'Média de Lojas Concluídas por Dia',
+                    descricao: 'Mostra a quantidade de lojas concluídas por dia (barras) e a média diária (linha tracejada). Este gráfico permite visualizar o ritmo de conclusão do projeto e identificar dias com desempenho acima ou abaixo da média.',
+                    cores: [
+                        { label: 'Barras (abaixo da média)', cor: chartColors.bar1 || '#6DD5FA' },
+                        { label: 'Barras (acima da média)', cor: chartColors.bar2 || '#6BCB77' },
+                        { label: 'Linha da Média', cor: chartColors.bar3 || '#FFD93D' }
+                    ],
+                    dicas: ['💡 Clique em um dia para ver os detalhes', '📌 Barras verdes = acima da média | Barras azuis = abaixo da média']
+                },
+                {
+                    icon: '📊',
+                    titulo: 'Gap por UF (Planejado vs Realizado)',
+                    descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por estado. Permite identificar rapidamente quais estados estão com execução abaixo do planejado.',
+                    cores: [
+                        { label: 'PDVs Planejados', cor: chartColors.gap1 || '#6DD5FA' },
+                        { label: 'PDVs Realizados', cor: chartColors.gap2 || '#6BCB77' }
+                    ],
+                    dicas: ['💡 Clique em uma UF para filtrar o dashboard', '📌 Quanto menor a diferença entre as barras, melhor a execução']
+                },
+                {
+                    icon: '📊',
+                    titulo: 'Semanal: Planejado vs Realizado',
+                    descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por semana de rollout. Este gráfico é útil para entender a evolução semanal do projeto e identificar tendências.',
+                    cores: [
+                        { label: 'Planejado (PDVs)', cor: chartColors.semanal1 || '#6DD5FA' },
+                        { label: 'Realizado (PDVs)', cor: chartColors.semanal2 || '#6BCB77' }
+                    ],
+                    dicas: ['💡 Clique em uma semana para filtrar o dashboard', '📌 Acompanhe se a execução está acompanhando o planejamento semana a semana']
+                },
+                {
+                    icon: '⏳',
+                    titulo: 'Linha do Tempo',
+                    descricao: 'Exibe o acumulado de lojas autorizadas ao longo do tempo (linha) e as novas autorizações por mês (barras). Permite visualizar o fluxo de autorizações e o crescimento do projeto.',
+                    cores: [
+                        { label: 'Acumulado de autorizações', cor: chartColors.bar1 || '#6DD5FA' },
+                        { label: 'Autorizações no mês', cor: chartColors.bar3 || '#FFD93D' }
+                    ],
+                    dicas: ['💡 Clique em um mês para filtrar o dashboard', '📌 A linha ascendente mostra o acúmulo total de autorizações']
+                },
+                {
+                    icon: '📅',
+                    titulo: 'Lojas Agendadas por Data de Autorização',
+                    descricao: 'Mostra a distribuição das lojas agendadas por data de autorização (barras) e o acumulado diário (linha). Útil para visualizar a concentração de autorizações e o ritmo de agendamento.',
+                    cores: [
+                        { label: 'Lojas agendadas', cor: chartColors.bar4 || '#C77DFF' },
+                        { label: 'Acumulado', cor: chartColors.line || '#FF6B6B' }
+                    ],
+                    dicas: ['💡 Clique em um dia para filtrar o dashboard', '📌 A linha mostra o total acumulado de autorizações']
+                }
+            ];
+
+            container.innerHTML = itens.map(item => `
+                <div class="guia-item">
+                    <div class="guia-titulo"><span class="icon">${item.icon}</span> ${item.titulo}</div>
+                    <div class="guia-descricao">${item.descricao}</div>
+                    <div class="guia-cores">
+                        ${item.cores.map(c => `
+                            <span class="cor-amostra">
+                                <span class="bolinha" style="background:${c.cor};"></span>
+                                ${c.label}
+                            </span>
+                        `).join('')}
+                    </div>
+                    <div class="guia-dicas">
+                        ${item.dicas.map(d => `<span>${d}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Fechar guia com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharGuia();
+            }
+        });
+
+        // Fechar guia clicando fora do modal
+        document.getElementById('guiaModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharGuia();
+            }
+        });
 
         // ============================================================
         //  TOAST
@@ -2959,6 +3239,11 @@
 
             aplicarCorFundoGraficos();
 
+            // Atualizar o guia dinamicamente se estiver aberto
+            if (document.getElementById('guiaModal').classList.contains('show')) {
+                gerarGuiaDinamico();
+            }
+
             salvarConfiguracoesSupabase({
                 chart_colors: {
                     bar1: chartColors.bar1,
@@ -3382,7 +3667,6 @@
         function chartSemanal(data) {
             destroyChart('semanalChart');
             
-            // Filtrar dados com data de rollout
             const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
             const emptyDiv = document.getElementById('semanalEmpty');
             const canvas = document.getElementById('semanalChart');
@@ -3395,7 +3679,6 @@
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
 
-            // Agrupar por semana
             const porSemana = {};
             const planejadoPorSemana = {};
             const semanaData = {};
@@ -3425,7 +3708,6 @@
 
             const sortedKeys = Object.keys(porSemana).sort();
             
-            // Criar labels com as datas (ex: "S32\n05/08 - 11/08")
             const labels = sortedKeys.map(k => {
                 const [ano, semana] = k.split('-S');
                 const data = semanaData[k];
@@ -3533,9 +3815,7 @@
                 }
             });
 
-            // Interatividade: clique em uma barra para filtrar pela semana
             setupChartClick(chart, function(label) {
-                // Extrair semana e ano do label
                 const match = label.match(/(\d+)\/(\d+)/);
                 if (match) {
                     const semana = match[1];
