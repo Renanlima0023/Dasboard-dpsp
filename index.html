@@ -2013,222 +2013,13 @@
         }
 
         // ============================================================
-        //  CONFIGURAÇÕES - VERSÃO CORRIGIDA
+        //  CONFIGURAÇÕES - CORREÇÃO PARA SUPABASE
         // ============================================================
-
-        // Função para carregar configurações do Supabase e atualizar as variáveis globais
-        async function carregarConfiguracoesSupabase() {
-            try {
-                console.log('🔄 Carregando configurações do Supabase...');
-                
-                const { data, error } = await supabaseClient
-                    .from('configuracoes')
-                    .select('*')
-                    .eq('id', 1)
-                    .maybeSingle();
-
-                if (error) {
-                    console.error('❌ Erro ao carregar configurações:', error);
-                    // Tentar carregar do localStorage como fallback
-                    carregarConfiguracoesLocalStorage();
-                    return;
-                }
-
-                console.log('📦 Configurações carregadas:', data);
-
-                if (!data) {
-                    console.log('⚠️ Nenhuma configuração encontrada, criando padrão...');
-                    const defaultData = {
-                        id: 1,
-                        tipo_fundo: 'degrade',
-                        cor_grad1: '#1F2A44',
-                        cor_grad2: '#243B55',
-                        cor_grad3: '#3A506B',
-                        angulo_grad: 135,
-                        cor_destaque: '#6DD5FA',
-                        calculo_auto: true,
-                        previsao_manual: false,
-                        ritmo_manual: false,
-                        previsao_data: null,
-                        ritmo_valor: null,
-                        chart_colors: JSON.stringify({
-                            bar1: '#6DD5FA',
-                            bar2: '#6BCB77',
-                            bar3: '#FFD93D',
-                            bar4: '#C77DFF',
-                            line: '#FF6B6B',
-                            bg: '#0D1B2A',
-                            gap1: '#6DD5FA',
-                            gap2: '#6BCB77',
-                            status1: '#6BCB77',
-                            status2: '#FFD93D',
-                            status3: '#6DD5FA',
-                            semanal1: '#6DD5FA',
-                            semanal2: '#6BCB77'
-                        }),
-                        updated_at: new Date().toISOString()
-                    };
-
-                    const { error: insertError } = await supabaseClient
-                        .from('configuracoes')
-                        .insert(defaultData);
-
-                    if (insertError) {
-                        console.error('❌ Erro ao criar configuração padrão:', insertError);
-                        carregarConfiguracoesLocalStorage();
-                        return;
-                    }
-
-                    // Recarregar após criar
-                    await carregarConfiguracoesSupabase();
-                    return;
-                }
-
-                // ATUALIZAR VARIÁVEIS GLOBAIS com os dados do Supabase
-                // Isso é o que estava faltando - os valores manuais precisam ser carregados aqui!
-                
-                // 1. Configurações de cálculo
-                if (data.calculo_auto !== undefined) {
-                    calculoAutoAtivo = data.calculo_auto;
-                    atualizarStatusCalculoAuto();
-                }
-
-                // 2. Previsão Manual - CARREGAR DO SUPABASE
-                if (data.previsao_manual !== undefined) {
-                    previsaoManualAtiva = data.previsao_manual;
-                    console.log('📅 previsaoManualAtiva:', previsaoManualAtiva);
-                }
-                
-                if (data.previsao_data !== undefined && data.previsao_data !== null) {
-                    previsaoManualData = data.previsao_data;
-                    console.log('📅 previsaoManualData:', previsaoManualData);
-                }
-
-                // 3. Ritmo Manual - CARREGAR DO SUPABASE
-                if (data.ritmo_manual !== undefined) {
-                    ritmoManualAtivo = data.ritmo_manual;
-                    console.log('📊 ritmoManualAtivo:', ritmoManualAtivo);
-                }
-                
-                if (data.ritmo_valor !== undefined && data.ritmo_valor !== null) {
-                    ritmoManualValor = data.ritmo_valor;
-                    console.log('📊 ritmoManualValor:', ritmoManualValor);
-                }
-
-                // 4. Logos
-                if (data.logo_cliente) {
-                    document.getElementById('logoClienteImg').src = data.logo_cliente;
-                    document.getElementById('logoClienteImg').style.display = 'block';
-                    document.getElementById('logoClientePlaceholder').style.display = 'none';
-                }
-                if (data.logo_empresa) {
-                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
-                    document.getElementById('logoEmpresaImg').style.display = 'block';
-                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
-                }
-
-                // 5. Cores de fundo
-                if (data.tipo_fundo === 'solido') {
-                    document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                    setTipoFundo('solido');
-                } else {
-                    document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
-                    document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
-                    document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
-                    document.getElementById('anguloGrad').value = data.angulo_grad || 135;
-                    document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                    setTipoFundo('degradê');
-                }
-
-                if (data.cor_destaque) {
-                    document.getElementById('corDestaque').value = data.cor_destaque;
-                    aplicarCorDestaque(data.cor_destaque);
-                }
-
-                // 6. Cores dos gráficos
-                if (data.chart_colors) {
-                    try {
-                        const cc = typeof data.chart_colors === 'string' ? 
-                            JSON.parse(data.chart_colors) : data.chart_colors;
-
-                        if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
-                            chartColors.bar1 = cc.bar1; }
-                        if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
-                            chartColors.bar2 = cc.bar2; }
-                        if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
-                            chartColors.bar3 = cc.bar3; }
-                        if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
-                            chartColors.bar4 = cc.bar4; }
-                        if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
-                            chartColors.line = cc.line; }
-                        if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
-                            chartColors.bg = cc.bg; }
-                        if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
-                            chartColors.gap1 = cc.gap1; }
-                        if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
-                            chartColors.gap2 = cc.gap2; }
-                        if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
-                            chartColors.status1 = cc.status1; }
-                        if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
-                            chartColors.status2 = cc.status2; }
-                        if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
-                            chartColors.status3 = cc.status3; }
-                        if (cc.semanal1) { document.getElementById('semanalColor1').value = cc.semanal1;
-                            chartColors.semanal1 = cc.semanal1; }
-                        if (cc.semanal2) { document.getElementById('semanalColor2').value = cc.semanal2;
-                            chartColors.semanal2 = cc.semanal2; }
-                    } catch (e) {
-                        console.error('Erro ao parsear chart_colors:', e);
-                    }
-                }
-
-                aplicarCorFundoGraficos();
-
-                // 7. Atualizar UI (botões de status)
-                atualizarStatusPrevisaoManual();
-                atualizarStatusRitmoManual();
-
-                // 8. Se já temos dados, atualizar cards e gráficos
-                if (originalData && originalData.length > 0) {
-                    console.log('📊 Atualizando cards com valores manuais carregados...');
-                    const dataParaExibir = getDataParaExibir();
-                    atualizarCards(dataParaExibir);
-                    atualizarGraficos(dataParaExibir);
-                }
-
-                aplicandoConfigRemota = false;
-                console.log('✅ Configurações carregadas com sucesso!');
-                
-            } catch (e) {
-                console.error('❌ Erro ao carregar configurações:', e);
-                aplicandoConfigRemota = false;
-                carregarConfiguracoesLocalStorage();
-            }
-        }
-
-        // Fallback para localStorage
-        function carregarConfiguracoesLocalStorage() {
-            try {
-                const saved = localStorage.getItem('dashboard_configs_fallback');
-                if (saved) {
-                    const configs = JSON.parse(saved);
-                    if (configs.previsao_manual !== undefined) previsaoManualAtiva = configs.previsao_manual;
-                    if (configs.previsao_data !== undefined) previsaoManualData = configs.previsao_data;
-                    if (configs.ritmo_manual !== undefined) ritmoManualAtivo = configs.ritmo_manual;
-                    if (configs.ritmo_valor !== undefined) ritmoManualValor = configs.ritmo_valor;
-                    console.log('📦 Configurações carregadas do localStorage (fallback)');
-                }
-            } catch (e) {
-                console.warn('Erro ao carregar fallback do localStorage:', e);
-            }
-        }
 
         async function salvarConfiguracoesSupabase(parcial) {
             if (aplicandoConfigRemota) return;
 
             try {
-                console.log('💾 Salvando configurações:', parcial);
-                
                 const { data: currentData, error: fetchError } = await supabaseClient
                     .from('configuracoes')
                     .select('*')
@@ -2236,8 +2027,8 @@
                     .maybeSingle();
 
                 if (fetchError) {
-                    console.error('❌ Erro ao buscar configuração atual:', fetchError);
-                    salvarConfiguracoesLocalStorage(parcial);
+                    console.error('Erro ao buscar configuração atual:', fetchError);
+                    await salvarConfiguracoesFallback(parcial);
                     return;
                 }
 
@@ -2278,8 +2069,8 @@
                         .insert(defaultData);
 
                     if (insertError) {
-                        console.error('❌ Erro ao criar configuração padrão:', insertError);
-                        salvarConfiguracoesLocalStorage(parcial);
+                        console.error('Erro ao criar configuração padrão:', insertError);
+                        await salvarConfiguracoesFallback(parcial);
                         return;
                     }
 
@@ -2293,7 +2084,7 @@
                     updated_at: new Date().toISOString()
                 };
 
-                // Campos permitidos
+                // Campos que existem na tabela
                 const camposPermitidos = [
                     'tipo_fundo', 'cor_fundo1', 'cor_grad1', 'cor_grad2', 'cor_grad3',
                     'angulo_grad', 'cor_destaque', 'calculo_auto', 'previsao_manual',
@@ -2317,34 +2108,229 @@
                     .upsert(updateData, { onConflict: 'id' });
 
                 if (error) {
-                    console.error('❌ Erro ao salvar configurações:', error);
-                    salvarConfiguracoesLocalStorage(parcial);
+                    console.error('Erro ao salvar configurações:', error);
+                    await salvarConfiguracoesFallback(parcial);
                 } else {
-                    console.log('✅ Configurações salvas com sucesso!');
-                    // ATUALIZAR VARIÁVEIS GLOBAIS após salvar
-                    if (parcial.previsao_manual !== undefined) previsaoManualAtiva = parcial.previsao_manual;
-                    if (parcial.previsao_data !== undefined) previsaoManualData = parcial.previsao_data;
-                    if (parcial.ritmo_manual !== undefined) ritmoManualAtivo = parcial.ritmo_manual;
-                    if (parcial.ritmo_valor !== undefined) ritmoManualValor = parcial.ritmo_valor;
-                    
                     showToast('✅ Configurações salvas!', 'success', 2000);
                 }
             } catch (e) {
-                console.error('❌ Erro ao salvar configurações:', e);
-                salvarConfiguracoesLocalStorage(parcial);
+                console.error('Erro ao salvar configurações:', e);
+                await salvarConfiguracoesFallback(parcial);
             }
         }
 
-        function salvarConfiguracoesLocalStorage(parcial) {
+        async function salvarConfiguracoesFallback(parcial) {
             try {
                 let localConfigs = {};
-                const saved = localStorage.getItem('dashboard_configs_fallback');
-                if (saved) localConfigs = JSON.parse(saved);
+                try {
+                    const saved = localStorage.getItem('dashboard_configs_fallback');
+                    if (saved) localConfigs = JSON.parse(saved);
+                } catch (e) {}
+
                 Object.assign(localConfigs, parcial);
                 localStorage.setItem('dashboard_configs_fallback', JSON.stringify(localConfigs));
-                console.log('💾 Configurações salvas no localStorage (fallback)');
+
+                const camposSeguros = {
+                    id: 1,
+                    updated_at: new Date().toISOString()
+                };
+
+                const camposSegurosLista = [
+                    'tipo_fundo', 'cor_fundo1', 'cor_grad1', 'cor_grad2', 'cor_grad3',
+                    'angulo_grad', 'cor_destaque', 'calculo_auto', 'chart_colors',
+                    'logo_cliente', 'logo_empresa'
+                ];
+
+                Object.keys(parcial).forEach(key => {
+                    if (camposSegurosLista.includes(key)) {
+                        camposSeguros[key] = parcial[key];
+                    }
+                });
+
+                if (Object.keys(camposSeguros).length > 2) {
+                    const { error } = await supabaseClient
+                        .from('configuracoes')
+                        .upsert(camposSeguros, { onConflict: 'id' });
+
+                    if (error) {
+                        console.warn('Fallback também falhou:', error);
+                        showToast('⚠️ Configurações salvas localmente. Algumas podem não sincronizar.', 'warning', 4000);
+                    } else {
+                        showToast('✅ Configurações salvas (modo compatível)!', 'success', 2000);
+                    }
+                }
             } catch (e) {
-                console.warn('Erro ao salvar fallback:', e);
+                console.error('Fallback completo falhou:', e);
+                showToast('❌ Erro ao salvar configurações. Tente novamente.', 'error', 4000);
+            }
+        }
+
+        async function carregarConfiguracoesSupabase() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('configuracoes')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (error) {
+                    console.error('Erro ao carregar configurações:', error);
+                    return;
+                }
+
+                if (!data) {
+                    const defaultData = {
+                        id: 1,
+                        tipo_fundo: 'degrade',
+                        cor_grad1: '#1F2A44',
+                        cor_grad2: '#243B55',
+                        cor_grad3: '#3A506B',
+                        angulo_grad: 135,
+                        cor_destaque: '#6DD5FA',
+                        calculo_auto: true,
+                        previsao_manual: false,
+                        ritmo_manual: false,
+                        previsao_data: null,
+                        ritmo_valor: null,
+                        chart_colors: JSON.stringify({
+                            bar1: '#6DD5FA',
+                            bar2: '#6BCB77',
+                            bar3: '#FFD93D',
+                            bar4: '#C77DFF',
+                            line: '#FF6B6B',
+                            bg: '#0D1B2A',
+                            gap1: '#6DD5FA',
+                            gap2: '#6BCB77',
+                            status1: '#6BCB77',
+                            status2: '#FFD93D',
+                            status3: '#6DD5FA',
+                            semanal1: '#6DD5FA',
+                            semanal2: '#6BCB77'
+                        }),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { error: insertError } = await supabaseClient
+                        .from('configuracoes')
+                        .insert(defaultData);
+
+                    if (insertError) {
+                        console.error('Erro ao criar configuração padrão:', insertError);
+                        return;
+                    }
+
+                    await carregarConfiguracoesSupabase();
+                    return;
+                }
+
+                aplicandoConfigRemota = true;
+
+                // Carregar fallback do localStorage
+                let localFallback = {};
+                try {
+                    const saved = localStorage.getItem('dashboard_configs_fallback');
+                    if (saved) localFallback = JSON.parse(saved);
+                } catch (e) {}
+
+                // Carregar logos
+                if (data.logo_cliente) {
+                    document.getElementById('logoClienteImg').src = data.logo_cliente;
+                    document.getElementById('logoClienteImg').style.display = 'block';
+                    document.getElementById('logoClientePlaceholder').style.display = 'none';
+                }
+                if (data.logo_empresa) {
+                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
+                    document.getElementById('logoEmpresaImg').style.display = 'block';
+                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
+                }
+
+                // Carregar configurações de cálculo
+                if (data.calculo_auto !== undefined) {
+                    calculoAutoAtivo = data.calculo_auto;
+                    atualizarStatusCalculoAuto();
+                }
+
+                // Carregar previsão manual - SEMPRE carregar os valores, independente do perfil
+                if (data.previsao_manual !== undefined) {
+                    previsaoManualAtiva = data.previsao_manual;
+                    previsaoManualData = data.previsao_data || localFallback.previsao_data || null;
+                    atualizarStatusPrevisaoManual();
+                }
+
+                // Carregar ritmo manual - SEMPRE carregar os valores, independente do perfil
+                if (data.ritmo_manual !== undefined) {
+                    ritmoManualAtivo = data.ritmo_manual;
+                    ritmoManualValor = data.ritmo_valor !== null && data.ritmo_valor !== undefined ? data.ritmo_valor :
+                        (localFallback.ritmo_valor !== undefined ? localFallback.ritmo_valor : null);
+                    atualizarStatusRitmoManual();
+                }
+
+                // Carregar cores de fundo
+                if (data.tipo_fundo === 'solido') {
+                    document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
+                    setTipoFundo('solido');
+                } else {
+                    document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
+                    document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
+                    document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
+                    document.getElementById('anguloGrad').value = data.angulo_grad || 135;
+                    document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
+                    setTipoFundo('degradê');
+                }
+
+                if (data.cor_destaque) {
+                    document.getElementById('corDestaque').value = data.cor_destaque;
+                    aplicarCorDestaque(data.cor_destaque);
+                }
+
+                // Carregar cores dos gráficos
+                if (data.chart_colors) {
+                    try {
+                        const cc = typeof data.chart_colors === 'string' ? 
+                            JSON.parse(data.chart_colors) : data.chart_colors;
+
+                        if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
+                            chartColors.bar1 = cc.bar1; }
+                        if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
+                            chartColors.bar2 = cc.bar2; }
+                        if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
+                            chartColors.bar3 = cc.bar3; }
+                        if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
+                            chartColors.bar4 = cc.bar4; }
+                        if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
+                            chartColors.line = cc.line; }
+                        if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
+                            chartColors.bg = cc.bg; }
+                        if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
+                            chartColors.gap1 = cc.gap1; }
+                        if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
+                            chartColors.gap2 = cc.gap2; }
+                        if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
+                            chartColors.status1 = cc.status1; }
+                        if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
+                            chartColors.status2 = cc.status2; }
+                        if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
+                            chartColors.status3 = cc.status3; }
+                        if (cc.semanal1) { document.getElementById('semanalColor1').value = cc.semanal1;
+                            chartColors.semanal1 = cc.semanal1; }
+                        if (cc.semanal2) { document.getElementById('semanalColor2').value = cc.semanal2;
+                            chartColors.semanal2 = cc.semanal2; }
+                    } catch (e) {
+                        console.error('Erro ao parsear chart_colors:', e);
+                    }
+                }
+
+                aplicarCorFundoGraficos();
+
+                if (originalData && originalData.length > 0) {
+                    const data = getDataParaExibir();
+                    atualizarGraficos(data);
+                }
+
+                aplicandoConfigRemota = false;
+            } catch (e) {
+                console.error('Erro ao carregar configurações:', e);
+                aplicandoConfigRemota = false;
             }
         }
 
@@ -2372,7 +2358,6 @@
                 supabaseClient
                     .channel('configuracoes-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
-                        console.log('🔄 Configurações alteradas, recarregando...');
                         carregarConfiguracoesSupabase();
                     })
                     .subscribe();
@@ -2458,6 +2443,7 @@
             const dataInput = document.getElementById('previsaoManualDate');
             const isAdmin = currentRole === 'admin';
             
+            // Atualizar o status do botão
             if (previsaoManualAtiva) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
@@ -2466,6 +2452,7 @@
                 btn.classList.remove('active-auto');
             }
 
+            // Atualizar o container de edição (só admin pode editar)
             if (isAdmin && previsaoManualAtiva) {
                 container.classList.add('admin-only');
                 container.style.display = 'block';
@@ -2482,7 +2469,7 @@
                 container.style.display = 'none';
             }
 
-            // Atualizar cards com os valores carregados
+            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
@@ -2534,6 +2521,7 @@
             const input = document.getElementById('ritmoManualInput');
             const isAdmin = currentRole === 'admin';
             
+            // Atualizar o status do botão
             if (ritmoManualAtivo) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
@@ -2542,6 +2530,7 @@
                 btn.classList.remove('active-auto');
             }
 
+            // Atualizar o container de edição (só admin pode editar)
             if (isAdmin && ritmoManualAtivo) {
                 container.classList.add('admin-only');
                 container.style.display = 'block';
@@ -2555,7 +2544,7 @@
                 container.style.display = 'none';
             }
 
-            // Atualizar cards com os valores carregados
+            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
@@ -2688,6 +2677,7 @@
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
             
+            // Admin vê os campos de edição, outros perfis veem apenas os valores nos cards
             if (isAdmin && previsaoManualAtiva) {
                 previsaoContainer.classList.add('admin-only');
                 previsaoContainer.style.display = 'block';
@@ -3046,7 +3036,6 @@
             // USAR VALOR MANUAL SE ATIVO (independente do perfil)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
-                console.log('📊 Usando ritmo manual:', ritmoDiario);
             } else if (calculoAutoAtivo) {
                 const dataLimite = new Date(dataAtual);
                 dataLimite.setDate(dataLimite.getDate() - 30);
@@ -3080,7 +3069,6 @@
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
                 previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
-                console.log('📅 Usando previsão manual:', previsao);
             } else if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
