@@ -261,127 +261,6 @@
             border: 1px solid rgba(109, 213, 250, 0.15);
         }
 
-        /* ===== GUIA DE GRÁFICOS - MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-overlay.show {
-            display: flex;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-content {
-            background: rgba(8, 15, 25, 0.98);
-            border: 1px solid rgba(109, 213, 250, 0.15);
-            border-radius: 24px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 40px 45px;
-            position: relative;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-        }
-        .modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .modal-content::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        .modal-content::-webkit-scrollbar-thumb {
-            background: rgba(109, 213, 250, 0.3);
-            border-radius: 10px;
-        }
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            opacity: 0.4;
-            transition: .2s;
-            background: none;
-            border: none;
-            color: #fff;
-        }
-        .modal-close:hover {
-            opacity: 1;
-            transform: rotate(90deg);
-        }
-        .modal-content h2 {
-            font-size: 26px;
-            margin-bottom: 6px;
-            color: #6DD5FA;
-        }
-        .modal-content .subtitle-modal {
-            opacity: 0.4;
-            font-size: 14px;
-            margin-bottom: 30px;
-            border-left: 3px solid #6DD5FA;
-            padding-left: 14px;
-        }
-        .guia-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 18px 22px;
-            margin-bottom: 16px;
-            border-left: 4px solid rgba(109, 213, 250, 0.2);
-            transition: .2s;
-        }
-        .guia-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: #6DD5FA;
-        }
-        .guia-item .guia-titulo {
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 6px;
-        }
-        .guia-item .guia-titulo .icon {
-            font-size: 20px;
-        }
-        .guia-item .guia-descricao {
-            opacity: 0.7;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .guia-item .guia-dicas {
-            margin-top: 8px;
-            font-size: 13px;
-            opacity: 0.5;
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .guia-item .guia-dicas span {
-            background: rgba(255,255,255,0.05);
-            padding: 2px 12px;
-            border-radius: 12px;
-        }
-        .guia-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.06);
-            margin: 20px 0;
-        }
-
         .header {
             background: rgba(8, 15, 25, .88);
             padding: 22px 28px;
@@ -1363,6 +1242,9 @@
                 flex-direction: column;
                 gap: 4px;
             }
+            .chart-wrapper canvas {
+                height: 250px !important;
+            }
         }
     </style>
 </head>
@@ -1386,93 +1268,6 @@
             <input type="password" id="loginPassword" placeholder="Digite a senha" value="">
             <div id="loginError" class="login-error">❌ Senha inválida. Tente novamente.</div>
             <button class="login-btn" id="loginBtn">Entrar</button>
-        </div>
-    </div>
-
-    <!-- ===== GUIA DE GRÁFICOS - MODAL ===== -->
-    <div class="modal-overlay" id="guiaModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="fecharGuia()">✕</button>
-            <h2>📖 Guia dos Gráficos</h2>
-            <div class="subtitle-modal">Entenda o que cada gráfico representa no dashboard</div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">📊</span> Status por UF</div>
-                <div class="guia-descricao">
-                    Apresenta a distribuição das lojas por estado (UF) e seus respectivos status (Agendada, Em Execução, Concluída, Pendente, etc). 
-                    Cada barra representa um estado e as cores indicam a quantidade de lojas em cada status.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em uma UF para filtrar o dashboard</span>
-                    <span>📌 As cores ajudam a identificar rapidamente a situação de cada região</span>
-                </div>
-            </div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">📈</span> Média de Lojas Concluídas por Dia</div>
-                <div class="guia-descricao">
-                    Mostra a quantidade de lojas concluídas por dia (barras) e a média diária (linha amarela tracejada). 
-                    Este gráfico permite visualizar o ritmo de conclusão do projeto e identificar dias com desempenho acima ou abaixo da média.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em um dia para ver os detalhes daquele dia</span>
-                    <span>📌 Barras verdes = acima da média | Barras azuis = abaixo da média</span>
-                </div>
-            </div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">📊</span> Gap por UF (Planejado vs Realizado)</div>
-                <div class="guia-descricao">
-                    Compara o total de PDVs planejados versus os PDVs realizados por estado. 
-                    Permite identificar rapidamente quais estados estão com execução abaixo do planejado.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em uma UF para filtrar o dashboard</span>
-                    <span>📌 Quanto menor a diferença entre as barras, melhor a execução</span>
-                </div>
-            </div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">📊</span> Semanal: Planejado vs Realizado</div>
-                <div class="guia-descricao">
-                    Compara o total de PDVs planejados versus os PDVs realizados por semana de rollout. 
-                    Este gráfico é útil para entender a evolução semanal do projeto e identificar tendências.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em uma semana para filtrar o dashboard</span>
-                    <span>📌 Acompanhe se a execução está acompanhando o planejamento semana a semana</span>
-                </div>
-            </div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">⏳</span> Linha do Tempo</div>
-                <div class="guia-descricao">
-                    Exibe o acumulado de lojas autorizadas ao longo do tempo (linha azul) e as novas autorizações por mês (barras amarelas). 
-                    Permite visualizar o fluxo de autorizações e o crescimento do projeto.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em um mês para filtrar o dashboard</span>
-                    <span>📌 A linha ascendente mostra o acúmulo total de autorizações</span>
-                </div>
-            </div>
-
-            <div class="guia-item">
-                <div class="guia-titulo"><span class="icon">📅</span> Lojas Agendadas por Data de Autorização</div>
-                <div class="guia-descricao">
-                    Mostra a distribuição das lojas agendadas por data de autorização (barras roxas) e o acumulado diário (linha vermelha). 
-                    Útil para visualizar a concentração de autorizações e o ritmo de agendamento.
-                </div>
-                <div class="guia-dicas">
-                    <span>💡 Clique em um dia para filtrar o dashboard</span>
-                    <span>📌 A linha vermelha mostra o total acumulado de autorizações</span>
-                </div>
-            </div>
-
-            <div class="guia-divider"></div>
-
-            <div style="opacity:0.4;font-size:13px;text-align:center;">
-                🔍 Todos os gráficos são interativos — clique em qualquer barra ou ponto para filtrar os dados do dashboard.
-            </div>
         </div>
     </div>
 
@@ -1623,28 +1418,28 @@
                 </div>
             </div>
 
-            <!-- ===== NOVO: Gráfico de Gap ===== -->
+            <!-- ===== GRÁFICO DE GAP ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box"><h2>📊 Gap por UF (Planejado vs Realizado) <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapperGap"><canvas id="gapChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- ===== NOVO: Gráfico Semanal Planejado vs Realizado ===== -->
+            <!-- ===== GRÁFICO: Barras SEMANAIS com Datas ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box"><h2>📊 Semanal: Planejado vs Realizado <span class="filter-indicator"></span></h2>
+                <div class="box">
+                    <h2>📊 Semanal: Planejado vs Realizado <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapperSemanal"><canvas id="semanalChart"></canvas></div>
                     <div id="semanalEmpty" class="empty-state">Nenhum dado semanal disponível.</div>
                 </div>
             </div>
 
-            <div class="grid" style="grid-template-columns:1fr;">
+            <!-- ===== LINHA DO TEMPO E AGENDADAS ===== -->
+            <div class="grid">
                 <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper3"><canvas id="timelineChart"></canvas></div>
                     <div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div>
                 </div>
-            </div>
-            <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper4"><canvas id="authChart"></canvas></div>
                     <div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div>
@@ -1778,12 +1573,11 @@
                             <div class="cor-linha"><label>📅 Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
                             <div class="cor-linha"><label>📊 Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
                             <div class="cor-linha"><label>📊 Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>📊 Status 1</label><input type="color" id="statusColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📊 Status 2</label><input type="color" id="statusColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>📊 Status 3</label><input type="color" id="statusColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>📊 Status 4</label><input type="color" id="statusColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
-                            <div class="cor-linha"><label>📊 Semanal Planejado</label><input type="color" id="semanalColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📊 Semanal Realizado</label><input type="color" id="semanalColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>📊 Status Concluída</label><input type="color" id="statusColor1" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>📊 Status Aguardando Agend.</label><input type="color" id="statusColor2" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>📊 Status Agendada</label><input type="color" id="statusColor3" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>📊 Barras Planejado</label><input type="color" id="semanalColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>📊 Barras Realizado</label><input type="color" id="semanalColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
                             <div class="cor-linha"><label>🎨 Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
@@ -1846,40 +1640,12 @@
             bg: '#0D1B2A',
             gap1: '#6DD5FA',
             gap2: '#6BCB77',
-            status1: '#6DD5FA',
-            status2: '#6BCB77',
-            status3: '#FFD93D',
-            status4: '#C77DFF',
+            status1: '#6BCB77',
+            status2: '#FFD93D',
+            status3: '#6DD5FA',
             semanal1: '#6DD5FA',
             semanal2: '#6BCB77'
         };
-
-        // ============================================================
-        //  GUIA DE GRÁFICOS
-        // ============================================================
-        function abrirGuia() {
-            document.getElementById('guiaModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function fecharGuia() {
-            document.getElementById('guiaModal').classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        // Fechar guia com ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                fecharGuia();
-            }
-        });
-
-        // Fechar guia clicando fora do modal
-        document.getElementById('guiaModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fecharGuia();
-            }
-        });
 
         // ============================================================
         //  TOAST
@@ -2002,10 +1768,9 @@
                                 bg: '#0D1B2A',
                                 gap1: '#6DD5FA',
                                 gap2: '#6BCB77',
-                                status1: '#6DD5FA',
-                                status2: '#6BCB77',
-                                status3: '#FFD93D',
-                                status4: '#C77DFF',
+                                status1: '#6BCB77',
+                                status2: '#FFD93D',
+                                status3: '#6DD5FA',
                                 semanal1: '#6DD5FA',
                                 semanal2: '#6BCB77'
                             }),
@@ -2095,8 +1860,6 @@
                             chartColors.status2 = cc.status2; }
                         if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
                             chartColors.status3 = cc.status3; }
-                        if (cc.status4) { document.getElementById('statusColor4').value = cc.status4;
-                            chartColors.status4 = cc.status4; }
                         if (cc.semanal1) { document.getElementById('semanalColor1').value = cc.semanal1;
                             chartColors.semanal1 = cc.semanal1; }
                         if (cc.semanal2) { document.getElementById('semanalColor2').value = cc.semanal2;
@@ -3191,7 +2954,6 @@
             chartColors.status1 = document.getElementById('statusColor1').value;
             chartColors.status2 = document.getElementById('statusColor2').value;
             chartColors.status3 = document.getElementById('statusColor3').value;
-            chartColors.status4 = document.getElementById('statusColor4').value;
             chartColors.semanal1 = document.getElementById('semanalColor1').value;
             chartColors.semanal2 = document.getElementById('semanalColor2').value;
 
@@ -3210,7 +2972,6 @@
                     status1: chartColors.status1,
                     status2: chartColors.status2,
                     status3: chartColors.status3,
-                    status4: chartColors.status4,
                     semanal1: chartColors.semanal1,
                     semanal2: chartColors.semanal2
                 }
@@ -3282,49 +3043,156 @@
             };
         }
 
+        // ============================================================
+        //  GRÁFICO: Status por UF (BARRAS EMPILHADAS 100%)
+        // ============================================================
         function chartStatusUF(data) {
             destroyChart('statusUFChart');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            const statuses = [...new Set(data.map(r => r.STATUS || 'N/D').filter(Boolean))];
+            
+            if (ufs.length === 0) {
+                document.getElementById('statusUFChart').style.display = 'none';
+                return;
+            }
+            document.getElementById('statusUFChart').style.display = 'block';
+
+            const statusConfig = [
+                { key: 'CONCLUÍDA', label: 'Concluída', color: chartColors.status1 || '#6BCB77' },
+                { key: 'AGUARDANDO', label: 'Aguardando Agend.', color: chartColors.status2 || '#FFD93D' },
+                { key: 'AGENDADA', label: 'Agendada', color: chartColors.status3 || '#6DD5FA' }
+            ];
+
+            const getStatusCategory = (status) => {
+                const s = String(status || '').toUpperCase();
+                if (s.includes('CONCLU')) return 'CONCLUÍDA';
+                if (s.includes('AGUARDANDO') || s.includes('PENDENTE') || s.includes('PENDENCIADA')) return 'AGUARDANDO';
+                if (s.includes('AGENDADA')) return 'AGENDADA';
+                return 'AGUARDANDO';
+            };
+
             const matrix = {};
-            data.forEach(r => {
-                const uf = r.UF || 'N/D';
-                const st = r.STATUS || 'N/D';
-                if (!matrix[st]) matrix[st] = {};
-                matrix[st][uf] = (matrix[st][uf] || 0) + 1;
+            ufs.forEach(uf => {
+                matrix[uf] = {};
+                statusConfig.forEach(sc => matrix[uf][sc.key] = 0);
             });
 
-            const colorPalette = [chartColors.status1, chartColors.status2, chartColors.status3, chartColors.status4, chartColors.line];
-            const datasets = statuses.map((st, i) => ({
-                label: st,
-                data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
-                backgroundColor: colorPalette[i % colorPalette.length],
-                borderRadius: 4,
-                borderSkipped: false
-            }));
+            data.forEach(r => {
+                const uf = r.UF || 'N/D';
+                const statusCat = getStatusCategory(r.STATUS);
+                if (matrix[uf] && matrix[uf][statusCat] !== undefined) {
+                    matrix[uf][statusCat]++;
+                }
+            });
+
+            function getTextColor(hexColor) {
+                let r, g, b;
+                if (hexColor.startsWith('#')) {
+                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor);
+                    if (result) {
+                        r = parseInt(result[1], 16);
+                        g = parseInt(result[2], 16);
+                        b = parseInt(result[3], 16);
+                    }
+                }
+                if (r === undefined) r = 100;
+                if (g === undefined) g = 100;
+                if (b === undefined) b = 100;
+                const luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                return luminancia > 0.5 ? '#000000' : '#FFFFFF';
+            }
+
+            const datasets = statusConfig.map(sc => {
+                const textColor = getTextColor(sc.color);
+                return {
+                    label: sc.label,
+                    data: ufs.map(uf => {
+                        const total = statusConfig.reduce((sum, s) => sum + (matrix[uf][s.key] || 0), 0);
+                        if (total === 0) return 0;
+                        return Math.round((matrix[uf][sc.key] || 0) / total * 100);
+                    }),
+                    backgroundColor: sc.color,
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    borderRadius: 2,
+                    _textColor: textColor
+                };
+            });
 
             const ctx = document.getElementById('statusUFChart').getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: ufs, datasets },
+                data: {
+                    labels: ufs,
+                    datasets: datasets
+                },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: '#fff',
-                            font: { weight: 'bold', size: 11 },
-                            formatter: v => v,
+                            display: (ctx) => {
+                                const value = ctx.dataset.data[ctx.dataIndex];
+                                return value > 0;
+                            },
+                            color: (ctx) => ctx.dataset._textColor || '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value) => value + '%',
                             anchor: 'center',
-                            align: 'center'
+                            align: 'center',
+                            offset: 0
                         },
-                        legend: { display: true, position: 'top', labels: { color: '#fff', boxWidth: 14,
-                                font: { size: 11 } } }
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                boxWidth: 14,
+                                padding: 10,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const uf = context.chart.data.labels[context.dataIndex];
+                                    const status = context.dataset.label;
+                                    const value = context.parsed.x || 0;
+                                    const total = context.chart.data.datasets.reduce((sum, ds) => {
+                                        return sum + (ds.data[context.dataIndex] || 0);
+                                    }, 0);
+                                    const qtd = Math.round(value / 100 * total);
+                                    return `${status}: ${qtd} (${value}%)`;
+                                }
+                            }
+                        }
                     },
                     scales: {
-                        x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } }
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                color: '#fff',
+                                font: { size: 11 },
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.07)'
+                            },
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                color: '#fff',
+                                font: { size: 12, weight: 'bold' }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
                     }
                 }
             });
@@ -3334,6 +3202,7 @@
                 activeFilter = null;
                 filteredData = [];
                 aplicarFiltros();
+                showToast(`🔍 Filtrando por ${label}`, 'info', 1500);
             });
 
             charts['statusUFChart'] = chart;
@@ -3507,8 +3376,13 @@
             charts['gapChart'] = chart;
         }
 
+        // ============================================================
+        //  GRÁFICO: BARRAS SEMANAIS com DATAS
+        // ============================================================
         function chartSemanal(data) {
             destroyChart('semanalChart');
+            
+            // Filtrar dados com data de rollout
             const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
             const emptyDiv = document.getElementById('semanalEmpty');
             const canvas = document.getElementById('semanalChart');
@@ -3521,8 +3395,10 @@
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
 
+            // Agrupar por semana
             const porSemana = {};
             const planejadoPorSemana = {};
+            const semanaData = {};
             
             comData.forEach(r => {
                 const d = parseExcelDate(r['DATA DO ROLLOUT']);
@@ -3534,15 +3410,33 @@
                 const ano = d.getFullYear();
                 const key = ano + '-S' + String(semana).padStart(2, '0');
                 
-                if (!porSemana[key]) porSemana[key] = 0;
-                if (!planejadoPorSemana[key]) planejadoPorSemana[key] = 0;
+                if (!porSemana[key]) {
+                    porSemana[key] = 0;
+                    planejadoPorSemana[key] = 0;
+                    semanaData[key] = { inicio: d, fim: d };
+                }
                 
                 porSemana[key]++;
                 planejadoPorSemana[key] += safeNumber(r['QTDE PDVs total']);
+                
+                if (d < semanaData[key].inicio) semanaData[key].inicio = d;
+                if (d > semanaData[key].fim) semanaData[key].fim = d;
             });
 
             const sortedKeys = Object.keys(porSemana).sort();
-            const labels = sortedKeys.map(k => k);
+            
+            // Criar labels com as datas (ex: "S32\n05/08 - 11/08")
+            const labels = sortedKeys.map(k => {
+                const [ano, semana] = k.split('-S');
+                const data = semanaData[k];
+                if (data && data.inicio && data.fim) {
+                    const ini = data.inicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    const fim = data.fim.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    return `${semana}/${ano.slice(2)}\n${ini} - ${fim}`;
+                }
+                return `S${semana}/${ano.slice(2)}`;
+            });
+            
             const realizado = sortedKeys.map(k => porSemana[k]);
             const planejado = sortedKeys.map(k => planejadoPorSemana[k]);
 
@@ -3555,18 +3449,36 @@
                         {
                             label: 'Planejado (PDVs)',
                             data: planejado,
-                            backgroundColor: chartColors.semanal1 + '88',
+                            backgroundColor: chartColors.semanal1 + 'CC',
                             borderColor: chartColors.semanal1,
                             borderWidth: 2,
                             borderRadius: 4,
+                            datalabels: {
+                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                                color: chartColors.semanal1,
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (v) => v > 0 ? v : '',
+                                anchor: 'end',
+                                align: 'top',
+                                offset: 2
+                            }
                         },
                         {
                             label: 'Realizado (PDVs)',
                             data: realizado,
-                            backgroundColor: chartColors.semanal2 + '88',
+                            backgroundColor: chartColors.semanal2 + 'CC',
                             borderColor: chartColors.semanal2,
                             borderWidth: 2,
                             borderRadius: 4,
+                            datalabels: {
+                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                                color: chartColors.semanal2,
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (v) => v > 0 ? v : '',
+                                anchor: 'end',
+                                align: 'top',
+                                offset: 2
+                            }
                         }
                     ]
                 },
@@ -3574,41 +3486,82 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: '#fff',
-                            font: { weight: 'bold', size: 9 },
-                            formatter: v => v,
-                            anchor: 'end',
-                            align: 'end'
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                                boxWidth: 16,
+                                padding: 15,
+                                font: { size: 12, weight: 'bold' }
+                            }
                         },
-                        legend: { display: true, position: 'top', labels: { color: '#fff', boxWidth: 14,
-                                font: { size: 11 } } }
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y || 0;
+                                    return `${label}: ${value}`;
+                                }
+                            }
+                        }
                     },
                     scales: {
-                        x: { ticks: { color: '#fff', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } }
+                        x: {
+                            ticks: { 
+                                color: '#fff',
+                                font: { size: 9 },
+                                maxRotation: 60,
+                                minRotation: 30,
+                                callback: function(value, index, ticks) {
+                                    const label = this.getLabelForValue(value);
+                                    return label;
+                                }
+                            },
+                            grid: { color: 'rgba(255,255,255,0.07)' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#fff',
+                                font: { size: 11 },
+                                stepSize: 1
+                            },
+                            grid: { color: 'rgba(255,255,255,0.07)' }
+                        }
                     }
                 }
             });
 
+            // Interatividade: clique em uma barra para filtrar pela semana
             setupChartClick(chart, function(label) {
-                const [ano, semana] = label.split('-S');
-                const dataFiltrada = originalData.filter(r => {
-                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                    if (!d) return false;
-                    const primeiroDia = new Date(d.getFullYear(), 0, 1);
-                    const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
-                    const sem = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
-                    return d.getFullYear() === parseInt(ano) && sem === parseInt(semana);
-                });
-                filteredData = dataFiltrada;
-                activeFilter = null;
-                document.getElementById('filtroLoja').value = '';
-                document.getElementById('filtroUF').value = 'TODOS';
-                aplicarFiltros();
-                document.getElementById('filterStatus').innerHTML =
-                    `<span class="filter-badge">📆 Semana ${semana}/${ano} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
+                // Extrair semana e ano do label
+                const match = label.match(/(\d+)\/(\d+)/);
+                if (match) {
+                    const semana = match[1];
+                    const ano = '20' + match[2];
+                    const semanaNum = parseInt(semana);
+                    
+                    const dataFiltrada = originalData.filter(r => {
+                        const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                        if (!d) return false;
+                        const primeiroDia = new Date(d.getFullYear(), 0, 1);
+                        const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
+                        const sem = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
+                        return d.getFullYear() === parseInt(ano) && sem === semanaNum;
+                    });
+                    
+                    if (dataFiltrada.length > 0) {
+                        filteredData = dataFiltrada;
+                        activeFilter = null;
+                        document.getElementById('filtroLoja').value = '';
+                        document.getElementById('filtroUF').value = 'TODOS';
+                        aplicarFiltros();
+                        document.getElementById('filterStatus').innerHTML =
+                            `<span class="filter-badge">📆 Semana ${semana}/${ano} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
+                        showToast(`🔍 Filtrando pela Semana ${semana}/${ano}`, 'info', 1500);
+                    }
+                }
             });
 
             charts['semanalChart'] = chart;
@@ -3821,8 +3774,8 @@
                 chartStatusUF(data);
                 setTimeout(() => chartMediaConcluida(data), 200);
                 setTimeout(() => chartGap(data), 300);
-                setTimeout(() => chartSemanal(data), 350);
-                setTimeout(() => chartTimeline(data), 400);
+                setTimeout(() => chartSemanal(data), 400);
+                setTimeout(() => chartTimeline(data), 500);
                 setTimeout(() => chartAuth(data), 600);
             });
         }
