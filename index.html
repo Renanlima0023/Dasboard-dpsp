@@ -1812,22 +1812,6 @@
             semanal2: '#6BCB77'
         };
 
-        let aplicandoConfigRemota = false;
-
-        // ============================================================
-        //  TOAST
-        // ============================================================
-        function showToast(message, type = 'info', duration = 4000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.classList.add('show');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
-
         // ============================================================
         //  GUIA DE GRÁFICOS - DINÂMICO
         // ============================================================
@@ -1944,6 +1928,20 @@
         });
 
         // ============================================================
+        //  TOAST
+        // ============================================================
+        function showToast(message, type = 'info', duration = 4000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // ============================================================
         //  SUPABASE - CARREGAMENTO
         // ============================================================
 
@@ -2012,159 +2010,6 @@
             }
         }
 
-        // ============================================================
-        //  CONFIGURAÇÕES - CORREÇÃO PARA SUPABASE
-        // ============================================================
-
-        async function salvarConfiguracoesSupabase(parcial) {
-            if (aplicandoConfigRemota) return;
-
-            try {
-                const { data: currentData, error: fetchError } = await supabaseClient
-                    .from('configuracoes')
-                    .select('*')
-                    .eq('id', 1)
-                    .maybeSingle();
-
-                if (fetchError) {
-                    console.error('Erro ao buscar configuração atual:', fetchError);
-                    await salvarConfiguracoesFallback(parcial);
-                    return;
-                }
-
-                if (!currentData) {
-                    const defaultData = {
-                        id: 1,
-                        tipo_fundo: 'degrade',
-                        cor_grad1: '#1F2A44',
-                        cor_grad2: '#243B55',
-                        cor_grad3: '#3A506B',
-                        angulo_grad: 135,
-                        cor_destaque: '#6DD5FA',
-                        calculo_auto: true,
-                        previsao_manual: false,
-                        ritmo_manual: false,
-                        previsao_data: null,
-                        ritmo_valor: null,
-                        chart_colors: JSON.stringify({
-                            bar1: '#6DD5FA',
-                            bar2: '#6BCB77',
-                            bar3: '#FFD93D',
-                            bar4: '#C77DFF',
-                            line: '#FF6B6B',
-                            bg: '#0D1B2A',
-                            gap1: '#6DD5FA',
-                            gap2: '#6BCB77',
-                            status1: '#6BCB77',
-                            status2: '#FFD93D',
-                            status3: '#6DD5FA',
-                            semanal1: '#6DD5FA',
-                            semanal2: '#6BCB77'
-                        }),
-                        updated_at: new Date().toISOString()
-                    };
-
-                    const { error: insertError } = await supabaseClient
-                        .from('configuracoes')
-                        .insert(defaultData);
-
-                    if (insertError) {
-                        console.error('Erro ao criar configuração padrão:', insertError);
-                        await salvarConfiguracoesFallback(parcial);
-                        return;
-                    }
-
-                    await carregarConfiguracoesSupabase();
-                    await salvarConfiguracoesSupabase(parcial);
-                    return;
-                }
-
-                const updateData = {
-                    id: 1,
-                    updated_at: new Date().toISOString()
-                };
-
-                // Campos que existem na tabela
-                const camposPermitidos = [
-                    'tipo_fundo', 'cor_fundo1', 'cor_grad1', 'cor_grad2', 'cor_grad3',
-                    'angulo_grad', 'cor_destaque', 'calculo_auto', 'previsao_manual',
-                    'ritmo_manual', 'previsao_data', 'ritmo_valor', 'chart_colors',
-                    'logo_cliente', 'logo_empresa'
-                ];
-
-                Object.keys(parcial).forEach(key => {
-                    if (camposPermitidos.includes(key)) {
-                        updateData[key] = parcial[key];
-                    }
-                });
-
-                if (Object.keys(updateData).length <= 2) {
-                    console.warn('Nenhum dado válido para salvar');
-                    return;
-                }
-
-                const { error } = await supabaseClient
-                    .from('configuracoes')
-                    .upsert(updateData, { onConflict: 'id' });
-
-                if (error) {
-                    console.error('Erro ao salvar configurações:', error);
-                    await salvarConfiguracoesFallback(parcial);
-                } else {
-                    showToast('✅ Configurações salvas!', 'success', 2000);
-                }
-            } catch (e) {
-                console.error('Erro ao salvar configurações:', e);
-                await salvarConfiguracoesFallback(parcial);
-            }
-        }
-
-        async function salvarConfiguracoesFallback(parcial) {
-            try {
-                let localConfigs = {};
-                try {
-                    const saved = localStorage.getItem('dashboard_configs_fallback');
-                    if (saved) localConfigs = JSON.parse(saved);
-                } catch (e) {}
-
-                Object.assign(localConfigs, parcial);
-                localStorage.setItem('dashboard_configs_fallback', JSON.stringify(localConfigs));
-
-                const camposSeguros = {
-                    id: 1,
-                    updated_at: new Date().toISOString()
-                };
-
-                const camposSegurosLista = [
-                    'tipo_fundo', 'cor_fundo1', 'cor_grad1', 'cor_grad2', 'cor_grad3',
-                    'angulo_grad', 'cor_destaque', 'calculo_auto', 'chart_colors',
-                    'logo_cliente', 'logo_empresa'
-                ];
-
-                Object.keys(parcial).forEach(key => {
-                    if (camposSegurosLista.includes(key)) {
-                        camposSeguros[key] = parcial[key];
-                    }
-                });
-
-                if (Object.keys(camposSeguros).length > 2) {
-                    const { error } = await supabaseClient
-                        .from('configuracoes')
-                        .upsert(camposSeguros, { onConflict: 'id' });
-
-                    if (error) {
-                        console.warn('Fallback também falhou:', error);
-                        showToast('⚠️ Configurações salvas localmente. Algumas podem não sincronizar.', 'warning', 4000);
-                    } else {
-                        showToast('✅ Configurações salvas (modo compatível)!', 'success', 2000);
-                    }
-                }
-            } catch (e) {
-                console.error('Fallback completo falhou:', e);
-                showToast('❌ Erro ao salvar configurações. Tente novamente.', 'error', 4000);
-            }
-        }
-
         async function carregarConfiguracoesSupabase() {
             try {
                 const { data, error } = await supabaseClient
@@ -2179,40 +2024,38 @@
                 }
 
                 if (!data) {
-                    const defaultData = {
-                        id: 1,
-                        tipo_fundo: 'degrade',
-                        cor_grad1: '#1F2A44',
-                        cor_grad2: '#243B55',
-                        cor_grad3: '#3A506B',
-                        angulo_grad: 135,
-                        cor_destaque: '#6DD5FA',
-                        calculo_auto: true,
-                        previsao_manual: false,
-                        ritmo_manual: false,
-                        previsao_data: null,
-                        ritmo_valor: null,
-                        chart_colors: JSON.stringify({
-                            bar1: '#6DD5FA',
-                            bar2: '#6BCB77',
-                            bar3: '#FFD93D',
-                            bar4: '#C77DFF',
-                            line: '#FF6B6B',
-                            bg: '#0D1B2A',
-                            gap1: '#6DD5FA',
-                            gap2: '#6BCB77',
-                            status1: '#6BCB77',
-                            status2: '#FFD93D',
-                            status3: '#6DD5FA',
-                            semanal1: '#6DD5FA',
-                            semanal2: '#6BCB77'
-                        }),
-                        updated_at: new Date().toISOString()
-                    };
-
                     const { error: insertError } = await supabaseClient
                         .from('configuracoes')
-                        .insert(defaultData);
+                        .insert({
+                            id: 1,
+                            tipo_fundo: 'degrade',
+                            cor_grad1: '#1F2A44',
+                            cor_grad2: '#243B55',
+                            cor_grad3: '#3A506B',
+                            angulo_grad: 135,
+                            cor_destaque: '#6DD5FA',
+                            calculo_auto: true,
+                            previsao_manual: false,
+                            previsao_data: null,
+                            ritmo_manual: false,
+                            ritmo_valor: null,
+                            chart_colors: JSON.stringify({
+                                bar1: '#6DD5FA',
+                                bar2: '#6BCB77',
+                                bar3: '#FFD93D',
+                                bar4: '#C77DFF',
+                                line: '#FF6B6B',
+                                bg: '#0D1B2A',
+                                gap1: '#6DD5FA',
+                                gap2: '#6BCB77',
+                                status1: '#6BCB77',
+                                status2: '#FFD93D',
+                                status3: '#6DD5FA',
+                                semanal1: '#6DD5FA',
+                                semanal2: '#6BCB77'
+                            }),
+                            updated_at: new Date().toISOString()
+                        });
 
                     if (insertError) {
                         console.error('Erro ao criar configuração padrão:', insertError);
@@ -2225,14 +2068,6 @@
 
                 aplicandoConfigRemota = true;
 
-                // Carregar fallback do localStorage
-                let localFallback = {};
-                try {
-                    const saved = localStorage.getItem('dashboard_configs_fallback');
-                    if (saved) localFallback = JSON.parse(saved);
-                } catch (e) {}
-
-                // Carregar logos
                 if (data.logo_cliente) {
                     document.getElementById('logoClienteImg').src = data.logo_cliente;
                     document.getElementById('logoClienteImg').style.display = 'block';
@@ -2244,28 +2079,23 @@
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                 }
 
-                // Carregar configurações de cálculo
                 if (data.calculo_auto !== undefined) {
                     calculoAutoAtivo = data.calculo_auto;
                     atualizarStatusCalculoAuto();
                 }
 
-                // Carregar previsão manual - SEMPRE carregar os valores, independente do perfil
                 if (data.previsao_manual !== undefined) {
                     previsaoManualAtiva = data.previsao_manual;
-                    previsaoManualData = data.previsao_data || localFallback.previsao_data || null;
+                    previsaoManualData = data.previsao_data || null;
                     atualizarStatusPrevisaoManual();
                 }
 
-                // Carregar ritmo manual - SEMPRE carregar os valores, independente do perfil
                 if (data.ritmo_manual !== undefined) {
                     ritmoManualAtivo = data.ritmo_manual;
-                    ritmoManualValor = data.ritmo_valor !== null && data.ritmo_valor !== undefined ? data.ritmo_valor :
-                        (localFallback.ritmo_valor !== undefined ? localFallback.ritmo_valor : null);
+                    ritmoManualValor = data.ritmo_valor || null;
                     atualizarStatusRitmoManual();
                 }
 
-                // Carregar cores de fundo
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
                     setTipoFundo('solido');
@@ -2283,12 +2113,11 @@
                     aplicarCorDestaque(data.cor_destaque);
                 }
 
-                // Carregar cores dos gráficos
                 if (data.chart_colors) {
                     try {
                         const cc = typeof data.chart_colors === 'string' ? 
                             JSON.parse(data.chart_colors) : data.chart_colors;
-
+                        
                         if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
                             chartColors.bar1 = cc.bar1; }
                         if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
@@ -2331,6 +2160,58 @@
             } catch (e) {
                 console.error('Erro ao carregar configurações:', e);
                 aplicandoConfigRemota = false;
+            }
+        }
+
+        let aplicandoConfigRemota = false;
+
+        async function salvarConfiguracoesSupabase(parcial) {
+            if (aplicandoConfigRemota) return;
+
+            try {
+                const { data: currentData, error: fetchError } = await supabaseClient
+                    .from('configuracoes')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (fetchError) {
+                    console.error('Erro ao buscar configuração atual:', fetchError);
+                    return;
+                }
+
+                const updateData = {
+                    id: 1,
+                    updated_at: new Date().toISOString()
+                };
+
+                if (currentData) {
+                    Object.assign(updateData, currentData);
+                }
+
+                Object.assign(updateData, parcial);
+
+                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
+                    updateData.chart_colors = JSON.stringify(parcial.chart_colors);
+                }
+
+                Object.keys(updateData).forEach(key => {
+                    if (updateData[key] === undefined) delete updateData[key];
+                });
+
+                const { error } = await supabaseClient
+                    .from('configuracoes')
+                    .upsert(updateData, { onConflict: 'id' });
+
+                if (error) {
+                    console.error('Erro ao salvar configurações:', error);
+                    showToast('❌ Erro ao salvar configurações: ' + error.message, 'error');
+                } else {
+                    showToast('✅ Configurações salvas para todos os usuários!', 'success', 2000);
+                }
+            } catch (e) {
+                console.error('Erro ao salvar configurações:', e);
+                showToast('❌ Erro ao salvar configurações', 'error');
             }
         }
 
@@ -2423,17 +2304,15 @@
             }
             previsaoManualAtiva = !previsaoManualAtiva;
             atualizarStatusPrevisaoManual();
-            
             salvarConfiguracoesSupabase({ 
                 previsao_manual: previsaoManualAtiva,
                 previsao_data: previsaoManualAtiva ? previsaoManualData : null
             });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' : '📅 Previsão manual desativada', 'info', 2000);
+            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada - defina a data no card' : '📅 Previsão manual desativada', 'info', 2000);
         }
 
         function atualizarStatusPrevisaoManual() {
@@ -2443,19 +2322,16 @@
             const dataInput = document.getElementById('previsaoManualDate');
             const isAdmin = currentRole === 'admin';
             
-            // Atualizar o status do botão
             if (previsaoManualAtiva) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-            }
-
-            // Atualizar o container de edição (só admin pode editar)
-            if (isAdmin && previsaoManualAtiva) {
-                container.classList.add('admin-only');
-                container.style.display = 'block';
+                if (isAdmin) {
+                    container.classList.add('admin-only');
+                    container.style.display = 'block';
+                } else {
+                    container.classList.remove('admin-only');
+                    container.style.display = 'none';
+                }
                 if (previsaoManualData) {
                     dataInput.value = previsaoManualData;
                 } else {
@@ -2465,14 +2341,10 @@
                     previsaoManualData = dataInput.value;
                 }
             } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
-            }
-
-            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
             }
         }
 
@@ -2483,10 +2355,7 @@
             }
             const dataInput = document.getElementById('previsaoManualDate');
             previsaoManualData = dataInput.value;
-            salvarConfiguracoesSupabase({ 
-                previsao_data: previsaoManualData,
-                previsao_manual: true
-            });
+            salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
@@ -2501,17 +2370,15 @@
             }
             ritmoManualAtivo = !ritmoManualAtivo;
             atualizarStatusRitmoManual();
-            
             salvarConfiguracoesSupabase({ 
                 ritmo_manual: ritmoManualAtivo,
                 ritmo_valor: ritmoManualAtivo ? ritmoManualValor : null
             });
-            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado', 'info', 2000);
+            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado - defina o valor no card' : '📊 Ritmo manual desativado', 'info', 2000);
         }
 
         function atualizarStatusRitmoManual() {
@@ -2521,33 +2388,26 @@
             const input = document.getElementById('ritmoManualInput');
             const isAdmin = currentRole === 'admin';
             
-            // Atualizar o status do botão
             if (ritmoManualAtivo) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-            }
-
-            // Atualizar o container de edição (só admin pode editar)
-            if (isAdmin && ritmoManualAtivo) {
-                container.classList.add('admin-only');
-                container.style.display = 'block';
+                if (isAdmin) {
+                    container.classList.add('admin-only');
+                    container.style.display = 'block';
+                } else {
+                    container.classList.remove('admin-only');
+                    container.style.display = 'none';
+                }
                 if (ritmoManualValor !== null) {
                     input.value = ritmoManualValor;
                 } else {
                     input.value = '';
                 }
             } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
-            }
-
-            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
             }
         }
 
@@ -2560,10 +2420,7 @@
             const valor = parseFloat(input.value);
             if (!isNaN(valor) && valor >= 0) {
                 ritmoManualValor = valor;
-                salvarConfiguracoesSupabase({ 
-                    ritmo_valor: ritmoManualValor,
-                    ritmo_manual: true
-                });
+                salvarConfiguracoesSupabase({ ritmo_valor: ritmoManualValor });
                 if (originalData.length > 0) {
                     const data = getDataParaExibir();
                     atualizarCards(data);
@@ -2673,11 +2530,9 @@
                 adicionarUsuario();
             };
 
-            // Atualizar visibilidade dos containers manuais baseado no perfil
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
             
-            // Admin vê os campos de edição, outros perfis veem apenas os valores nos cards
             if (isAdmin && previsaoManualAtiva) {
                 previsaoContainer.classList.add('admin-only');
                 previsaoContainer.style.display = 'block';
@@ -2692,12 +2547,6 @@
             } else {
                 ritmoContainer.classList.remove('admin-only');
                 ritmoContainer.style.display = 'none';
-            }
-
-            // Recarregar os cards com os valores manuais carregados
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
             }
         }
 
@@ -3033,7 +2882,6 @@
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
-            // USAR VALOR MANUAL SE ATIVO (independente do perfil)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
             } else if (calculoAutoAtivo) {
@@ -3064,7 +2912,6 @@
 
             let previsao = '-';
             
-            // USAR PREVISÃO MANUAL SE ATIVA (independente do perfil)
             if (previsaoManualAtiva && previsaoManualData) {
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
@@ -3163,11 +3010,11 @@
                 badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
             }
 
-            if (previsaoManualAtiva) {
+            if (previsaoManualAtiva && currentRole === 'admin') {
                 badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
             }
 
-            if (ritmoManualAtivo) {
+            if (ritmoManualAtivo && currentRole === 'admin') {
                 badges.push(`<span class="filter-badge ritmo-badge">📊 Ritmo Manual</span>`);
             }
 
@@ -3392,6 +3239,7 @@
 
             aplicarCorFundoGraficos();
 
+            // Atualizar o guia dinamicamente se estiver aberto
             if (document.getElementById('guiaModal').classList.contains('show')) {
                 gerarGuiaDinamico();
             }
