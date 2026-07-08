@@ -2250,14 +2250,14 @@
                     atualizarStatusCalculoAuto();
                 }
 
-                // Carregar previsão manual
+                // Carregar previsão manual - SEMPRE carregar os valores, independente do perfil
                 if (data.previsao_manual !== undefined) {
                     previsaoManualAtiva = data.previsao_manual;
                     previsaoManualData = data.previsao_data || localFallback.previsao_data || null;
                     atualizarStatusPrevisaoManual();
                 }
 
-                // Carregar ritmo manual
+                // Carregar ritmo manual - SEMPRE carregar os valores, independente do perfil
                 if (data.ritmo_manual !== undefined) {
                     ritmoManualAtivo = data.ritmo_manual;
                     ritmoManualValor = data.ritmo_valor !== null && data.ritmo_valor !== undefined ? data.ritmo_valor :
@@ -2443,16 +2443,19 @@
             const dataInput = document.getElementById('previsaoManualDate');
             const isAdmin = currentRole === 'admin';
             
+            // Atualizar o status do botão
             if (previsaoManualAtiva) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+
+            // Atualizar o container de edição (só admin pode editar)
+            if (isAdmin && previsaoManualAtiva) {
+                container.classList.add('admin-only');
+                container.style.display = 'block';
                 if (previsaoManualData) {
                     dataInput.value = previsaoManualData;
                 } else {
@@ -2462,10 +2465,14 @@
                     previsaoManualData = dataInput.value;
                 }
             } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
+            }
+
+            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
             }
         }
 
@@ -2514,26 +2521,33 @@
             const input = document.getElementById('ritmoManualInput');
             const isAdmin = currentRole === 'admin';
             
+            // Atualizar o status do botão
             if (ritmoManualAtivo) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+
+            // Atualizar o container de edição (só admin pode editar)
+            if (isAdmin && ritmoManualAtivo) {
+                container.classList.add('admin-only');
+                container.style.display = 'block';
                 if (ritmoManualValor !== null) {
                     input.value = ritmoManualValor;
                 } else {
                     input.value = '';
                 }
             } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
+            }
+
+            // ATUALIZAR OS CARDS COM OS VALORES MANUAIS
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
             }
         }
 
@@ -2659,9 +2673,11 @@
                 adicionarUsuario();
             };
 
+            // Atualizar visibilidade dos containers manuais baseado no perfil
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
             
+            // Admin vê os campos de edição, outros perfis veem apenas os valores nos cards
             if (isAdmin && previsaoManualAtiva) {
                 previsaoContainer.classList.add('admin-only');
                 previsaoContainer.style.display = 'block';
@@ -2676,6 +2692,12 @@
             } else {
                 ritmoContainer.classList.remove('admin-only');
                 ritmoContainer.style.display = 'none';
+            }
+
+            // Recarregar os cards com os valores manuais carregados
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
             }
         }
 
@@ -3011,6 +3033,7 @@
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
+            // USAR VALOR MANUAL SE ATIVO (independente do perfil)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
             } else if (calculoAutoAtivo) {
@@ -3041,6 +3064,7 @@
 
             let previsao = '-';
             
+            // USAR PREVISÃO MANUAL SE ATIVA (independente do perfil)
             if (previsaoManualAtiva && previsaoManualData) {
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
@@ -3139,11 +3163,11 @@
                 badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
             }
 
-            if (previsaoManualAtiva && currentRole === 'admin') {
+            if (previsaoManualAtiva) {
                 badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
             }
 
-            if (ritmoManualAtivo && currentRole === 'admin') {
+            if (ritmoManualAtivo) {
                 badges.push(`<span class="filter-badge ritmo-badge">📊 Ritmo Manual</span>`);
             }
 
