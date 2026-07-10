@@ -17,7 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <style>
-        /* ===== TODOS OS ESTILOS MANTIDOS (mesmo do HTML anterior) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -1774,11 +1773,14 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
+        // ============================================================
+        //  VARIÁVEIS DE CONFIGURAÇÃO MANUAL - ESSENCIAIS
+        // ============================================================
         let calculoAutoAtivo = true;
         let previsaoManualAtiva = false;
-        let previsaoManualData = null;
+        let previsaoManualData = null;   // Formato: "YYYY-MM-DD"
         let ritmoManualAtivo = false;
-        let ritmoManualValor = null;
+        let ritmoManualValor = null;     // Número de lojas por dia
 
         let activeFilter = null;
         let filteredData = [];
@@ -1872,7 +1874,7 @@
         }
 
         // ============================================================
-        //  TOAST
+        //  TOAST - COM CONTROLE PARA EVITAR SPAM
         // ============================================================
         let toastTimer = null;
         let ultimoToast = {};
@@ -2064,21 +2066,42 @@
         }
 
         // ============================================================
-        //  CONFIGURAÇÕES - COM CACHE
+        //  CONFIGURAÇÕES - CORRIGIDA PARA CARREGAR VALORES MANUAIS
         // ============================================================
 
         let cacheConfiguracoes = null;
-        let aplicandoConfigRemota = false;
+        let cacheConfigHash = null;
         let carregandoConfiguracoes = false;
+        let aplicandoConfigRemota = false;
+
+        function gerarHashConfig(config) {
+            if (!config) return null;
+            const campos = ['tipo_fundo', 'cor_fundo1', 'cor_grad1', 'cor_grad2', 'cor_grad3', 'angulo_grad', 'cor_destaque',
+                'chart_colors'
+            ];
+            const obj = {};
+            campos.forEach(c => { if (config[c] !== undefined) obj[c] = config[c]; });
+            return JSON.stringify(obj);
+        }
 
         async function carregarConfiguracoesSupabase(force = false) {
-            if (carregandoConfiguracoes) return;
+            if (carregandoConfiguracoes) {
+                console.log('⏳ Já carregando configurações...');
+                return;
+            }
+
+            // Se tem cache e não for force, usar cache (APENAS PARA CORES)
             if (!force && cacheConfiguracoes) {
+                console.log('📦 Usando cache de configurações (parcial)');
+                // Aplicar cores do cache
                 aplicarConfiguracoes(cacheConfiguracoes);
+                // SEMPRE recarregar valores manuais do banco
+                await carregarValoresManuais();
                 return;
             }
 
             carregandoConfiguracoes = true;
+
             try {
                 const { data, error } = await supabaseClient
                     .from('configuracoes')
@@ -2087,7 +2110,7 @@
                     .maybeSingle();
 
                 if (error) {
-                    console.error('Erro ao carregar configurações:', error);
+                    console.error('❌ Erro ao carregar configurações:', error);
                     carregandoConfiguracoes = false;
                     return;
                 }
@@ -2129,7 +2152,7 @@
                         .insert(defaultData);
 
                     if (insertError) {
-                        console.error('Erro ao criar configuração padrão:', insertError);
+                        console.error('❌ Erro ao criar configuração padrão:', insertError);
                         carregandoConfiguracoes = false;
                         return;
                     }
@@ -2139,37 +2162,116 @@
                     return;
                 }
 
+                // ATUALIZAR CACHE
                 cacheConfiguracoes = data;
+                cacheConfigHash = gerarHashConfig(data);
+
+                // CARREGAR VALORES MANUAIS - ESSA É A PARTE MAIS IMPORTANTE!
+                console.log('📊 Carregando valores manuais do Supabase...');
+
+                if (data.calculo_auto !== undefined) {
+                    calculoAutoAtivo = data.calculo_auto;
+                }
+
+                if (data.previsao_manual !== undefined) {
+                    previsaoManualAtiva = data.previsao_manual;
+                    console.log('📅 previsaoManualAtiva:', previsaoManualAtiva);
+                }
+                if (data.previsao_data !== undefined && data.previsao_data !== null) {
+                    previsaoManualData = data.previsao_data;
+                    console.log('📅 previsaoManualData:', previsaoManualData);
+                }
+
+                if (data.ritmo_manual !== undefined) {
+                    ritmoManualAtivo = data.ritmo_manual;
+                    console.log('📊 ritmoManualAtivo:', ritmoManualAtivo);
+                }
+                if (data.ritmo_valor !== undefined && data.ritmo_valor !== null) {
+                    ritmoManualValor = data.ritmo_valor;
+                    console.log('📊 ritmoManualValor:', ritmoManualValor);
+                }
+
+                // Aplicar cores (visual)
                 aplicarConfiguracoes(data);
+
+                // ATUALIZAR A UI COM OS VALORES MANUAIS
+                atualizarStatusCalculoAuto();
+                atualizarStatusPrevisaoManual();
+                atualizarStatusRitmoManual();
+
+                // Atualizar cards com os valores carregados
+                if (originalData && originalData.length > 0) {
+                    const dataExibida = getDataParaExibir();
+                    atualizarCards(dataExibida);
+                    // Não recriar gráficos aqui para evitar loop
+                }
+
                 carregandoConfiguracoes = false;
+                console.log('✅ Configurações carregadas com sucesso!');
+
             } catch (e) {
-                console.error('Erro ao carregar configurações:', e);
+                console.error('❌ Erro ao carregar configurações:', e);
                 carregandoConfiguracoes = false;
             }
         }
+
+        // ============================================================
+        //  FUNÇÃO PARA CARREGAR APENAS VALORES MANUAIS
+        // ============================================================
+
+        async function carregarValoresManuais() {
+            try {
+                console.log('🔄 Recarregando valores manuais...');
+                const { data, error } = await supabaseClient
+                    .from('configuracoes')
+                    .select('calculo_auto, previsao_manual, previsao_data, ritmo_manual, ritmo_valor')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (error) {
+                    console.error('❌ Erro ao carregar valores manuais:', error);
+                    return;
+                }
+
+                if (data) {
+                    if (data.calculo_auto !== undefined) calculoAutoAtivo = data.calculo_auto;
+                    if (data.previsao_manual !== undefined) previsaoManualAtiva = data.previsao_manual;
+                    if (data.previsao_data !== undefined) previsaoManualData = data.previsao_data;
+                    if (data.ritmo_manual !== undefined) ritmoManualAtivo = data.ritmo_manual;
+                    if (data.ritmo_valor !== undefined) ritmoManualValor = data.ritmo_valor;
+
+                    console.log('📊 Valores manuais carregados:');
+                    console.log('  - calculoAutoAtivo:', calculoAutoAtivo);
+                    console.log('  - previsaoManualAtiva:', previsaoManualAtiva);
+                    console.log('  - previsaoManualData:', previsaoManualData);
+                    console.log('  - ritmoManualAtivo:', ritmoManualAtivo);
+                    console.log('  - ritmoManualValor:', ritmoManualValor);
+
+                    // Atualizar UI
+                    atualizarStatusCalculoAuto();
+                    atualizarStatusPrevisaoManual();
+                    atualizarStatusRitmoManual();
+
+                    if (originalData && originalData.length > 0) {
+                        const dataExibida = getDataParaExibir();
+                        atualizarCards(dataExibida);
+                    }
+                }
+            } catch (e) {
+                console.error('❌ Erro ao carregar valores manuais:', e);
+            }
+        }
+
+        // ============================================================
+        //  FUNÇÃO PARA APLICAR CONFIGURAÇÕES (CORES E VISUAL)
+        // ============================================================
 
         function aplicarConfiguracoes(data) {
             if (!data || aplicandoConfigRemota) return;
             aplicandoConfigRemota = true;
 
             try {
-                if (data.calculo_auto !== undefined) {
-                    calculoAutoAtivo = data.calculo_auto;
-                    atualizarStatusCalculoAuto();
-                }
-
-                if (data.previsao_manual !== undefined) {
-                    previsaoManualAtiva = data.previsao_manual;
-                    previsaoManualData = data.previsao_data || null;
-                    atualizarStatusPrevisaoManual();
-                }
-
-                if (data.ritmo_manual !== undefined) {
-                    ritmoManualAtivo = data.ritmo_manual;
-                    ritmoManualValor = data.ritmo_valor || null;
-                    atualizarStatusRitmoManual();
-                }
-
+                // Logos
                 if (data.logo_cliente) {
                     document.getElementById('logoClienteImg').src = data.logo_cliente;
                     document.getElementById('logoClienteImg').style.display = 'block';
@@ -2181,6 +2283,7 @@
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                 }
 
+                // Cores
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
                     setTipoFundo('solido', true);
@@ -2236,12 +2339,6 @@
 
                 aplicarCorFundoGraficos();
 
-                if (originalData && originalData.length > 0) {
-                    const dataExibida = getDataParaExibir();
-                    atualizarCards(dataExibida);
-                    atualizarGraficosComControle(dataExibida);
-                }
-
             } catch (e) {
                 console.error('Erro ao aplicar configurações:', e);
             } finally {
@@ -2250,63 +2347,321 @@
         }
 
         // ============================================================
-        //  FUNÇÕES DE SALVAMENTO
+        //  FUNÇÃO PARA SALVAR CONFIGURAÇÕES - CORRIGIDA
         // ============================================================
 
         let salvandoConfig = false;
 
         function salvarConfiguracoesSupabase(parcial) {
             if (salvandoConfig || aplicandoConfigRemota) {
-                console.log('⏳ Salvamento em andamento...');
+                console.log('⏳ Salvamento em andamento, ignorando...');
                 return;
             }
 
             salvandoConfig = true;
-            const dadosParaSalvar = { id: 1, ...parcial, updated_at: new Date().toISOString() };
+            const dadosParaSalvar = {
+                id: 1,
+                ...parcial,
+                updated_at: new Date().toISOString()
+            };
+
+            console.log('💾 Salvando configurações:', dadosParaSalvar);
 
             supabaseClient
                 .from('configuracoes')
                 .upsert(dadosParaSalvar, { onConflict: 'id' })
                 .then(({ error }) => {
                     if (error) {
-                        console.error('Erro ao salvar configurações:', error);
+                        console.error('❌ Erro ao salvar configurações:', error);
+                        showToast('❌ Erro ao salvar configurações', 'error', 3000);
                     } else {
+                        console.log('✅ Configurações salvas com sucesso!');
+
+                        // ATUALIZAR VARIÁVEIS LOCAIS IMEDIATAMENTE
+                        if (parcial.calculo_auto !== undefined) {
+                            calculoAutoAtivo = parcial.calculo_auto;
+                            atualizarStatusCalculoAuto();
+                            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado',
+                                'info', 2000);
+                        }
+
+                        if (parcial.previsao_manual !== undefined) {
+                            previsaoManualAtiva = parcial.previsao_manual;
+                            if (parcial.previsao_data !== undefined) {
+                                previsaoManualData = parcial.previsao_data;
+                            }
+                            atualizarStatusPrevisaoManual();
+                            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' :
+                                '📅 Previsão manual desativada', 'info', 2000);
+                        }
+
+                        if (parcial.ritmo_manual !== undefined) {
+                            ritmoManualAtivo = parcial.ritmo_manual;
+                            if (parcial.ritmo_valor !== undefined) {
+                                ritmoManualValor = parcial.ritmo_valor;
+                            }
+                            atualizarStatusRitmoManual();
+                            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado',
+                                'info', 2000);
+                        }
+
+                        if (parcial.previsao_data !== undefined && !parcial.previsao_manual) {
+                            showToast('📅 Data de previsão atualizada para ' + parcial.previsao_data, 'success', 1500);
+                        }
+
+                        if (parcial.ritmo_valor !== undefined && !parcial.ritmo_manual) {
+                            showToast('📊 Ritmo atualizado para ' + parcial.ritmo_valor + ' lojas/dia', 'success',
+                            1500);
+                        }
+
+                        // Atualizar cache
                         if (cacheConfiguracoes) {
                             Object.assign(cacheConfiguracoes, parcial);
                         }
 
-                        if (parcial.calculo_auto !== undefined) calculoAutoAtivo = parcial.calculo_auto;
-                        if (parcial.previsao_manual !== undefined) previsaoManualAtiva = parcial.previsao_manual;
-                        if (parcial.previsao_data !== undefined) previsaoManualData = parcial.previsao_data;
-                        if (parcial.ritmo_manual !== undefined) ritmoManualAtivo = parcial.ritmo_manual;
-                        if (parcial.ritmo_valor !== undefined) ritmoManualValor = parcial.ritmo_valor;
-
-                        // Mostrar toast apenas para ações manuais
-                        if (parcial.calculo_auto !== undefined) {
-                            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado',
-                                'info', 2000);
-                        } else if (parcial.previsao_manual !== undefined) {
-                            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' : '📅 Previsão manual desativada',
-                                'info', 2000);
-                        } else if (parcial.ritmo_manual !== undefined) {
-                            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado',
-                                'info', 2000);
-                        } else if (parcial.previsao_data !== undefined) {
-                            showToast('📅 Data de previsão atualizada para ' + parcial.previsao_data, 'success', 1500);
-                        } else if (parcial.ritmo_valor !== undefined) {
-                            showToast('📊 Ritmo atualizado para ' + parcial.ritmo_valor + ' lojas/dia', 'success', 1500);
-                        }
-
+                        // Atualizar cards com os novos valores
                         if (originalData && originalData.length > 0) {
                             const data = getDataParaExibir();
                             atualizarCards(data);
+                            // Não recriar gráficos para evitar loop
                         }
+
+                        // Atualizar badges
+                        atualizarBadgeFiltro();
                     }
                 })
-                .catch(e => console.error('Erro:', e))
+                .catch(e => {
+                    console.error('❌ Erro:', e);
+                    showToast('❌ Erro ao salvar configurações', 'error', 3000);
+                })
                 .finally(() => {
                     salvandoConfig = false;
                 });
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE CONTROLE MANUAL - CORRIGIDAS
+        // ============================================================
+
+        function toggleCalculoAuto() {
+            calculoAutoAtivo = !calculoAutoAtivo;
+            atualizarStatusCalculoAuto();
+            salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusCalculoAuto() {
+            const statusEl = document.getElementById('calculoAutoStatus');
+            const btn = document.getElementById('btnCalculoAuto');
+            if (calculoAutoAtivo) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+        }
+
+        function togglePrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
+                return;
+            }
+
+            previsaoManualAtiva = !previsaoManualAtiva;
+
+            // Se ativou e não tem data, definir uma data padrão (30 dias a partir de hoje)
+            if (previsaoManualAtiva && !previsaoManualData) {
+                const hoje = new Date();
+                hoje.setDate(hoje.getDate() + 30);
+                previsaoManualData = hoje.toISOString().slice(0, 10);
+            }
+
+            // Se desativou, limpar a data
+            if (!previsaoManualAtiva) {
+                previsaoManualData = null;
+            }
+
+            // Atualizar UI
+            atualizarStatusPrevisaoManual();
+
+            // Salvar no Supabase
+            salvarConfiguracoesSupabase({
+                previsao_manual: previsaoManualAtiva,
+                previsao_data: previsaoManualData
+            });
+
+            // Atualizar cards
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusPrevisaoManual() {
+            const statusEl = document.getElementById('previsaoManualStatus');
+            const btn = document.getElementById('btnPrevisaoManual');
+            const container = document.getElementById('previsaoManualContainer');
+            const dataInput = document.getElementById('previsaoManualDate');
+            const isAdmin = currentRole === 'admin';
+
+            // Atualizar texto do botão
+            if (previsaoManualAtiva) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+
+            // Atualizar visibilidade do input de data (apenas admin vê)
+            if (isAdmin && previsaoManualAtiva) {
+                container.classList.add('admin-only');
+                container.style.display = 'block';
+                if (previsaoManualData) {
+                    dataInput.value = previsaoManualData;
+                }
+            } else {
+                container.classList.remove('admin-only');
+                container.style.display = 'none';
+            }
+
+            // Atualizar os cards com os valores atuais
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+
+            // Atualizar badges
+            atualizarBadgeFiltro();
+        }
+
+        function atualizarPrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
+                return;
+            }
+
+            const dataInput = document.getElementById('previsaoManualDate');
+            if (!dataInput.value) {
+                showToast('⚠️ Selecione uma data válida', 'error', 2000);
+                return;
+            }
+
+            previsaoManualData = dataInput.value;
+
+            // Salvar no Supabase
+            salvarConfiguracoesSupabase({
+                previsao_data: previsaoManualData,
+                previsao_manual: true // Garantir que está ativo
+            });
+
+            // Atualizar cards
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function toggleRitmoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
+                return;
+            }
+
+            ritmoManualAtivo = !ritmoManualAtivo;
+
+            // Se desativou, limpar o valor
+            if (!ritmoManualAtivo) {
+                ritmoManualValor = null;
+            }
+
+            // Atualizar UI
+            atualizarStatusRitmoManual();
+
+            // Salvar no Supabase
+            salvarConfiguracoesSupabase({
+                ritmo_manual: ritmoManualAtivo,
+                ritmo_valor: ritmoManualValor
+            });
+
+            // Atualizar cards
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusRitmoManual() {
+            const statusEl = document.getElementById('ritmoManualStatus');
+            const btn = document.getElementById('btnRitmoManual');
+            const container = document.getElementById('ritmoManualContainer');
+            const input = document.getElementById('ritmoManualInput');
+            const isAdmin = currentRole === 'admin';
+
+            // Atualizar texto do botão
+            if (ritmoManualAtivo) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+
+            // Atualizar visibilidade do input de ritmo (apenas admin vê)
+            if (isAdmin && ritmoManualAtivo) {
+                container.classList.add('admin-only');
+                container.style.display = 'block';
+                if (ritmoManualValor !== null) {
+                    input.value = ritmoManualValor;
+                } else {
+                    input.value = '';
+                }
+            } else {
+                container.classList.remove('admin-only');
+                container.style.display = 'none';
+            }
+
+            // Atualizar os cards com os valores atuais
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+
+            // Atualizar badges
+            atualizarBadgeFiltro();
+        }
+
+        function atualizarRitmoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
+                return;
+            }
+
+            const input = document.getElementById('ritmoManualInput');
+            const valor = parseFloat(input.value);
+
+            if (isNaN(valor) || valor < 0) {
+                showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
+                return;
+            }
+
+            ritmoManualValor = valor;
+
+            // Salvar no Supabase
+            salvarConfiguracoesSupabase({
+                ritmo_valor: ritmoManualValor,
+                ritmo_manual: true // Garantir que está ativo
+            });
+
+            // Atualizar cards
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
         }
 
         // ============================================================
@@ -2363,6 +2718,10 @@
             return data;
         }
 
+        // ============================================================
+        //  FUNÇÃO ATUALIZAR CARDS - CORRIGIDA PARA USAR VALORES MANUAIS
+        // ============================================================
+
         function atualizarCards(data) {
             const totalLojas = data.length;
             const totalPdvs = data.reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
@@ -2376,9 +2735,13 @@
             let ritmoDiario = 0;
             const dataAtual = new Date();
 
+            // PRIORIDADE: VALOR MANUAL (se ativo)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
-            } else if (calculoAutoAtivo) {
+                console.log('📊 Usando RITMO MANUAL:', ritmoDiario);
+            }
+            // CASO CONTRÁRIO: cálculo automático
+            else if (calculoAutoAtivo) {
                 const dataLimite = new Date(dataAtual);
                 dataLimite.setDate(dataLimite.getDate() - 30);
                 const ultimos30Dias = data.filter(r => {
@@ -2391,7 +2754,7 @@
                     return d ? d.toISOString().slice(0, 10) : null;
                 }).filter(Boolean)).size;
                 ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 :
-                0;
+                    0;
             } else {
                 const todasConcluidas = data.filter(isConcluida);
                 if (todasConcluidas.length > 0) {
@@ -2407,11 +2770,15 @@
 
             let previsao = '-';
 
+            // PRIORIDADE: PREVISÃO MANUAL (se ativa)
             if (previsaoManualAtiva && previsaoManualData) {
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
                 previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
-            } else if (ritmoDiario > 0 && lojasRestantes > 0) {
+                console.log('📅 Usando PREVISÃO MANUAL:', previsao);
+            }
+            // CASO CONTRÁRIO: cálculo automático
+            else if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
                 dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
@@ -2420,6 +2787,7 @@
                 previsao = '✅ Concluído';
             }
 
+            // Atualizar DOM
             document.getElementById('progressoGeral').textContent = progressoGeral + '%';
             document.getElementById('progressoGeralBar').style.width = progressoGeral + '%';
             document.getElementById('previsaoConclusao').textContent = previsao;
@@ -2485,6 +2853,10 @@
             }
         }
 
+        // ============================================================
+        //  FUNÇÃO ATUALIZAR BADGES - MOSTRA PARA TODOS OS PERFIS
+        // ============================================================
+
         function atualizarBadgeFiltro() {
             const status = document.getElementById('filterStatus');
             const badges = [];
@@ -2517,12 +2889,20 @@
                     );
             }
 
+            // MOSTRAR BADGES PARA TODOS OS PERFIS (não apenas admin)
             if (previsaoManualAtiva) {
-                badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
+                const dataExibida = previsaoManualData ?
+                    new Date(previsaoManualData).toLocaleDateString('pt-BR') :
+                    'Não definida';
+                badges.push(
+                    `<span class="filter-badge admin-badge">📅 Previsão Manual: ${dataExibida}</span>`
+                    );
             }
 
-            if (ritmoManualAtivo) {
-                badges.push(`<span class="filter-badge ritmo-badge">📊 Ritmo Manual</span>`);
+            if (ritmoManualAtivo && ritmoManualValor !== null) {
+                badges.push(
+                    `<span class="filter-badge ritmo-badge">📊 Ritmo Manual: ${ritmoManualValor} lojas/dia</span>`
+                    );
             }
 
             status.innerHTML = badges.join('');
@@ -4058,172 +4438,156 @@
         }
 
         // ============================================================
-        //  FUNÇÕES DE CONTROLE MANUAL
+        //  FUNÇÃO DE UPLOAD
         // ============================================================
 
-        function toggleCalculoAuto() {
-            calculoAutoAtivo = !calculoAutoAtivo;
-            atualizarStatusCalculoAuto();
-            salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function atualizarStatusCalculoAuto() {
-            const statusEl = document.getElementById('calculoAutoStatus');
-            const btn = document.getElementById('btnCalculoAuto');
-            if (calculoAutoAtivo) {
-                statusEl.textContent = 'ON';
-                btn.classList.add('active-auto');
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-            }
-        }
-
-        function togglePrevisaoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
+        function abrirUpload() {
+            if (currentRole === 'visualizador') {
+                alert('Você não tem permissão para atualizar a planilha.');
                 return;
             }
-            previsaoManualAtiva = !previsaoManualAtiva;
-            if (!previsaoManualAtiva) {
-                previsaoManualData = null;
-            } else if (!previsaoManualData) {
-                const hoje = new Date();
-                hoje.setDate(hoje.getDate() + 30);
-                previsaoManualData = hoje.toISOString().slice(0, 10);
-            }
+            document.getElementById('excelFileInput').click();
+        }
 
-            atualizarStatusPrevisaoManual();
-            salvarConfiguracoesSupabase({
-                previsao_manual: previsaoManualAtiva,
-                previsao_data: previsaoManualAtiva ? previsaoManualData : null
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('excelFileInput');
+
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['xlsx', 'xls'].includes(ext)) {
+                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
+                    this.value = '';
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'flex';
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
+                        if (!sheetName) {
+                            sheetName = workbook.SheetNames[0];
+                        }
+
+                        const worksheet = workbook.Sheets[sheetName];
+                        if (!worksheet) {
+                            throw new Error('Nenhuma aba encontrada.');
+                        }
+
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                            defval: '',
+                            raw: true,
+                            blankrows: false
+                        });
+
+                        if (!jsonData || jsonData.length === 0) {
+                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
+                        }
+
+                        const dadosNormalizados = jsonData.map(row => {
+                            const novo = {};
+                            Object.keys(row).forEach(key => {
+                                const chaveLimpa = key.trim();
+                                novo[chaveLimpa] = row[key];
+                            });
+                            return novo;
+                        });
+
+                        originalData = dadosNormalizados;
+                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
+
+                        activeFilter = null;
+                        await salvarDashboardDataSupabase(originalData);
+                        aplicarFiltros();
+
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
+                        event.target.value = '';
+
+                    } catch (error) {
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
+                        console.error(error);
+                        event.target.value = '';
+                    }
+                };
+
+                reader.onerror = function() {
+                    document.getElementById('loading').style.display = 'none';
+                    showToast('❌ Erro ao ler o arquivo.', 'error');
+                    event.target.value = '';
+                };
+
+                reader.readAsArrayBuffer(file);
             });
+        });
 
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
+        // ============================================================
+        //  AUTO-REFRESH
+        // ============================================================
 
-        function atualizarStatusPrevisaoManual() {
-            const statusEl = document.getElementById('previsaoManualStatus');
-            const btn = document.getElementById('btnPrevisaoManual');
-            const container = document.getElementById('previsaoManualContainer');
-            const dataInput = document.getElementById('previsaoManualDate');
-            const isAdmin = currentRole === 'admin';
+        function toggleAutoRefresh() {
+            autoRefreshActive = !autoRefreshActive;
+            const btn = document.getElementById('btnAutoRefresh');
+            const status = document.getElementById('autoRefreshStatus');
 
-            if (previsaoManualAtiva) {
-                statusEl.textContent = 'ON';
+            if (autoRefreshActive) {
+                status.textContent = 'ON (30s)';
                 btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
-                if (previsaoManualData) {
-                    dataInput.value = previsaoManualData;
-                } else {
-                    const hoje = new Date();
-                    hoje.setDate(hoje.getDate() + 30);
-                    dataInput.value = hoje.toISOString().slice(0, 10);
-                    previsaoManualData = dataInput.value;
-                }
+                autoRefreshInterval = setInterval(() => {
+                    carregarDashboardDataSupabase();
+                }, 30000);
+                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
             } else {
-                statusEl.textContent = 'OFF';
+                status.textContent = 'OFF';
                 btn.classList.remove('active-auto');
-                container.classList.remove('admin-only');
-                container.style.display = 'none';
+                clearInterval(autoRefreshInterval);
+                showToast('⏹️ Auto-Refresh desativado', 'info');
             }
         }
 
-        function atualizarPrevisaoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
-                return;
-            }
-            const dataInput = document.getElementById('previsaoManualDate');
-            previsaoManualData = dataInput.value;
-            salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
+        // ============================================================
+        //  REALTIME
+        // ============================================================
 
-        function toggleRitmoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
-                return;
-            }
-            ritmoManualAtivo = !ritmoManualAtivo;
-            if (!ritmoManualAtivo) {
-                ritmoManualValor = null;
-            }
+        function iniciarRealtime() {
+            try {
+                supabaseClient
+                    .channel('configuracoes-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                        console.log('🔄 Configurações alteradas, recarregando...');
+                        cacheConfiguracoes = null;
+                        carregarConfiguracoesSupabase(true);
+                    })
+                    .subscribe();
 
-            atualizarStatusRitmoManual();
-            salvarConfiguracoesSupabase({
-                ritmo_manual: ritmoManualAtivo,
-                ritmo_valor: ritmoManualAtivo ? ritmoManualValor : null
-            });
+                supabaseClient
+                    .channel('dashboard-data-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
+                        await carregarDashboardDataSupabase();
+                        aplicarFiltros();
+                        if (autoRefreshActive) {
+                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
+                        }
+                    })
+                    .subscribe();
 
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function atualizarStatusRitmoManual() {
-            const statusEl = document.getElementById('ritmoManualStatus');
-            const btn = document.getElementById('btnRitmoManual');
-            const container = document.getElementById('ritmoManualContainer');
-            const input = document.getElementById('ritmoManualInput');
-            const isAdmin = currentRole === 'admin';
-
-            if (ritmoManualAtivo) {
-                statusEl.textContent = 'ON';
-                btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
-                if (ritmoManualValor !== null) {
-                    input.value = ritmoManualValor;
-                } else {
-                    input.value = '';
-                }
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                container.classList.remove('admin-only');
-                container.style.display = 'none';
-            }
-        }
-
-        function atualizarRitmoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
-                return;
-            }
-            const input = document.getElementById('ritmoManualInput');
-            const valor = parseFloat(input.value);
-            if (!isNaN(valor) && valor >= 0) {
-                ritmoManualValor = valor;
-                salvarConfiguracoesSupabase({ ritmo_valor: ritmoManualValor });
-                if (originalData.length > 0) {
-                    const data = getDataParaExibir();
-                    atualizarCards(data);
-                }
-            } else {
-                showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
+                supabaseClient
+                    .channel('usuarios-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
+                        await carregarUsuariosSupabase();
+                        if (userManagementVisible) renderizarUsuarios();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.error('Erro ao iniciar Realtime:', e);
             }
         }
 
@@ -4247,7 +4611,7 @@
             if (!usuario) {
                 document.getElementById('loginError').style.display = 'block';
                 document.getElementById('loginError').textContent =
-                '❌ Senha inválida para o perfil selecionado. Tente novamente.';
+                    '❌ Senha inválida para o perfil selecionado. Tente novamente.';
                 return;
             }
 
@@ -4324,6 +4688,7 @@
             const newAdd = document.getElementById('btnAdicionarUsuario');
             newAdd.onclick = function() { adicionarUsuario(); };
 
+            // Atualizar visibilidade dos containers manuais baseado no perfil
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
 
@@ -4343,6 +4708,7 @@
                 ritmoContainer.style.display = 'none';
             }
 
+            // Atualizar badges (mostra para todos)
             atualizarBadgeFiltro();
         }
 
@@ -4520,181 +4886,6 @@
         }
 
         // ============================================================
-        //  FUNÇÃO DE UPLOAD
-        // ============================================================
-
-        function abrirUpload() {
-            if (currentRole === 'visualizador') {
-                alert('Você não tem permissão para atualizar a planilha.');
-                return;
-            }
-            document.getElementById('excelFileInput').click();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('excelFileInput');
-
-            fileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!['xlsx', 'xls'].includes(ext)) {
-                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
-                    this.value = '';
-                    return;
-                }
-
-                document.getElementById('loading').style.display = 'flex';
-
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-
-                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
-                        if (!sheetName) {
-                            sheetName = workbook.SheetNames[0];
-                        }
-
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) {
-                            throw new Error('Nenhuma aba encontrada.');
-                        }
-
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                            defval: '',
-                            raw: true,
-                            blankrows: false
-                        });
-
-                        if (!jsonData || jsonData.length === 0) {
-                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
-                        }
-
-                        const dadosNormalizados = jsonData.map(row => {
-                            const novo = {};
-                            Object.keys(row).forEach(key => {
-                                const chaveLimpa = key.trim();
-                                novo[chaveLimpa] = row[key];
-                            });
-                            return novo;
-                        });
-
-                        originalData = dadosNormalizados;
-                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
-
-                        activeFilter = null;
-                        await salvarDashboardDataSupabase(originalData);
-                        aplicarFiltros();
-
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
-                        event.target.value = '';
-
-                    } catch (error) {
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
-                        console.error(error);
-                        event.target.value = '';
-                    }
-                };
-
-                reader.onerror = function() {
-                    document.getElementById('loading').style.display = 'none';
-                    showToast('❌ Erro ao ler o arquivo.', 'error');
-                    event.target.value = '';
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
-        });
-
-        // ============================================================
-        //  AUTO-REFRESH
-        // ============================================================
-
-        function toggleAutoRefresh() {
-            autoRefreshActive = !autoRefreshActive;
-            const btn = document.getElementById('btnAutoRefresh');
-            const status = document.getElementById('autoRefreshStatus');
-
-            if (autoRefreshActive) {
-                status.textContent = 'ON (30s)';
-                btn.classList.add('active-auto');
-                autoRefreshInterval = setInterval(() => {
-                    carregarDashboardDataSupabase();
-                }, 30000);
-                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
-            } else {
-                status.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                clearInterval(autoRefreshInterval);
-                showToast('⏹️ Auto-Refresh desativado', 'info');
-            }
-        }
-
-        // ============================================================
-        //  REALTIME
-        // ============================================================
-
-        function iniciarRealtime() {
-            try {
-                supabaseClient
-                    .channel('configuracoes-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
-                        console.log('🔄 Configurações alteradas, recarregando...');
-                        cacheConfiguracoes = null;
-                        carregarConfiguracoesSupabase(true);
-                    })
-                    .subscribe();
-
-                supabaseClient
-                    .channel('dashboard-data-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
-                        await carregarDashboardDataSupabase();
-                        aplicarFiltros();
-                        if (autoRefreshActive) {
-                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
-                        }
-                    })
-                    .subscribe();
-
-                supabaseClient
-                    .channel('usuarios-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
-                        await carregarUsuariosSupabase();
-                        if (userManagementVisible) renderizarUsuarios();
-                    })
-                    .subscribe();
-            } catch (e) {
-                console.error('Erro ao iniciar Realtime:', e);
-            }
-        }
-
-        // ============================================================
-        //  INICIALIZAÇÃO
-        // ============================================================
-
-        async function initApp() {
-            try {
-                await Promise.all([
-                    carregarUsuariosSupabase(),
-                    carregarDashboardDataSupabase()
-                ]);
-
-                await carregarConfiguracoesSupabase();
-            } catch (e) {
-                console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê', true);
-            }
-            supabaseReady = true;
-            iniciarRealtime();
-            showToast('🚀 Dashboard carregado!', 'info', 2000);
-        }
-
-        // ============================================================
         //  LOGO UPLOAD
         // ============================================================
 
@@ -4721,8 +4912,25 @@
         setupLogoUpload('logoEmpresaInput', 'logoEmpresaImg', 'logoEmpresaPlaceholder');
 
         // ============================================================
-        //  INICIAR
+        //  INICIALIZAÇÃO
         // ============================================================
+
+        async function initApp() {
+            try {
+                await Promise.all([
+                    carregarUsuariosSupabase(),
+                    carregarDashboardDataSupabase()
+                ]);
+
+                await carregarConfiguracoesSupabase();
+            } catch (e) {
+                console.error('Erro ao inicializar dados do Supabase:', e);
+                setTipoFundo('degradê', true);
+            }
+            supabaseReady = true;
+            iniciarRealtime();
+            showToast('🚀 Dashboard carregado!', 'info', 2000);
+        }
 
         initApp();
     </script>
