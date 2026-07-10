@@ -2388,7 +2388,8 @@
             }
             const dataInput = document.getElementById('previsaoManualDate');
             previsaoManualData = dataInput.value;
-            salvarConfiguracoesSupabase({ previsao_data: previsaoManualData });
+            previsaoManualAtiva = true;
+            salvarConfiguracoesSupabase({ previsao_manual: true, previsao_data: previsaoManualData });
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
@@ -2453,7 +2454,8 @@
             const valor = parseFloat(input.value);
             if (!isNaN(valor) && valor >= 0) {
                 ritmoManualValor = valor;
-                salvarConfiguracoesSupabase({ ritmo_valor: ritmoManualValor });
+                ritmoManualAtivo = true;
+                salvarConfiguracoesSupabase({ ritmo_manual: true, ritmo_valor: ritmoManualValor });
                 if (originalData.length > 0) {
                     const data = getDataParaExibir();
                     atualizarCards(data);
