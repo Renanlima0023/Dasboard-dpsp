@@ -2068,6 +2068,17 @@
 
                 aplicandoConfigRemota = true;
 
+                const novoHashVisual = JSON.stringify({
+                    tipo_fundo: data.tipo_fundo,
+                    cor_fundo1: data.cor_fundo1,
+                    cor_grad1: data.cor_grad1,
+                    cor_grad2: data.cor_grad2,
+                    cor_grad3: data.cor_grad3,
+                    angulo_grad: data.angulo_grad,
+                    cor_destaque: data.cor_destaque,
+                    chart_colors: data.chart_colors
+                });
+
                 if (data.logo_cliente) {
                     document.getElementById('logoClienteImg').src = data.logo_cliente;
                     document.getElementById('logoClienteImg').style.display = 'block';
@@ -2151,9 +2162,20 @@
 
                 aplicarCorFundoGraficos();
 
+                const configVisualMudou = novoHashVisual !== ultimoConfigVisualHash;
+                ultimoConfigVisualHash = novoHashVisual;
+
                 if (originalData && originalData.length > 0) {
-                    const data = getDataParaExibir();
-                    atualizarGraficos(data);
+                    const dataExibida = getDataParaExibir();
+                    if (configVisualMudou) {
+                        // Só destrói/recria os gráficos quando cores ou fundo realmente mudaram
+                        atualizarGraficos(dataExibida);
+                    } else {
+                        // Mudanças que não afetam a aparência dos gráficos (previsão manual,
+                        // ritmo manual, cálculo automático etc.) só atualizam os cards,
+                        // sem re-renderizar os gráficos para todo mundo
+                        atualizarCards(dataExibida);
+                    }
                 }
 
                 aplicandoConfigRemota = false;
@@ -2164,8 +2186,21 @@
         }
 
         let aplicandoConfigRemota = false;
+        let ultimoConfigVisualHash = null;
 
-        async function salvarConfiguracoesSupabase(parcial) {
+        // Fila de salvamento: garante que cada chamada só busca o estado atual
+        // do Supabase DEPOIS que a chamada anterior terminou de salvar, evitando
+        // que uma sobrescreva o campo que a outra acabou de gravar (lost update).
+        let filaSalvarConfig = Promise.resolve();
+
+        function salvarConfiguracoesSupabase(parcial) {
+            filaSalvarConfig = filaSalvarConfig
+                .then(() => salvarConfiguracoesSupabaseInterno(parcial))
+                .catch(e => console.error('Erro na fila de salvamento de configurações:', e));
+            return filaSalvarConfig;
+        }
+
+        async function salvarConfiguracoesSupabaseInterno(parcial) {
             if (aplicandoConfigRemota) return;
 
             try {
