@@ -2121,7 +2121,7 @@
 
                 if (data.cor_destaque) {
                     document.getElementById('corDestaque').value = data.cor_destaque;
-                    aplicarCorDestaque(data.cor_destaque);
+                    aplicarCorDestaque(data.cor_destaque, false);
                 }
 
                 if (data.chart_colors) {
@@ -4616,7 +4616,7 @@
             aplicarCores();
         }
 
-        function aplicarCorDestaque(cor) {
+        function aplicarCorDestaque(cor, salvar = true) {
             document.getElementById('corDestaqueHex').textContent = cor;
             document.documentElement.style.setProperty('--destaque', cor);
             document.querySelectorAll('.progress div').forEach(el => {
@@ -4626,7 +4626,9 @@
                 el.style.borderColor = cor + '44';
                 el.style.background = cor + '20';
             });
-            salvarConfiguracoesSupabase({ cor_destaque: cor });
+            if (salvar) {
+                salvarConfiguracoesSupabase({ cor_destaque: cor });
+            }
         }
 
         // ===== LOGO UPLOAD =====
