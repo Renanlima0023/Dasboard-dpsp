@@ -1928,16 +1928,31 @@
         });
 
         // ============================================================
-        //  TOAST
+        //  TOAST - COM CONTROLE PARA EVITAR SPAM
         // ============================================================
+        let toastTimer = null;
+        let ultimoToast = {};
+
         function showToast(message, type = 'info', duration = 4000) {
+            // Evitar toast duplicado com a mesma mensagem em menos de 2 segundos
+            const chave = message + type;
+            if (ultimoToast[chave] && Date.now() - ultimoToast[chave] < 2000) {
+                return;
+            }
+            ultimoToast[chave] = Date.now();
+
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type;
             toast.classList.add('show');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
+            
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+            }
+            
+            toastTimer = setTimeout(() => {
                 toast.classList.remove('show');
+                toastTimer = null;
             }, duration);
         }
 
@@ -2010,7 +2025,18 @@
             }
         }
 
+        // ============================================================
+        //  CONFIGURAÇÕES - CORRIGIDA (SEM LOOP DE TOAST)
+        // ============================================================
+
+        let aplicandoConfigRemota = false;
+        let carregandoConfiguracoes = false;
+
         async function carregarConfiguracoesSupabase() {
+            // Evitar carregamento simultâneo
+            if (carregandoConfiguracoes) return;
+            carregandoConfiguracoes = true;
+
             try {
                 const { data, error } = await supabaseClient
                     .from('configuracoes')
@@ -2020,6 +2046,7 @@
 
                 if (error) {
                     console.error('Erro ao carregar configurações:', error);
+                    carregandoConfiguracoes = false;
                     return;
                 }
 
@@ -2059,37 +2086,18 @@
 
                     if (insertError) {
                         console.error('Erro ao criar configuração padrão:', insertError);
+                        carregandoConfiguracoes = false;
                         return;
                     }
 
                     await carregarConfiguracoesSupabase();
+                    carregandoConfiguracoes = false;
                     return;
                 }
 
                 aplicandoConfigRemota = true;
 
-                const novoHashVisual = JSON.stringify({
-                    tipo_fundo: data.tipo_fundo,
-                    cor_fundo1: data.cor_fundo1,
-                    cor_grad1: data.cor_grad1,
-                    cor_grad2: data.cor_grad2,
-                    cor_grad3: data.cor_grad3,
-                    angulo_grad: data.angulo_grad,
-                    cor_destaque: data.cor_destaque,
-                    chart_colors: data.chart_colors
-                });
-
-                if (data.logo_cliente) {
-                    document.getElementById('logoClienteImg').src = data.logo_cliente;
-                    document.getElementById('logoClienteImg').style.display = 'block';
-                    document.getElementById('logoClientePlaceholder').style.display = 'none';
-                }
-                if (data.logo_empresa) {
-                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
-                    document.getElementById('logoEmpresaImg').style.display = 'block';
-                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
-                }
-
+                // Carregar valores manuais - ESSA É A PARTE CRÍTICA PARA O VISUALIZADOR
                 if (data.calculo_auto !== undefined) {
                     calculoAutoAtivo = data.calculo_auto;
                     atualizarStatusCalculoAuto();
@@ -2107,16 +2115,29 @@
                     atualizarStatusRitmoManual();
                 }
 
+                // Logos
+                if (data.logo_cliente) {
+                    document.getElementById('logoClienteImg').src = data.logo_cliente;
+                    document.getElementById('logoClienteImg').style.display = 'block';
+                    document.getElementById('logoClientePlaceholder').style.display = 'none';
+                }
+                if (data.logo_empresa) {
+                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
+                    document.getElementById('logoEmpresaImg').style.display = 'block';
+                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
+                }
+
+                // Cores - apenas aplicar, não salvar
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                    setTipoFundo('solido');
+                    setTipoFundo('solido', true);
                 } else {
                     document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
                     document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
                     document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
                     document.getElementById('anguloGrad').value = data.angulo_grad || 135;
                     document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                    setTipoFundo('degradê');
+                    setTipoFundo('degradê', true);
                 }
 
                 if (data.cor_destaque) {
@@ -2162,46 +2183,46 @@
 
                 aplicarCorFundoGraficos();
 
-                const configVisualMudou = novoHashVisual !== ultimoConfigVisualHash;
-                ultimoConfigVisualHash = novoHashVisual;
-
+                // Atualizar dados se necessário
                 if (originalData && originalData.length > 0) {
                     const dataExibida = getDataParaExibir();
-                    if (configVisualMudou) {
-                        // Só destrói/recria os gráficos quando cores ou fundo realmente mudaram
-                        atualizarGraficos(dataExibida);
-                    } else {
-                        // Mudanças que não afetam a aparência dos gráficos (previsão manual,
-                        // ritmo manual, cálculo automático etc.) só atualizam os cards,
-                        // sem re-renderizar os gráficos para todo mundo
-                        atualizarCards(dataExibida);
-                    }
+                    atualizarCards(dataExibida);
+                    atualizarGraficos(dataExibida);
                 }
 
                 aplicandoConfigRemota = false;
+                carregandoConfiguracoes = false;
             } catch (e) {
                 console.error('Erro ao carregar configurações:', e);
                 aplicandoConfigRemota = false;
+                carregandoConfiguracoes = false;
             }
         }
 
-        let aplicandoConfigRemota = false;
-        let ultimoConfigVisualHash = null;
-
-        // Fila de salvamento: garante que cada chamada só busca o estado atual
-        // do Supabase DEPOIS que a chamada anterior terminou de salvar, evitando
-        // que uma sobrescreva o campo que a outra acabou de gravar (lost update).
+        // Fila de salvamento para evitar múltiplas chamadas simultâneas
         let filaSalvarConfig = Promise.resolve();
+        let salvandoConfig = false;
 
         function salvarConfiguracoesSupabase(parcial) {
+            // Evitar múltiplos salvamentos simultâneos
+            if (salvandoConfig) {
+                console.log('⏳ Salvando configurações, aguarde...');
+                return;
+            }
+            
             filaSalvarConfig = filaSalvarConfig
                 .then(() => salvarConfiguracoesSupabaseInterno(parcial))
-                .catch(e => console.error('Erro na fila de salvamento de configurações:', e));
+                .catch(e => console.error('Erro na fila de salvamento:', e));
             return filaSalvarConfig;
         }
 
         async function salvarConfiguracoesSupabaseInterno(parcial) {
-            if (aplicandoConfigRemota) return;
+            if (aplicandoConfigRemota) {
+                console.log('⏳ Aplicando configuração remota, ignorando...');
+                return;
+            }
+
+            salvandoConfig = true;
 
             try {
                 const { data: currentData, error: fetchError } = await supabaseClient
@@ -2212,6 +2233,7 @@
 
                 if (fetchError) {
                     console.error('Erro ao buscar configuração atual:', fetchError);
+                    salvandoConfig = false;
                     return;
                 }
 
@@ -2240,13 +2262,34 @@
 
                 if (error) {
                     console.error('Erro ao salvar configurações:', error);
-                    showToast('❌ Erro ao salvar configurações: ' + error.message, 'error');
+                    // Não mostrar toast para não poluir
                 } else {
-                    showToast('✅ Configurações salvas para todos os usuários!', 'success', 2000);
+                    // Atualizar variáveis locais imediatamente
+                    if (parcial.calculo_auto !== undefined) calculoAutoAtivo = parcial.calculo_auto;
+                    if (parcial.previsao_manual !== undefined) previsaoManualAtiva = parcial.previsao_manual;
+                    if (parcial.previsao_data !== undefined) previsaoManualData = parcial.previsao_data;
+                    if (parcial.ritmo_manual !== undefined) ritmoManualAtivo = parcial.ritmo_manual;
+                    if (parcial.ritmo_valor !== undefined) ritmoManualValor = parcial.ritmo_valor;
+                    
+                    // Mostrar toast apenas uma vez para ações manuais
+                    if (parcial.calculo_auto !== undefined) {
+                        showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado', 'info', 2000);
+                    } else if (parcial.previsao_manual !== undefined) {
+                        showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' : '📅 Previsão manual desativada', 'info', 2000);
+                    } else if (parcial.ritmo_manual !== undefined) {
+                        showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado', 'info', 2000);
+                    } else if (parcial.previsao_data !== undefined) {
+                        showToast('📅 Data de previsão atualizada para ' + parcial.previsao_data, 'success', 1500);
+                    } else if (parcial.ritmo_valor !== undefined) {
+                        showToast('📊 Ritmo atualizado para ' + parcial.ritmo_valor + ' lojas/dia', 'success', 1500);
+                    } else if (parcial.chart_colors) {
+                        showToast('✅ Cores dos gráficos atualizadas!', 'success', 2000);
+                    }
                 }
             } catch (e) {
                 console.error('Erro ao salvar configurações:', e);
-                showToast('❌ Erro ao salvar configurações', 'error');
+            } finally {
+                salvandoConfig = false;
             }
         }
 
@@ -2274,6 +2317,7 @@
                 supabaseClient
                     .channel('configuracoes-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                        // Recarregar configurações quando houver mudanças
                         carregarConfiguracoesSupabase();
                     })
                     .subscribe();
@@ -2317,7 +2361,6 @@
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado', 'info', 2000);
         }
 
         function atualizarStatusCalculoAuto() {
@@ -2338,16 +2381,24 @@
                 return;
             }
             previsaoManualAtiva = !previsaoManualAtiva;
+            if (!previsaoManualAtiva) {
+                previsaoManualData = null;
+            } else if (!previsaoManualData) {
+                const hoje = new Date();
+                hoje.setDate(hoje.getDate() + 30);
+                previsaoManualData = hoje.toISOString().slice(0, 10);
+            }
+            
             atualizarStatusPrevisaoManual();
             salvarConfiguracoesSupabase({ 
                 previsao_manual: previsaoManualAtiva,
                 previsao_data: previsaoManualAtiva ? previsaoManualData : null
             });
+            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada - defina a data no card' : '📅 Previsão manual desativada', 'info', 2000);
         }
 
         function atualizarStatusPrevisaoManual() {
@@ -2395,7 +2446,6 @@
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast('📅 Data de previsão atualizada para ' + previsaoManualData, 'success', 1500);
         }
 
         function toggleRitmoManual() {
@@ -2404,16 +2454,20 @@
                 return;
             }
             ritmoManualAtivo = !ritmoManualAtivo;
+            if (!ritmoManualAtivo) {
+                ritmoManualValor = null;
+            }
+            
             atualizarStatusRitmoManual();
             salvarConfiguracoesSupabase({ 
                 ritmo_manual: ritmoManualAtivo,
                 ritmo_valor: ritmoManualAtivo ? ritmoManualValor : null
             });
+            
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado - defina o valor no card' : '📊 Ritmo manual desativado', 'info', 2000);
         }
 
         function atualizarStatusRitmoManual() {
@@ -2460,7 +2514,6 @@
                     const data = getDataParaExibir();
                     atualizarCards(data);
                 }
-                showToast('📊 Ritmo atualizado para ' + ritmoManualValor + ' lojas/dia', 'success', 1500);
             } else {
                 showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
             }
@@ -2497,13 +2550,15 @@
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('dashboardContent').style.display = 'block';
 
-            atualizarUI(usuario);
-
-            if (originalData.length === 0) {
-                carregarDadosExemplo();
-            } else {
-                aplicarFiltros();
-            }
+            // Carregar configurações primeiro para ter os valores manuais
+            carregarConfiguracoesSupabase().then(() => {
+                atualizarUI(usuario);
+                if (originalData.length === 0) {
+                    carregarDadosExemplo();
+                } else {
+                    aplicarFiltros();
+                }
+            });
             
             showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
         }
@@ -2565,6 +2620,7 @@
                 adicionarUsuario();
             };
 
+            // Atualizar visibilidade dos containers manuais baseado no perfil
             const previsaoContainer = document.getElementById('previsaoManualContainer');
             const ritmoContainer = document.getElementById('ritmoManualContainer');
             
@@ -2917,6 +2973,7 @@
             let ritmoDiario = 0;
             const dataAtual = new Date();
             
+            // USAR VALOR MANUAL SE ATIVO (independente do perfil)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
             } else if (calculoAutoAtivo) {
@@ -2947,6 +3004,7 @@
 
             let previsao = '-';
             
+            // USAR PREVISÃO MANUAL SE ATIVA (independente do perfil)
             if (previsaoManualAtiva && previsaoManualData) {
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
@@ -3045,11 +3103,12 @@
                 badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
             }
 
-            if (previsaoManualAtiva && currentRole === 'admin') {
+            // Mostrar badges para TODOS os perfis quando ativos
+            if (previsaoManualAtiva) {
                 badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
             }
 
-            if (ritmoManualAtivo && currentRole === 'admin') {
+            if (ritmoManualAtivo) {
                 badges.push(`<span class="filter-badge ritmo-badge">📊 Ritmo Manual</span>`);
             }
 
@@ -4539,6 +4598,7 @@
         // ============================================================
 
         let tipoFundo = 'degradê';
+        let aplicandoCores = false;
 
         function togglePresentation() { document.body.classList.toggle('presentation-mode'); }
         window.togglePresentation = togglePresentation;
@@ -4551,7 +4611,7 @@
             arrow.textContent = open ? '▼' : '▲';
         }
 
-        function setTipoFundo(tipo) {
+        function setTipoFundo(tipo, isRemote = false) {
             tipoFundo = tipo;
             document.getElementById('btnSolido').classList.toggle('active', tipo === 'solido');
             document.getElementById('btnDegradê').classList.toggle('active', tipo === 'degradê');
@@ -4560,36 +4620,51 @@
             document.getElementById('corDegradeBase').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('corDegradeFim').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('linhaAngulo').style.display = tipo === 'degradê' ? 'flex' : 'none';
-            aplicarCores();
+            aplicarCores(isRemote);
         }
 
-        function aplicarCores() {
-            if (tipoFundo === 'solido') {
-                const c = document.getElementById('corFundo1').value;
-                document.getElementById('corFundo1Hex').textContent = c;
-                document.body.style.background = c;
-                salvarConfiguracoesSupabase({ 
-                    tipo_fundo: 'solido', 
-                    cor_fundo1: c 
-                });
-            } else {
-                const c1 = document.getElementById('corGrad1').value;
-                const c2 = document.getElementById('corGrad2').value;
-                const c3 = document.getElementById('corGrad3').value;
-                const ang = document.getElementById('anguloGrad').value;
-                document.getElementById('corGrad1Hex').textContent = c1;
-                document.getElementById('corGrad2Hex').textContent = c2;
-                document.getElementById('corGrad3Hex').textContent = c3;
-                document.body.style.background =
-                    'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
-                document.body.style.backgroundAttachment = 'fixed';
-                salvarConfiguracoesSupabase({
-                    tipo_fundo: 'degrade',
-                    cor_grad1: c1, 
-                    cor_grad2: c2, 
-                    cor_grad3: c3, 
-                    angulo_grad: parseInt(ang, 10)
-                });
+        function aplicarCores(isRemote = false) {
+            if (aplicandoCores) return;
+            aplicandoCores = true;
+
+            try {
+                if (tipoFundo === 'solido') {
+                    const c = document.getElementById('corFundo1').value;
+                    document.getElementById('corFundo1Hex').textContent = c;
+                    document.body.style.background = c;
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({ 
+                            tipo_fundo: 'solido', 
+                            cor_fundo1: c 
+                        });
+                    }
+                } else {
+                    const c1 = document.getElementById('corGrad1').value;
+                    const c2 = document.getElementById('corGrad2').value;
+                    const c3 = document.getElementById('corGrad3').value;
+                    const ang = document.getElementById('anguloGrad').value;
+                    document.getElementById('corGrad1Hex').textContent = c1;
+                    document.getElementById('corGrad2Hex').textContent = c2;
+                    document.getElementById('corGrad3Hex').textContent = c3;
+                    document.body.style.background =
+                        'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({
+                            tipo_fundo: 'degrade',
+                            cor_grad1: c1, 
+                            cor_grad2: c2, 
+                            cor_grad3: c3, 
+                            angulo_grad: parseInt(ang, 10)
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao aplicar cores:', e);
+            } finally {
+                setTimeout(() => {
+                    aplicandoCores = false;
+                }, 100);
             }
         }
 
@@ -4663,7 +4738,7 @@
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê');
+                setTipoFundo('degradê', true);
             }
             supabaseReady = true;
             iniciarRealtime();
