@@ -2109,14 +2109,14 @@
 
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                    setTipoFundo('solido');
+                    setTipoFundo('solido', false);
                 } else {
                     document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
                     document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
                     document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
                     document.getElementById('anguloGrad').value = data.angulo_grad || 135;
                     document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                    setTipoFundo('degradê');
+                    setTipoFundo('degradê', false);
                 }
 
                 if (data.cor_destaque) {
@@ -4549,7 +4549,7 @@
             arrow.textContent = open ? '▼' : '▲';
         }
 
-        function setTipoFundo(tipo) {
+        function setTipoFundo(tipo, salvar = true) {
             tipoFundo = tipo;
             document.getElementById('btnSolido').classList.toggle('active', tipo === 'solido');
             document.getElementById('btnDegradê').classList.toggle('active', tipo === 'degradê');
@@ -4558,18 +4558,20 @@
             document.getElementById('corDegradeBase').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('corDegradeFim').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('linhaAngulo').style.display = tipo === 'degradê' ? 'flex' : 'none';
-            aplicarCores();
+            aplicarCores(salvar);
         }
 
-        function aplicarCores() {
+        function aplicarCores(salvar = true) {
             if (tipoFundo === 'solido') {
                 const c = document.getElementById('corFundo1').value;
                 document.getElementById('corFundo1Hex').textContent = c;
                 document.body.style.background = c;
-                salvarConfiguracoesSupabase({ 
-                    tipo_fundo: 'solido', 
-                    cor_fundo1: c 
-                });
+                if (salvar) {
+                    salvarConfiguracoesSupabase({ 
+                        tipo_fundo: 'solido', 
+                        cor_fundo1: c 
+                    });
+                }
             } else {
                 const c1 = document.getElementById('corGrad1').value;
                 const c2 = document.getElementById('corGrad2').value;
@@ -4581,13 +4583,15 @@
                 document.body.style.background =
                     'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
                 document.body.style.backgroundAttachment = 'fixed';
-                salvarConfiguracoesSupabase({
-                    tipo_fundo: 'degrade',
-                    cor_grad1: c1, 
-                    cor_grad2: c2, 
-                    cor_grad3: c3, 
-                    angulo_grad: parseInt(ang, 10)
-                });
+                if (salvar) {
+                    salvarConfiguracoesSupabase({
+                        tipo_fundo: 'degrade',
+                        cor_grad1: c1, 
+                        cor_grad2: c2, 
+                        cor_grad3: c3, 
+                        angulo_grad: parseInt(ang, 10)
+                    });
+                }
             }
         }
 
@@ -4661,7 +4665,7 @@
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê');
+                setTipoFundo('degradê', false);
             }
             supabaseReady = true;
             iniciarRealtime();
