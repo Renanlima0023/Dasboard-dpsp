@@ -1423,9 +1423,7 @@
             <button class="modal-close" onclick="fecharGuia()">✕</button>
             <h2>📖 Guia dos Gráficos</h2>
             <div class="subtitle-modal">Entenda o que cada gráfico representa no dashboard</div>
-            <div id="guiaContainer">
-                <!-- Itens gerados dinamicamente pelo JavaScript -->
-            </div>
+            <div id="guiaContainer"></div>
             <div class="guia-divider"></div>
             <div style="opacity:0.4;font-size:13px;text-align:center;">
                 🔍 Todos os gráficos são interativos — clique em qualquer barra ou ponto para filtrar os dados do dashboard.
@@ -1510,7 +1508,6 @@
 
             <!-- ===== CARDS ===== -->
             <div class="cards">
-                <!-- Card de Status Geral -->
                 <div class="card card-status-geral" onclick="limparFiltros()">
                     <span class="card-badge">🚀</span>
                     <h3>Status Geral do Projeto</h3>
@@ -1583,14 +1580,12 @@
                 </div>
             </div>
 
-            <!-- ===== GRÁFICO DE GAP ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box"><h2>📊 Gap por UF (Planejado vs Realizado) <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapperGap"><canvas id="gapChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- ===== GRÁFICO: Barras SEMANAIS com Datas ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box">
                     <h2>📊 Semanal: Planejado vs Realizado <span class="filter-indicator"></span></h2>
@@ -1599,7 +1594,6 @@
                 </div>
             </div>
 
-            <!-- ===== LINHA DO TEMPO E AGENDADAS ===== -->
             <div class="grid">
                 <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper3"><canvas id="timelineChart"></canvas></div>
@@ -1611,7 +1605,6 @@
                 </div>
             </div>
 
-            <!-- ===== ALERTAS (penúltimo) ===== -->
             <div class="box box-alertas" id="alertasBox">
                 <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
                 <div id="alertasContainer">
@@ -1619,7 +1612,6 @@
                 </div>
             </div>
 
-            <!-- ===== ÚLTIMAS ATUALIZAÇÕES (último) ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box">
                     <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
@@ -1629,7 +1621,6 @@
                 </div>
             </div>
 
-            <!-- ===== BOTÕES ===== -->
             <div class="table-button-wrapper">
                 <button class="btn-ver-tabela" id="btnVerTabela" onclick="abrirTabelaCompleta()">
                     📋 Ver Tabela Completa
@@ -1643,15 +1634,12 @@
                 </button>
             </div>
 
-            <!-- ===== ÚLTIMA SINCRONIZAÇÃO ===== -->
             <div class="ultima-sincronizacao" id="ultimaSincronizacao">
                 Última atualização: carregando...
             </div>
 
-            <!-- ===== GESTÃO DE USUÁRIOS ===== -->
             <div id="userManagement" class="user-management">
                 <h3>👥 Gerenciar Usuários <span style="font-size:12px;opacity:0.4;font-weight:400;">(apenas Admin)</span></h3>
-
                 <table class="user-table">
                     <thead>
                         <tr>
@@ -1662,7 +1650,6 @@
                     </thead>
                     <tbody id="userTableBody"></tbody>
                 </table>
-
                 <div class="add-user-form">
                     <input type="text" id="newUserName" placeholder="Nome do usuário">
                     <select id="newUserRole">
@@ -1675,7 +1662,6 @@
                 </div>
             </div>
 
-            <!-- PAINEL CONTROLE -->
             <div id="painelControle" class="painel-controle">
                 <div class="painel-header" onclick="togglePainel()">
                     <span>⚙️ Configurações</span>
@@ -1787,6 +1773,9 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
+        // ============================================================
+        //  VARIÁVEIS DE CONFIGURAÇÃO MANUAL - GLOBAIS
+        // ============================================================
         let calculoAutoAtivo = true;
         let previsaoManualAtiva = false;
         let previsaoManualData = null;
@@ -1813,7 +1802,107 @@
         };
 
         // ============================================================
-        //  GUIA DE GRÁFICOS - DINÂMICO
+        //  CONTROLE DE ATUALIZAÇÃO DE GRÁFICOS
+        // ============================================================
+        let atualizacaoGraficosEmAndamento = false;
+        let filaAtualizacaoGraficos = [];
+        let timeoutGraficos = null;
+        let ultimoHashDados = null;
+
+        function gerarHashDados(data) {
+            try {
+                const relevantes = data.slice(0, 100).map(r => ({
+                    UF: r.UF,
+                    STATUS: r.STATUS,
+                    'QTDE PDVs total': r['QTDE PDVs total'],
+                    'REALIZADO': r['REALIZADO'],
+                    'DATA DO ROLLOUT': r['DATA DO ROLLOUT'],
+                    'DATA AUTORIZAÇÃO': r['DATA AUTORIZAÇÃO']
+                }));
+                return JSON.stringify(relevantes);
+            } catch (e) {
+                return Date.now().toString();
+            }
+        }
+
+        function atualizarGraficosComControle(data) {
+            if (atualizacaoGraficosEmAndamento) {
+                filaAtualizacaoGraficos.push(data);
+                return;
+            }
+
+            const novoHash = gerarHashDados(data);
+            if (novoHash === ultimoHashDados && Object.keys(charts).length > 0) {
+                return;
+            }
+            ultimoHashDados = novoHash;
+
+            if (timeoutGraficos) {
+                clearTimeout(timeoutGraficos);
+            }
+
+            atualizacaoGraficosEmAndamento = true;
+            timeoutGraficos = setTimeout(() => {
+                try {
+                    Object.keys(charts).forEach(key => {
+                        if (charts[key]) {
+                            try { charts[key].destroy(); } catch (e) {}
+                            delete charts[key];
+                        }
+                    });
+
+                    if (data && data.length > 0) {
+                        chartStatusUF(data);
+                        chartMediaConcluida(data);
+                        chartGap(data);
+                        chartSemanal(data);
+                        chartTimeline(data);
+                        chartAuth(data);
+                    }
+                } catch (e) {
+                    console.error('Erro ao atualizar gráficos:', e);
+                } finally {
+                    atualizacaoGraficosEmAndamento = false;
+                    timeoutGraficos = null;
+
+                    if (filaAtualizacaoGraficos.length > 0) {
+                        const proximo = filaAtualizacaoGraficos.shift();
+                        atualizarGraficosComControle(proximo);
+                    }
+                }
+            }, 300);
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        let toastTimer = null;
+        let ultimoToast = {};
+
+        function showToast(message, type = 'info', duration = 4000) {
+            const chave = message + type;
+            if (ultimoToast[chave] && Date.now() - ultimoToast[chave] < 2000) {
+                return;
+            }
+            ultimoToast[chave] = Date.now();
+
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+            }
+
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+                toastTimer = null;
+            }, duration);
+        }
+
+        // ============================================================
+        //  GUIA DE GRÁFICOS
         // ============================================================
         function abrirGuia() {
             gerarGuiaDinamico();
@@ -1828,71 +1917,63 @@
 
         function gerarGuiaDinamico() {
             const container = document.getElementById('guiaContainer');
-            
-            const itens = [
-                {
-                    icon: '📊',
-                    titulo: 'Status por UF',
-                    descricao: 'Apresenta a distribuição das lojas por estado (UF) e seus respectivos status (Concluída, Aguardando Agendamento, Agendada). Cada barra horizontal representa um estado e as cores indicam a porcentagem de lojas em cada status.',
-                    cores: [
-                        { label: 'Concluída', cor: chartColors.status1 || '#6BCB77' },
-                        { label: 'Aguardando Agend.', cor: chartColors.status2 || '#FFD93D' },
-                        { label: 'Agendada', cor: chartColors.status3 || '#6DD5FA' }
-                    ],
-                    dicas: ['💡 Clique em uma UF para filtrar o dashboard', '📌 As cores ajudam a identificar rapidamente a situação de cada região']
-                },
-                {
-                    icon: '📈',
-                    titulo: 'Média de Lojas Concluídas por Dia',
-                    descricao: 'Mostra a quantidade de lojas concluídas por dia (barras) e a média diária (linha tracejada). Este gráfico permite visualizar o ritmo de conclusão do projeto e identificar dias com desempenho acima ou abaixo da média.',
-                    cores: [
-                        { label: 'Barras (abaixo da média)', cor: chartColors.bar1 || '#6DD5FA' },
-                        { label: 'Barras (acima da média)', cor: chartColors.bar2 || '#6BCB77' },
-                        { label: 'Linha da Média', cor: chartColors.bar3 || '#FFD93D' }
-                    ],
-                    dicas: ['💡 Clique em um dia para ver os detalhes', '📌 Barras verdes = acima da média | Barras azuis = abaixo da média']
-                },
-                {
-                    icon: '📊',
-                    titulo: 'Gap por UF (Planejado vs Realizado)',
-                    descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por estado. Permite identificar rapidamente quais estados estão com execução abaixo do planejado.',
-                    cores: [
-                        { label: 'PDVs Planejados', cor: chartColors.gap1 || '#6DD5FA' },
-                        { label: 'PDVs Realizados', cor: chartColors.gap2 || '#6BCB77' }
-                    ],
-                    dicas: ['💡 Clique em uma UF para filtrar o dashboard', '📌 Quanto menor a diferença entre as barras, melhor a execução']
-                },
-                {
-                    icon: '📊',
-                    titulo: 'Semanal: Planejado vs Realizado',
-                    descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por semana de rollout. Este gráfico é útil para entender a evolução semanal do projeto e identificar tendências.',
-                    cores: [
-                        { label: 'Planejado (PDVs)', cor: chartColors.semanal1 || '#6DD5FA' },
-                        { label: 'Realizado (PDVs)', cor: chartColors.semanal2 || '#6BCB77' }
-                    ],
-                    dicas: ['💡 Clique em uma semana para filtrar o dashboard', '📌 Acompanhe se a execução está acompanhando o planejamento semana a semana']
-                },
-                {
-                    icon: '⏳',
-                    titulo: 'Linha do Tempo',
-                    descricao: 'Exibe o acumulado de lojas autorizadas ao longo do tempo (linha) e as novas autorizações por mês (barras). Permite visualizar o fluxo de autorizações e o crescimento do projeto.',
-                    cores: [
-                        { label: 'Acumulado de autorizações', cor: chartColors.bar1 || '#6DD5FA' },
-                        { label: 'Autorizações no mês', cor: chartColors.bar3 || '#FFD93D' }
-                    ],
-                    dicas: ['💡 Clique em um mês para filtrar o dashboard', '📌 A linha ascendente mostra o acúmulo total de autorizações']
-                },
-                {
-                    icon: '📅',
-                    titulo: 'Lojas Agendadas por Data de Autorização',
-                    descricao: 'Mostra a distribuição das lojas agendadas por data de autorização (barras) e o acumulado diário (linha). Útil para visualizar a concentração de autorizações e o ritmo de agendamento.',
-                    cores: [
-                        { label: 'Lojas agendadas', cor: chartColors.bar4 || '#C77DFF' },
-                        { label: 'Acumulado', cor: chartColors.line || '#FF6B6B' }
-                    ],
-                    dicas: ['💡 Clique em um dia para filtrar o dashboard', '📌 A linha mostra o total acumulado de autorizações']
-                }
-            ];
+            const itens = [{
+                icon: '📊',
+                titulo: 'Status por UF',
+                descricao: 'Apresenta a distribuição das lojas por estado (UF) e seus respectivos status.',
+                cores: [
+                    { label: 'Concluída', cor: chartColors.status1 || '#6BCB77' },
+                    { label: 'Aguardando Agend.', cor: chartColors.status2 || '#FFD93D' },
+                    { label: 'Agendada', cor: chartColors.status3 || '#6DD5FA' }
+                ],
+                dicas: ['💡 Clique em uma UF para filtrar']
+            }, {
+                icon: '📈',
+                titulo: 'Média de Lojas Concluídas por Dia',
+                descricao: 'Mostra a quantidade de lojas concluídas por dia (barras) e a média diária.',
+                cores: [
+                    { label: 'Barras (abaixo da média)', cor: chartColors.bar1 || '#6DD5FA' },
+                    { label: 'Barras (acima da média)', cor: chartColors.bar2 || '#6BCB77' },
+                    { label: 'Linha da Média', cor: chartColors.bar3 || '#FFD93D' }
+                ],
+                dicas: ['💡 Clique em um dia para ver os detalhes']
+            }, {
+                icon: '📊',
+                titulo: 'Gap por UF (Planejado vs Realizado)',
+                descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por estado.',
+                cores: [
+                    { label: 'PDVs Planejados', cor: chartColors.gap1 || '#6DD5FA' },
+                    { label: 'PDVs Realizados', cor: chartColors.gap2 || '#6BCB77' }
+                ],
+                dicas: ['💡 Clique em uma UF para filtrar']
+            }, {
+                icon: '📊',
+                titulo: 'Semanal: Planejado vs Realizado',
+                descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por semana.',
+                cores: [
+                    { label: 'Planejado (PDVs)', cor: chartColors.semanal1 || '#6DD5FA' },
+                    { label: 'Realizado (PDVs)', cor: chartColors.semanal2 || '#6BCB77' }
+                ],
+                dicas: ['💡 Clique em uma semana para filtrar']
+            }, {
+                icon: '⏳',
+                titulo: 'Linha do Tempo',
+                descricao: 'Exibe o acumulado de lojas autorizadas ao longo do tempo.',
+                cores: [
+                    { label: 'Acumulado', cor: chartColors.bar1 || '#6DD5FA' },
+                    { label: 'Autorizações no mês', cor: chartColors.bar3 || '#FFD93D' }
+                ],
+                dicas: ['💡 Clique em um mês para filtrar']
+            }, {
+                icon: '📅',
+                titulo: 'Lojas Agendadas por Data de Autorização',
+                descricao: 'Mostra a distribuição das lojas agendadas por data de autorização.',
+                cores: [
+                    { label: 'Lojas agendadas', cor: chartColors.bar4 || '#C77DFF' },
+                    { label: 'Acumulado', cor: chartColors.line || '#FF6B6B' }
+                ],
+                dicas: ['💡 Clique em um dia para filtrar']
+            }];
 
             container.innerHTML = itens.map(item => `
                 <div class="guia-item">
@@ -1906,40 +1987,17 @@
                             </span>
                         `).join('')}
                     </div>
-                    <div class="guia-dicas">
-                        ${item.dicas.map(d => `<span>${d}</span>`).join('')}
-                    </div>
+                    <div class="guia-dicas">${item.dicas.map(d => `<span>${d}</span>`).join('')}</div>
                 </div>
             `).join('');
         }
 
-        // Fechar guia com ESC
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                fecharGuia();
-            }
+            if (e.key === 'Escape') fecharGuia();
         });
-
-        // Fechar guia clicando fora do modal
         document.getElementById('guiaModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fecharGuia();
-            }
+            if (e.target === this) fecharGuia();
         });
-
-        // ============================================================
-        //  TOAST
-        // ============================================================
-        function showToast(message, type = 'info', duration = 4000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.classList.add('show');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
 
         // ============================================================
         //  SUPABASE - CARREGAMENTO
@@ -1951,9 +2009,8 @@
                     .from('usuarios')
                     .select('*')
                     .order('id', { ascending: true });
-
                 if (error) {
-                    console.error('Erro ao carregar usuários do Supabase:', error);
+                    console.error('Erro ao carregar usuários:', error);
                     return;
                 }
                 if (data && data.length > 0) {
@@ -1971,9 +2028,8 @@
                     .select('dados')
                     .eq('id', 1)
                     .single();
-
                 if (error) {
-                    console.error('Erro ao carregar dados do dashboard:', error);
+                    console.error('Erro ao carregar dados:', error);
                     return;
                 }
                 if (data && Array.isArray(data.dados)) {
@@ -1996,9 +2052,8 @@
                 const { error } = await supabaseClient
                     .from('dashboard_data')
                     .upsert({ id: 1, dados: dados, updated_at: new Date().toISOString() });
-
                 if (error) {
-                    console.error('Erro ao salvar dados do dashboard:', error);
+                    console.error('Erro ao salvar dados:', error);
                     showToast('❌ Erro ao sincronizar com o Supabase', 'error');
                 } else {
                     showToast('✅ Dados sincronizados com sucesso!', 'success');
@@ -2010,8 +2065,26 @@
             }
         }
 
+        // ============================================================
+        //  CONFIGURAÇÕES - CORRIGIDA PARA COMPARTILHAR VALORES MANUAIS
+        // ============================================================
+
+        let carregandoConfiguracoes = false;
+        let aplicandoConfigRemota = false;
+        let salvandoConfig = false;
+        let ultimoConfigVisualHash = null;
+
         async function carregarConfiguracoesSupabase() {
+            if (carregandoConfiguracoes) {
+                console.log('⏳ Já carregando configurações...');
+                return;
+            }
+
+            carregandoConfiguracoes = true;
+
             try {
+                console.log('🔄 Carregando configurações do Supabase...');
+
                 const { data, error } = await supabaseClient
                     .from('configuracoes')
                     .select('*')
@@ -2019,66 +2092,92 @@
                     .maybeSingle();
 
                 if (error) {
-                    console.error('Erro ao carregar configurações:', error);
+                    console.error('❌ Erro ao carregar configurações:', error);
+                    carregandoConfiguracoes = false;
                     return;
                 }
 
                 if (!data) {
+                    console.log('⚠️ Nenhuma configuração encontrada, criando padrão...');
+                    const defaultData = {
+                        id: 1,
+                        tipo_fundo: 'degrade',
+                        cor_grad1: '#1F2A44',
+                        cor_grad2: '#243B55',
+                        cor_grad3: '#3A506B',
+                        angulo_grad: 135,
+                        cor_destaque: '#6DD5FA',
+                        calculo_auto: true,
+                        previsao_manual: false,
+                        previsao_data: null,
+                        ritmo_manual: false,
+                        ritmo_valor: null,
+                        chart_colors: JSON.stringify({
+                            bar1: '#6DD5FA',
+                            bar2: '#6BCB77',
+                            bar3: '#FFD93D',
+                            bar4: '#C77DFF',
+                            line: '#FF6B6B',
+                            bg: '#0D1B2A',
+                            gap1: '#6DD5FA',
+                            gap2: '#6BCB77',
+                            status1: '#6BCB77',
+                            status2: '#FFD93D',
+                            status3: '#6DD5FA',
+                            semanal1: '#6DD5FA',
+                            semanal2: '#6BCB77'
+                        }),
+                        updated_at: new Date().toISOString()
+                    };
+
                     const { error: insertError } = await supabaseClient
                         .from('configuracoes')
-                        .insert({
-                            id: 1,
-                            tipo_fundo: 'degrade',
-                            cor_grad1: '#1F2A44',
-                            cor_grad2: '#243B55',
-                            cor_grad3: '#3A506B',
-                            angulo_grad: 135,
-                            cor_destaque: '#6DD5FA',
-                            calculo_auto: true,
-                            previsao_manual: false,
-                            previsao_data: null,
-                            ritmo_manual: false,
-                            ritmo_valor: null,
-                            chart_colors: JSON.stringify({
-                                bar1: '#6DD5FA',
-                                bar2: '#6BCB77',
-                                bar3: '#FFD93D',
-                                bar4: '#C77DFF',
-                                line: '#FF6B6B',
-                                bg: '#0D1B2A',
-                                gap1: '#6DD5FA',
-                                gap2: '#6BCB77',
-                                status1: '#6BCB77',
-                                status2: '#FFD93D',
-                                status3: '#6DD5FA',
-                                semanal1: '#6DD5FA',
-                                semanal2: '#6BCB77'
-                            }),
-                            updated_at: new Date().toISOString()
-                        });
+                        .insert(defaultData);
 
                     if (insertError) {
-                        console.error('Erro ao criar configuração padrão:', insertError);
+                        console.error('❌ Erro ao criar configuração padrão:', insertError);
+                        carregandoConfiguracoes = false;
                         return;
                     }
 
                     await carregarConfiguracoesSupabase();
+                    carregandoConfiguracoes = false;
                     return;
                 }
 
-                aplicandoConfigRemota = true;
+                console.log('📦 Configurações carregadas:', data);
 
-                const novoHashVisual = JSON.stringify({
-                    tipo_fundo: data.tipo_fundo,
-                    cor_fundo1: data.cor_fundo1,
-                    cor_grad1: data.cor_grad1,
-                    cor_grad2: data.cor_grad2,
-                    cor_grad3: data.cor_grad3,
-                    angulo_grad: data.angulo_grad,
-                    cor_destaque: data.cor_destaque,
-                    chart_colors: data.chart_colors
-                });
+                // ============================================================
+                //  CARREGAR VALORES MANUAIS - ESSENCIAL PARA TODOS OS USUÁRIOS
+                // ============================================================
+                if (data.calculo_auto !== undefined) {
+                    calculoAutoAtivo = data.calculo_auto;
+                }
 
+                if (data.previsao_manual !== undefined) {
+                    previsaoManualAtiva = data.previsao_manual;
+                    console.log('📅 previsaoManualAtiva:', previsaoManualAtiva);
+                }
+                if (data.previsao_data !== undefined && data.previsao_data !== null) {
+                    previsaoManualData = data.previsao_data;
+                    console.log('📅 previsaoManualData:', previsaoManualData);
+                }
+
+                if (data.ritmo_manual !== undefined) {
+                    ritmoManualAtivo = data.ritmo_manual;
+                    console.log('📊 ritmoManualAtivo:', ritmoManualAtivo);
+                }
+                if (data.ritmo_valor !== undefined && data.ritmo_valor !== null) {
+                    ritmoManualValor = data.ritmo_valor;
+                    console.log('📊 ritmoManualValor:', ritmoManualValor);
+                }
+
+                // Atualizar UI com os valores carregados
+                atualizarStatusCalculoAuto();
+                atualizarStatusPrevisaoManual();
+                atualizarStatusRitmoManual();
+
+                // Logos
                 if (data.logo_cliente) {
                     document.getElementById('logoClienteImg').src = data.logo_cliente;
                     document.getElementById('logoClienteImg').style.display = 'block';
@@ -2090,45 +2189,29 @@
                     document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                 }
 
-                if (data.calculo_auto !== undefined) {
-                    calculoAutoAtivo = data.calculo_auto;
-                    atualizarStatusCalculoAuto();
-                }
-
-                if (data.previsao_manual !== undefined) {
-                    previsaoManualAtiva = data.previsao_manual;
-                    previsaoManualData = data.previsao_data || null;
-                    atualizarStatusPrevisaoManual();
-                }
-
-                if (data.ritmo_manual !== undefined) {
-                    ritmoManualAtivo = data.ritmo_manual;
-                    ritmoManualValor = data.ritmo_valor || null;
-                    atualizarStatusRitmoManual();
-                }
-
+                // Cores
                 if (data.tipo_fundo === 'solido') {
                     document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                    setTipoFundo('solido', false);
+                    setTipoFundo('solido', true);
                 } else {
                     document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
                     document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
                     document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
                     document.getElementById('anguloGrad').value = data.angulo_grad || 135;
                     document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                    setTipoFundo('degradê', false);
+                    setTipoFundo('degradê', true);
                 }
 
                 if (data.cor_destaque) {
                     document.getElementById('corDestaque').value = data.cor_destaque;
-                    aplicarCorDestaque(data.cor_destaque, false);
+                    aplicarCorDestaque(data.cor_destaque);
                 }
 
                 if (data.chart_colors) {
                     try {
-                        const cc = typeof data.chart_colors === 'string' ? 
+                        const cc = typeof data.chart_colors === 'string' ?
                             JSON.parse(data.chart_colors) : data.chart_colors;
-                        
+
                         if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
                             chartColors.bar1 = cc.bar1; }
                         if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
@@ -2162,152 +2245,128 @@
 
                 aplicarCorFundoGraficos();
 
-                const configVisualMudou = novoHashVisual !== ultimoConfigVisualHash;
-                ultimoConfigVisualHash = novoHashVisual;
-
+                // Atualizar dados e gráficos
                 if (originalData && originalData.length > 0) {
                     const dataExibida = getDataParaExibir();
-                    if (configVisualMudou) {
-                        // Só destrói/recria os gráficos quando cores ou fundo realmente mudaram
-                        atualizarGraficos(dataExibida);
-                    } else {
-                        // Mudanças que não afetam a aparência dos gráficos (previsão manual,
-                        // ritmo manual, cálculo automático etc.) só atualizam os cards,
-                        // sem re-renderizar os gráficos para todo mundo
-                        atualizarCards(dataExibida);
-                    }
+                    atualizarCards(dataExibida);
+                    atualizarGraficosComControle(dataExibida);
                 }
 
-                aplicandoConfigRemota = false;
+                // Atualizar badges
+                atualizarBadgeFiltro();
+
+                carregandoConfiguracoes = false;
+                console.log('✅ Configurações carregadas com sucesso!');
+
             } catch (e) {
-                console.error('Erro ao carregar configurações:', e);
-                aplicandoConfigRemota = false;
+                console.error('❌ Erro ao carregar configurações:', e);
+                carregandoConfiguracoes = false;
             }
         }
 
-        let aplicandoConfigRemota = false;
-        let ultimoConfigVisualHash = null;
-
-        // Fila de salvamento: garante que cada chamada só busca o estado atual
-        // do Supabase DEPOIS que a chamada anterior terminou de salvar, evitando
-        // que uma sobrescreva o campo que a outra acabou de gravar (lost update).
-        let filaSalvarConfig = Promise.resolve();
+        // ============================================================
+        //  FUNÇÃO PARA SALVAR CONFIGURAÇÕES
+        // ============================================================
 
         function salvarConfiguracoesSupabase(parcial) {
-            filaSalvarConfig = filaSalvarConfig
-                .then(() => salvarConfiguracoesSupabaseInterno(parcial))
-                .catch(e => console.error('Erro na fila de salvamento de configurações:', e));
-            return filaSalvarConfig;
-        }
-
-        async function salvarConfiguracoesSupabaseInterno(parcial) {
-            try {
-                const { data: currentData, error: fetchError } = await supabaseClient
-                    .from('configuracoes')
-                    .select('*')
-                    .eq('id', 1)
-                    .maybeSingle();
-
-                if (fetchError) {
-                    console.error('Erro ao buscar configuração atual:', fetchError);
-                    return;
-                }
-
-                const updateData = {
-                    id: 1,
-                    updated_at: new Date().toISOString()
-                };
-
-                if (currentData) {
-                    Object.assign(updateData, currentData);
-                }
-
-                Object.assign(updateData, parcial);
-
-                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
-                    updateData.chart_colors = JSON.stringify(parcial.chart_colors);
-                }
-
-                Object.keys(updateData).forEach(key => {
-                    if (updateData[key] === undefined) delete updateData[key];
-                });
-
-                const { error } = await supabaseClient
-                    .from('configuracoes')
-                    .upsert(updateData, { onConflict: 'id' });
-
-                if (error) {
-                    console.error('Erro ao salvar configurações:', error);
-                    showToast('❌ Erro ao salvar configurações: ' + error.message, 'error');
-                } else {
-                    showToast('✅ Configurações salvas para todos os usuários!', 'success', 2000);
-                }
-            } catch (e) {
-                console.error('Erro ao salvar configurações:', e);
-                showToast('❌ Erro ao salvar configurações', 'error');
+            if (salvandoConfig || aplicandoConfigRemota) {
+                console.log('⏳ Salvamento em andamento, ignorando...');
+                return;
             }
-        }
 
-        function iniciarRealtime() {
-            try {
-                supabaseClient
-                    .channel('usuarios-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
-                        await carregarUsuariosSupabase();
-                        if (userManagementVisible) renderizarUsuarios();
-                    })
-                    .subscribe();
+            salvandoConfig = true;
+            const dadosParaSalvar = {
+                id: 1,
+                ...parcial,
+                updated_at: new Date().toISOString()
+            };
 
-                supabaseClient
-                    .channel('dashboard-data-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
-                        await carregarDashboardDataSupabase();
-                        aplicarFiltros();
-                        if (autoRefreshActive) {
-                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
+            // Remover campos undefined
+            Object.keys(dadosParaSalvar).forEach(key => {
+                if (dadosParaSalvar[key] === undefined) delete dadosParaSalvar[key];
+            });
+
+            console.log('💾 Salvando configurações:', dadosParaSalvar);
+
+            supabaseClient
+                .from('configuracoes')
+                .upsert(dadosParaSalvar, { onConflict: 'id' })
+                .then(({ data, error }) => {
+                    if (error) {
+                        console.error('❌ Erro ao salvar configurações:', error);
+                        showToast('❌ Erro ao salvar configurações: ' + error.message, 'error', 3000);
+                    } else {
+                        console.log('✅ Configurações salvas com sucesso!');
+
+                        // ATUALIZAR VARIÁVEIS LOCAIS IMEDIATAMENTE
+                        if (parcial.calculo_auto !== undefined) {
+                            calculoAutoAtivo = parcial.calculo_auto;
+                            atualizarStatusCalculoAuto();
                         }
-                    })
-                    .subscribe();
 
-                supabaseClient
-                    .channel('configuracoes-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
-                        carregarConfiguracoesSupabase();
-                    })
-                    .subscribe();
-            } catch (e) {
-                console.error('Erro ao iniciar Realtime:', e);
-            }
+                        if (parcial.previsao_manual !== undefined) {
+                            previsaoManualAtiva = parcial.previsao_manual;
+                            if (parcial.previsao_data !== undefined) {
+                                previsaoManualData = parcial.previsao_data;
+                            }
+                            atualizarStatusPrevisaoManual();
+                        }
+
+                        if (parcial.ritmo_manual !== undefined) {
+                            ritmoManualAtivo = parcial.ritmo_manual;
+                            if (parcial.ritmo_valor !== undefined) {
+                                ritmoManualValor = parcial.ritmo_valor;
+                            }
+                            atualizarStatusRitmoManual();
+                        }
+
+                        // Mostrar toast apenas para ações manuais
+                        if (parcial.calculo_auto !== undefined) {
+                            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado',
+                                'info', 2000);
+                        } else if (parcial.previsao_manual !== undefined) {
+                            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' :
+                                '📅 Previsão manual desativada', 'info', 2000);
+                        } else if (parcial.ritmo_manual !== undefined) {
+                            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado',
+                                'info', 2000);
+                        } else if (parcial.previsao_data !== undefined) {
+                            showToast('📅 Data de previsão atualizada para ' + parcial.previsao_data, 'success', 1500);
+                        } else if (parcial.ritmo_valor !== undefined) {
+                            showToast('📊 Ritmo atualizado para ' + parcial.ritmo_valor + ' lojas/dia', 'success',
+                            1500);
+                        }
+
+                        // Atualizar cards com os novos valores
+                        if (originalData && originalData.length > 0) {
+                            const data = getDataParaExibir();
+                            atualizarCards(data);
+                        }
+
+                        // Atualizar badges
+                        atualizarBadgeFiltro();
+                    }
+                })
+                .catch(e => {
+                    console.error('❌ Erro:', e);
+                    showToast('❌ Erro ao salvar configurações', 'error', 3000);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        salvandoConfig = false;
+                    }, 500);
+                });
         }
 
         // ============================================================
-        //  AUTO-REFRESH
+        //  FUNÇÕES DE CONTROLE MANUAL - CORRIGIDAS
         // ============================================================
-        function toggleAutoRefresh() {
-            autoRefreshActive = !autoRefreshActive;
-            const btn = document.getElementById('btnAutoRefresh');
-            const status = document.getElementById('autoRefreshStatus');
 
-            if (autoRefreshActive) {
-                status.textContent = 'ON (30s)';
-                btn.classList.add('active-auto');
-                autoRefreshInterval = setInterval(() => {
-                    carregarDashboardDataSupabase();
-                }, 30000);
-                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
-            } else {
-                status.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                clearInterval(autoRefreshInterval);
-                showToast('⏹️ Auto-Refresh desativado', 'info');
-            }
-        }
-
-        // ============================================================
-        //  CONTROLES MANUAIS
-        // ============================================================
-        
         function toggleCalculoAuto() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o cálculo automático', 'error', 2000);
+                return;
+            }
             calculoAutoAtivo = !calculoAutoAtivo;
             atualizarStatusCalculoAuto();
             salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
@@ -2315,7 +2374,6 @@
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado', 'info', 2000);
         }
 
         function atualizarStatusCalculoAuto() {
@@ -2335,17 +2393,30 @@
                 showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
                 return;
             }
+
             previsaoManualAtiva = !previsaoManualAtiva;
+
+            if (previsaoManualAtiva && !previsaoManualData) {
+                const hoje = new Date();
+                hoje.setDate(hoje.getDate() + 30);
+                previsaoManualData = hoje.toISOString().slice(0, 10);
+            }
+
+            if (!previsaoManualAtiva) {
+                previsaoManualData = null;
+            }
+
             atualizarStatusPrevisaoManual();
-            salvarConfiguracoesSupabase({ 
+
+            salvarConfiguracoesSupabase({
                 previsao_manual: previsaoManualAtiva,
-                previsao_data: previsaoManualAtiva ? previsaoManualData : null
+                previsao_data: previsaoManualData
             });
+
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada - defina a data no card' : '📅 Previsão manual desativada', 'info', 2000);
         }
 
         function atualizarStatusPrevisaoManual() {
@@ -2354,7 +2425,7 @@
             const container = document.getElementById('previsaoManualContainer');
             const dataInput = document.getElementById('previsaoManualDate');
             const isAdmin = currentRole === 'admin';
-            
+
             if (previsaoManualAtiva) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
@@ -2367,11 +2438,6 @@
                 }
                 if (previsaoManualData) {
                     dataInput.value = previsaoManualData;
-                } else {
-                    const hoje = new Date();
-                    hoje.setDate(hoje.getDate() + 30);
-                    dataInput.value = hoje.toISOString().slice(0, 10);
-                    previsaoManualData = dataInput.value;
                 }
             } else {
                 statusEl.textContent = 'OFF';
@@ -2379,6 +2445,13 @@
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
             }
+
+            // Atualizar cards e badges
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            atualizarBadgeFiltro();
         }
 
         function atualizarPrevisaoManual() {
@@ -2386,15 +2459,25 @@
                 showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
                 return;
             }
+
             const dataInput = document.getElementById('previsaoManualDate');
+            if (!dataInput.value) {
+                showToast('⚠️ Selecione uma data válida', 'error', 2000);
+                return;
+            }
+
             previsaoManualData = dataInput.value;
             previsaoManualAtiva = true;
-            salvarConfiguracoesSupabase({ previsao_manual: true, previsao_data: previsaoManualData });
+
+            salvarConfiguracoesSupabase({
+                previsao_data: previsaoManualData,
+                previsao_manual: true
+            });
+
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast('📅 Data de previsão atualizada para ' + previsaoManualData, 'success', 1500);
         }
 
         function toggleRitmoManual() {
@@ -2402,17 +2485,24 @@
                 showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
                 return;
             }
+
             ritmoManualAtivo = !ritmoManualAtivo;
+
+            if (!ritmoManualAtivo) {
+                ritmoManualValor = null;
+            }
+
             atualizarStatusRitmoManual();
-            salvarConfiguracoesSupabase({ 
+
+            salvarConfiguracoesSupabase({
                 ritmo_manual: ritmoManualAtivo,
-                ritmo_valor: ritmoManualAtivo ? ritmoManualValor : null
+                ritmo_valor: ritmoManualValor
             });
+
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
             }
-            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado - defina o valor no card' : '📊 Ritmo manual desativado', 'info', 2000);
         }
 
         function atualizarStatusRitmoManual() {
@@ -2421,7 +2511,7 @@
             const container = document.getElementById('ritmoManualContainer');
             const input = document.getElementById('ritmoManualInput');
             const isAdmin = currentRole === 'admin';
-            
+
             if (ritmoManualAtivo) {
                 statusEl.textContent = 'ON';
                 btn.classList.add('active-auto');
@@ -2434,8 +2524,6 @@
                 }
                 if (ritmoManualValor !== null) {
                     input.value = ritmoManualValor;
-                } else {
-                    input.value = '';
                 }
             } else {
                 statusEl.textContent = 'OFF';
@@ -2443,6 +2531,13 @@
                 container.classList.remove('admin-only');
                 container.style.display = 'none';
             }
+
+            // Atualizar cards e badges
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            atualizarBadgeFiltro();
         }
 
         function atualizarRitmoManual() {
@@ -2450,405 +2545,28 @@
                 showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
                 return;
             }
+
             const input = document.getElementById('ritmoManualInput');
             const valor = parseFloat(input.value);
-            if (!isNaN(valor) && valor >= 0) {
-                ritmoManualValor = valor;
-                ritmoManualAtivo = true;
-                salvarConfiguracoesSupabase({ ritmo_manual: true, ritmo_valor: ritmoManualValor });
-                if (originalData.length > 0) {
-                    const data = getDataParaExibir();
-                    atualizarCards(data);
-                }
-                showToast('📊 Ritmo atualizado para ' + ritmoManualValor + ' lojas/dia', 'success', 1500);
-            } else {
+
+            if (isNaN(valor) || valor < 0) {
                 showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
-            }
-        }
-
-        // ============================================================
-        //  LOGIN
-        // ============================================================
-
-        function selecionarPerfil(role) {
-            selectedRole = role;
-            document.querySelectorAll('.role-btn').forEach(el => {
-                el.classList.toggle('active', el.dataset.role === role);
-            });
-            document.getElementById('loginError').style.display = 'none';
-        }
-
-        function doLogin() {
-            const pass = document.getElementById('loginPassword').value.trim();
-            
-            const usuario = usuarios.find(u => u.role === selectedRole && u.senha === pass);
-
-            if (!usuario) {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('loginError').textContent = '❌ Senha inválida para o perfil selecionado. Tente novamente.';
                 return;
             }
 
-            document.getElementById('loginError').style.display = 'none';
-            currentRole = usuario.role;
-            window._role = usuario.role;
-            isLoggedIn = true;
+            ritmoManualValor = valor;
+            ritmoManualAtivo = true;
 
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('dashboardContent').style.display = 'block';
-
-            atualizarUI(usuario);
-
-            if (originalData.length === 0) {
-                carregarDadosExemplo();
-            } else {
-                aplicarFiltros();
-            }
-            
-            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
-        }
-
-        function atualizarUI(usuario) {
-            const roleNames = { admin: 'Admin', gerente: 'Gerente', visualizador: 'Visualizador' };
-            document.getElementById('userRoleDisplay').textContent = roleNames[usuario.role];
-            document.getElementById('userRoleTag').textContent = usuario.role.toUpperCase();
-
-            const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
-            const isAdmin = usuario.role === 'admin';
-
-            document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
-            document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
-
-            document.querySelectorAll('.logo-box').forEach(el => {
-                if (usuario.role === 'visualizador') {
-                    el.classList.remove('clickable');
-                    el.classList.add('no-click');
-                    el.onclick = null;
-                } else {
-                    el.classList.remove('no-click');
-                    el.classList.add('clickable');
-                    el.onclick = function() {
-                        const inputId = this.id === 'logoClienteBox' ? 'logoClienteInput' : 'logoEmpresaInput';
-                        document.getElementById(inputId).click();
-                    };
-                }
+            salvarConfiguracoesSupabase({
+                ritmo_valor: ritmoManualValor,
+                ritmo_manual: true
             });
 
-            const labelEmpresa = document.getElementById('labelEmpresa');
-            const labelCliente = document.getElementById('labelCliente');
-            if (usuario.role === 'visualizador') {
-                labelEmpresa.classList.add('hidden-label');
-                labelCliente.classList.add('hidden-label');
-            } else {
-                labelEmpresa.classList.remove('hidden-label');
-                labelCliente.classList.remove('hidden-label');
-            }
-
-            const btnUser = document.getElementById('btnGerenciarUsuarios');
-            if (isAdmin) {
-                btnUser.style.display = 'flex';
-                btnUser.replaceWith(btnUser.cloneNode(true));
-                const newBtn = document.getElementById('btnGerenciarUsuarios');
-                newBtn.onclick = function() {
-                    toggleUserManagement();
-                };
-            } else {
-                btnUser.style.display = 'none';
-                document.getElementById('userManagement').classList.remove('visible');
-                userManagementVisible = false;
-            }
-
-            const btnAdd = document.getElementById('btnAdicionarUsuario');
-            btnAdd.replaceWith(btnAdd.cloneNode(true));
-            const newAdd = document.getElementById('btnAdicionarUsuario');
-            newAdd.onclick = function() {
-                adicionarUsuario();
-            };
-
-            const previsaoContainer = document.getElementById('previsaoManualContainer');
-            const ritmoContainer = document.getElementById('ritmoManualContainer');
-            
-            if (isAdmin && previsaoManualAtiva) {
-                previsaoContainer.classList.add('admin-only');
-                previsaoContainer.style.display = 'block';
-            } else {
-                previsaoContainer.classList.remove('admin-only');
-                previsaoContainer.style.display = 'none';
-            }
-            
-            if (isAdmin && ritmoManualAtivo) {
-                ritmoContainer.classList.add('admin-only');
-                ritmoContainer.style.display = 'block';
-            } else {
-                ritmoContainer.classList.remove('admin-only');
-                ritmoContainer.style.display = 'none';
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
             }
         }
-
-        function logout() {
-            isLoggedIn = false;
-            currentRole = 'admin';
-            window._role = 'admin';
-            document.getElementById('dashboardContent').style.display = 'none';
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('userManagement').classList.remove('visible');
-            userManagementVisible = false;
-            activeFilter = null;
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshActive = false;
-                document.getElementById('autoRefreshStatus').textContent = 'OFF';
-                document.getElementById('btnAutoRefresh').classList.remove('active-auto');
-            }
-            selectedRole = 'admin';
-            document.querySelectorAll('.role-btn').forEach(el => {
-                el.classList.toggle('active', el.dataset.role === 'admin');
-            });
-            showToast('👋 Logout realizado com sucesso', 'info', 1500);
-        }
-
-        document.getElementById('loginBtn').addEventListener('click', doLogin);
-        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') doLogin();
-        });
-
-        // ============================================================
-        //  GESTÃO DE USUÁRIOS
-        // ============================================================
-
-        function toggleUserManagement() {
-            if (currentRole !== 'admin') {
-                alert('Apenas Administradores podem gerenciar usuários.');
-                return;
-            }
-
-            userManagementVisible = !userManagementVisible;
-            const el = document.getElementById('userManagement');
-
-            if (userManagementVisible) {
-                el.classList.add('visible');
-                renderizarUsuarios();
-                setTimeout(() => {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
-            } else {
-                el.classList.remove('visible');
-            }
-        }
-
-        function renderizarUsuarios() {
-            const tbody = document.getElementById('userTableBody');
-            const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
-            const linhas = usuarios.map(u => `
-                    <tr>
-                        <td>${u.nome}</td>
-                        <td>${roleNames[u.role] || u.role}</td>
-                        <td class="user-actions">
-                            <button class="edit-btn" onclick="editarUsuario(${u.id})">✏️</button>
-                            <button class="delete-btn" onclick="excluirUsuario(${u.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `);
-            tbody.innerHTML = linhas.join('');
-        }
-
-        async function adicionarUsuario() {
-            const nome = document.getElementById('newUserName').value.trim();
-            const role = document.getElementById('newUserRole').value;
-            const senha = document.getElementById('newUserPassword').value.trim() || '123';
-
-            if (!nome) {
-                alert('Digite um nome para o usuário.');
-                return;
-            }
-
-            if (usuarios.find(u => u.nome.toLowerCase() === nome.toLowerCase())) {
-                alert('Já existe um usuário com este nome.');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('usuarios')
-                    .insert({ nome, role, senha })
-                    .select()
-                    .single();
-
-                if (error) {
-                    alert('❌ Erro ao adicionar usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                usuarios.push(data);
-                renderizarUsuarios();
-                document.getElementById('newUserName').value = '';
-                document.getElementById('newUserPassword').value = '123';
-                showToast('✅ Usuário adicionado com sucesso!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao adicionar usuário: ' + e.message);
-            }
-        }
-
-        async function editarUsuario(id) {
-            const usuario = usuarios.find(u => u.id === id);
-            if (!usuario) return;
-
-            const novoNome = prompt('Novo nome:', usuario.nome);
-            if (novoNome && novoNome.trim()) {
-                if (usuarios.find(u => u.nome.toLowerCase() === novoNome.trim().toLowerCase() && u.id !== id)) {
-                    alert('Já existe um usuário com este nome.');
-                    return;
-                }
-                usuario.nome = novoNome.trim();
-            }
-
-            const novaSenha = prompt('Nova senha (deixe em branco para manter):', usuario.senha);
-            if (novaSenha !== null && novaSenha.trim() !== '') {
-                usuario.senha = novaSenha.trim();
-            }
-
-            const novoRole = prompt('Novo perfil (admin, gerente, visualizador):', usuario.role);
-            if (novoRole && ['admin', 'gerente', 'visualizador'].includes(novoRole.trim().toLowerCase())) {
-                usuario.role = novoRole.trim().toLowerCase();
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('usuarios')
-                    .update({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
-                    .eq('id', id);
-
-                if (error) {
-                    alert('❌ Erro ao atualizar usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                renderizarUsuarios();
-                showToast('✅ Usuário atualizado!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao atualizar usuário: ' + e.message);
-            }
-        }
-
-        async function excluirUsuario(id) {
-            if (id <= 3) {
-                alert('❌ Não é possível excluir usuários padrão.');
-                return;
-            }
-            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-
-            try {
-                const { error } = await supabaseClient
-                    .from('usuarios')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    alert('❌ Erro ao excluir usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                usuarios = usuarios.filter(u => u.id !== id);
-                renderizarUsuarios();
-                showToast('✅ Usuário removido!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao excluir usuário: ' + e.message);
-            }
-        }
-
-        // ============================================================
-        //  FUNÇÃO DE UPLOAD
-        // ============================================================
-
-        function abrirUpload() {
-            if (currentRole === 'visualizador') {
-                alert('Você não tem permissão para atualizar a planilha.');
-                return;
-            }
-            document.getElementById('excelFileInput').click();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('excelFileInput');
-
-            fileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!['xlsx', 'xls'].includes(ext)) {
-                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
-                    this.value = '';
-                    return;
-                }
-
-                document.getElementById('loading').style.display = 'flex';
-
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-
-                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
-                        if (!sheetName) {
-                            sheetName = workbook.SheetNames[0];
-                        }
-
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) {
-                            throw new Error('Nenhuma aba encontrada.');
-                        }
-
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                            defval: '',
-                            raw: true,
-                            blankrows: false
-                        });
-
-                        if (!jsonData || jsonData.length === 0) {
-                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
-                        }
-
-                        const dadosNormalizados = jsonData.map(row => {
-                            const novo = {};
-                            Object.keys(row).forEach(key => {
-                                const chaveLimpa = key.trim();
-                                novo[chaveLimpa] = row[key];
-                            });
-                            return novo;
-                        });
-
-                        originalData = dadosNormalizados;
-                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
-
-                        activeFilter = null;
-                        await salvarDashboardDataSupabase(originalData);
-                        aplicarFiltros();
-
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
-                        event.target.value = '';
-
-                    } catch (error) {
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
-                        console.error(error);
-                        event.target.value = '';
-                    }
-                };
-
-                reader.onerror = function() {
-                    document.getElementById('loading').style.display = 'none';
-                    showToast('❌ Erro ao ler o arquivo.', 'error');
-                    event.target.value = '';
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
-        });
 
         // ============================================================
         //  FUNÇÕES DO DASHBOARD
@@ -2904,6 +2622,10 @@
             return data;
         }
 
+        // ============================================================
+        //  ATUALIZAR CARDS - USANDO VALORES MANUAIS
+        // ============================================================
+
         function atualizarCards(data) {
             const totalLojas = data.length;
             const totalPdvs = data.reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
@@ -2913,12 +2635,14 @@
 
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
-            
+
             let ritmoDiario = 0;
             const dataAtual = new Date();
-            
+
+            // PRIORIDADE: RITMO MANUAL (se ativo)
             if (ritmoManualAtivo && ritmoManualValor !== null) {
                 ritmoDiario = ritmoManualValor;
+                console.log('📊 Usando RITMO MANUAL:', ritmoDiario);
             } else if (calculoAutoAtivo) {
                 const dataLimite = new Date(dataAtual);
                 dataLimite.setDate(dataLimite.getDate() - 30);
@@ -2931,7 +2655,8 @@
                     const d = parseExcelDate(r['DATA DO ROLLOUT']);
                     return d ? d.toISOString().slice(0, 10) : null;
                 }).filter(Boolean)).size;
-                ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 : 0;
+                ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 :
+                    0;
             } else {
                 const todasConcluidas = data.filter(isConcluida);
                 if (todasConcluidas.length > 0) {
@@ -2946,11 +2671,13 @@
             }
 
             let previsao = '-';
-            
+
+            // PRIORIDADE: PREVISÃO MANUAL (se ativa)
             if (previsaoManualAtiva && previsaoManualData) {
                 const dataParts = previsaoManualData.split('-');
                 const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
                 previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
+                console.log('📅 Usando PREVISÃO MANUAL:', previsao);
             } else if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
@@ -3002,7 +2729,7 @@
         function aplicarFiltros() {
             const data = getDataParaExibir();
             atualizarCards(data);
-            atualizarGraficos(data);
+            atualizarGraficosComControle(data);
             popularFiltros(originalData);
             atualizarBadgeFiltro();
             atualizarUltimaSincronizacao();
@@ -3010,14 +2737,24 @@
 
         function aplicarFiltroCard(data, filterType) {
             switch (filterType) {
-                case 'totalLojas': return data;
-                case 'totalPdvs': return data.filter(r => safeNumber(r['QTDE PDVs total']) > 0);
-                case 'pdvsFinalizados': return data.filter(r => safeNumber(r['REALIZADO']) > 0);
-                case 'lojasFinalizadas': return data.filter(isConcluida);
-                case 'mediaEvolucao': return data.filter(r => calcEvolucao(r) > 0);
-                default: return data;
+                case 'totalLojas':
+                    return data;
+                case 'totalPdvs':
+                    return data.filter(r => safeNumber(r['QTDE PDVs total']) > 0);
+                case 'pdvsFinalizados':
+                    return data.filter(r => safeNumber(r['REALIZADO']) > 0);
+                case 'lojasFinalizadas':
+                    return data.filter(isConcluida);
+                case 'mediaEvolucao':
+                    return data.filter(r => calcEvolucao(r) > 0);
+                default:
+                    return data;
             }
         }
+
+        // ============================================================
+        //  BADGES - MOSTRA PARA TODOS OS PERFIS
+        // ============================================================
 
         function atualizarBadgeFiltro() {
             const status = document.getElementById('filterStatus');
@@ -3031,26 +2768,40 @@
                     lojasFinalizadas: 'Lojas concluídas',
                     mediaEvolucao: 'Lojas com progresso > 0'
                 };
-                badges.push(`<span class="filter-badge">📌 ${labels[activeFilter] || activeFilter} <span class="remove" onclick="limparFiltros()">✕</span></span>`);
+                badges.push(
+                    `<span class="filter-badge">📌 ${labels[activeFilter] || activeFilter} <span class="remove" onclick="limparFiltros()">✕</span></span>`
+                    );
             }
 
             const inicio = document.getElementById('dataInicio').value;
             const fim = document.getElementById('dataFim').value;
             if (inicio || fim) {
                 const periodo = (inicio ? inicio : '...') + ' → ' + (fim ? fim : '...');
-                badges.push(`<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`);
+                badges.push(
+                    `<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`
+                    );
             }
 
             if (!calculoAutoAtivo) {
-                badges.push(`<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`);
+                badges.push(
+                    `<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`
+                    );
             }
 
-            if (previsaoManualAtiva && currentRole === 'admin') {
-                badges.push(`<span class="filter-badge admin-badge">📅 Previsão Manual</span>`);
+            // BADGES PARA TODOS OS PERFIS (não apenas admin)
+            if (previsaoManualAtiva) {
+                const dataExibida = previsaoManualData ?
+                    new Date(previsaoManualData).toLocaleDateString('pt-BR') :
+                    'Não definida';
+                badges.push(
+                    `<span class="filter-badge admin-badge">📅 Previsão Manual: ${dataExibida}</span>`
+                    );
             }
 
-            if (ritmoManualAtivo && currentRole === 'admin') {
-                badges.push(`<span class="filter-badge ritmo-badge">📊 Ritmo Manual</span>`);
+            if (ritmoManualAtivo && ritmoManualValor !== null) {
+                badges.push(
+                    `<span class="filter-badge ritmo-badge">📊 Ritmo Manual: ${ritmoManualValor} lojas/dia</span>`
+                    );
             }
 
             status.innerHTML = badges.join('');
@@ -3086,11 +2837,11 @@
         // ============================================================
         //  UF PROGRESS CARDS
         // ============================================================
-        
+
         function atualizarUFProgress(data) {
             const container = document.getElementById('ufProgressContainer');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            
+
             if (ufs.length === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum dado por UF disponível</div>';
                 return;
@@ -3105,7 +2856,7 @@
             });
 
             const cores = ['#6DD5FA', '#6BCB77', '#FFD93D', '#C77DFF', '#FF6B6B', '#FF9F43', '#00D2D3', '#F368E0'];
-            
+
             container.innerHTML = ufData.map((item, index) => `
                 <div class="uf-card" onclick="filtrarPorUF('${item.uf}')" title="Clique para filtrar por ${item.uf}">
                     <div class="uf-nome">
@@ -3207,9 +2958,9 @@
 
         function atualizarUltimasAtualizacoes(data) {
             const container = document.getElementById('ultimasAtualizacoes');
-            
+
             const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
-            
+
             if (comData.length === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhuma atualização recente</div>';
                 return;
@@ -3274,7 +3025,6 @@
 
             aplicarCorFundoGraficos();
 
-            // Atualizar o guia dinamicamente se estiver aberto
             if (document.getElementById('guiaModal').classList.contains('show')) {
                 gerarGuiaDinamico();
             }
@@ -3298,7 +3048,7 @@
             });
 
             const data = getDataParaExibir();
-            atualizarGraficos(data);
+            atualizarGraficosComControle(data);
         }
 
         // ============================================================
@@ -3350,7 +3100,7 @@
         }
 
         // ============================================================
-        //  GRÁFICOS
+        //  GRÁFICOS - FUNÇÕES INDIVIDUAIS
         // ============================================================
 
         function setupChartClick(chart, callback) {
@@ -3363,13 +3113,10 @@
             };
         }
 
-        // ============================================================
-        //  GRÁFICO: Status por UF (BARRAS EMPILHADAS 100%)
-        // ============================================================
         function chartStatusUF(data) {
             destroyChart('statusUFChart');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            
+
             if (ufs.length === 0) {
                 document.getElementById('statusUFChart').style.display = 'none';
                 return;
@@ -3441,20 +3188,14 @@
             const ctx = document.getElementById('statusUFChart').getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: ufs,
-                    datasets: datasets
-                },
+                data: { labels: ufs, datasets: datasets },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         datalabels: {
-                            display: (ctx) => {
-                                const value = ctx.dataset.data[ctx.dataIndex];
-                                return value > 0;
-                            },
+                            display: (ctx) => { const value = ctx.dataset.data[ctx.dataIndex]; return value > 0; },
                             color: (ctx) => ctx.dataset._textColor || '#fff',
                             font: { weight: 'bold', size: 12 },
                             formatter: (value) => value + '%',
@@ -3465,12 +3206,7 @@
                         legend: {
                             display: true,
                             position: 'bottom',
-                            labels: {
-                                color: '#fff',
-                                boxWidth: 14,
-                                padding: 10,
-                                font: { size: 11 }
-                            }
+                            labels: { color: '#fff', boxWidth: 14, padding: 10, font: { size: 11 } }
                         },
                         tooltip: {
                             callbacks: {
@@ -3490,28 +3226,16 @@
                     scales: {
                         x: {
                             stacked: true,
-                            ticks: {
-                                color: '#fff',
-                                font: { size: 11 },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(255,255,255,0.07)'
-                            },
+                            ticks: { color: '#fff', font: { size: 11 }, callback: function(value) { return value +
+                                    '%'; } },
+                            grid: { color: 'rgba(255,255,255,0.07)' },
                             beginAtZero: true,
                             max: 100
                         },
                         y: {
                             stacked: true,
-                            ticks: {
-                                color: '#fff',
-                                font: { size: 12, weight: 'bold' }
-                            },
-                            grid: {
-                                display: false
-                            }
+                            ticks: { color: '#fff', font: { size: 12, weight: 'bold' } },
+                            grid: { display: false }
                         }
                     }
                 }
@@ -3626,7 +3350,7 @@
         function chartGap(data) {
             destroyChart('gapChart');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            
+
             if (ufs.length === 0) {
                 document.getElementById('gapChart').style.display = 'none';
                 return;
@@ -3645,24 +3369,21 @@
                 type: 'bar',
                 data: {
                     labels: ufs,
-                    datasets: [
-                        {
-                            label: 'PDVs Planejados',
-                            data: planejado,
-                            backgroundColor: chartColors.gap1 + '88',
-                            borderColor: chartColors.gap1,
-                            borderWidth: 2,
-                            borderRadius: 4,
-                        },
-                        {
-                            label: 'PDVs Realizados',
-                            data: realizado,
-                            backgroundColor: chartColors.gap2 + '88',
-                            borderColor: chartColors.gap2,
-                            borderWidth: 2,
-                            borderRadius: 4,
-                        }
-                    ]
+                    datasets: [{
+                        label: 'PDVs Planejados',
+                        data: planejado,
+                        backgroundColor: chartColors.gap1 + '88',
+                        borderColor: chartColors.gap1,
+                        borderWidth: 2,
+                        borderRadius: 4,
+                    }, {
+                        label: 'PDVs Realizados',
+                        data: realizado,
+                        backgroundColor: chartColors.gap2 + '88',
+                        borderColor: chartColors.gap2,
+                        borderWidth: 2,
+                        borderRadius: 4,
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -3696,20 +3417,17 @@
             charts['gapChart'] = chart;
         }
 
-        // ============================================================
-        //  GRÁFICO: BARRAS SEMANAIS com DATAS
-        // ============================================================
         function chartSemanal(data) {
             destroyChart('semanalChart');
-            
+
             const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
             const emptyDiv = document.getElementById('semanalEmpty');
             const canvas = document.getElementById('semanalChart');
-            
-            if (!comData.length) { 
+
+            if (!comData.length) {
                 emptyDiv.style.display = 'block';
-                canvas.style.display = 'none'; 
-                return; 
+                canvas.style.display = 'none';
+                return;
             }
             emptyDiv.style.display = 'none';
             canvas.style.display = 'block';
@@ -3717,32 +3435,32 @@
             const porSemana = {};
             const planejadoPorSemana = {};
             const semanaData = {};
-            
+
             comData.forEach(r => {
                 const d = parseExcelDate(r['DATA DO ROLLOUT']);
                 if (!d) return;
-                
+
                 const primeiroDia = new Date(d.getFullYear(), 0, 1);
                 const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
                 const semana = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
                 const ano = d.getFullYear();
                 const key = ano + '-S' + String(semana).padStart(2, '0');
-                
+
                 if (!porSemana[key]) {
                     porSemana[key] = 0;
                     planejadoPorSemana[key] = 0;
                     semanaData[key] = { inicio: d, fim: d };
                 }
-                
+
                 porSemana[key]++;
                 planejadoPorSemana[key] += safeNumber(r['QTDE PDVs total']);
-                
+
                 if (d < semanaData[key].inicio) semanaData[key].inicio = d;
                 if (d > semanaData[key].fim) semanaData[key].fim = d;
             });
 
             const sortedKeys = Object.keys(porSemana).sort();
-            
+
             const labels = sortedKeys.map(k => {
                 const [ano, semana] = k.split('-S');
                 const data = semanaData[k];
@@ -3753,7 +3471,7 @@
                 }
                 return `S${semana}/${ano.slice(2)}`;
             });
-            
+
             const realizado = sortedKeys.map(k => porSemana[k]);
             const planejado = sortedKeys.map(k => planejadoPorSemana[k]);
 
@@ -3762,42 +3480,39 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: 'Planejado (PDVs)',
-                            data: planejado,
-                            backgroundColor: chartColors.semanal1 + 'CC',
-                            borderColor: chartColors.semanal1,
-                            borderWidth: 2,
-                            borderRadius: 4,
-                            datalabels: {
-                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                                color: chartColors.semanal1,
-                                font: { weight: 'bold', size: 10 },
-                                formatter: (v) => v > 0 ? v : '',
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 2
-                            }
-                        },
-                        {
-                            label: 'Realizado (PDVs)',
-                            data: realizado,
-                            backgroundColor: chartColors.semanal2 + 'CC',
-                            borderColor: chartColors.semanal2,
-                            borderWidth: 2,
-                            borderRadius: 4,
-                            datalabels: {
-                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                                color: chartColors.semanal2,
-                                font: { weight: 'bold', size: 10 },
-                                formatter: (v) => v > 0 ? v : '',
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 2
-                            }
+                    datasets: [{
+                        label: 'Planejado (PDVs)',
+                        data: planejado,
+                        backgroundColor: chartColors.semanal1 + 'CC',
+                        borderColor: chartColors.semanal1,
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        datalabels: {
+                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                            color: chartColors.semanal1,
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v > 0 ? v : '',
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 2
                         }
-                    ]
+                    }, {
+                        label: 'Realizado (PDVs)',
+                        data: realizado,
+                        backgroundColor: chartColors.semanal2 + 'CC',
+                        borderColor: chartColors.semanal2,
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        datalabels: {
+                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                            color: chartColors.semanal2,
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v > 0 ? v : '',
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 2
+                        }
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -3806,12 +3521,7 @@
                         legend: {
                             display: true,
                             position: 'top',
-                            labels: {
-                                color: '#fff',
-                                boxWidth: 16,
-                                padding: 15,
-                                font: { size: 12, weight: 'bold' }
-                            }
+                            labels: { color: '#fff', boxWidth: 16, padding: 15, font: { size: 12, weight: 'bold' } }
                         },
                         tooltip: {
                             callbacks: {
@@ -3825,7 +3535,7 @@
                     },
                     scales: {
                         x: {
-                            ticks: { 
+                            ticks: {
                                 color: '#fff',
                                 font: { size: 9 },
                                 maxRotation: 60,
@@ -3839,11 +3549,7 @@
                         },
                         y: {
                             beginAtZero: true,
-                            ticks: { 
-                                color: '#fff',
-                                font: { size: 11 },
-                                stepSize: 1
-                            },
+                            ticks: { color: '#fff', font: { size: 11 }, stepSize: 1 },
                             grid: { color: 'rgba(255,255,255,0.07)' }
                         }
                     }
@@ -3856,7 +3562,7 @@
                     const semana = match[1];
                     const ano = '20' + match[2];
                     const semanaNum = parseInt(semana);
-                    
+
                     const dataFiltrada = originalData.filter(r => {
                         const d = parseExcelDate(r['DATA DO ROLLOUT']);
                         if (!d) return false;
@@ -3865,7 +3571,7 @@
                         const sem = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
                         return d.getFullYear() === parseInt(ano) && sem === semanaNum;
                     });
-                    
+
                     if (dataFiltrada.length > 0) {
                         filteredData = dataFiltrada;
                         activeFilter = null;
@@ -4084,20 +3790,9 @@
             charts['authChart'] = chart;
         }
 
-        function atualizarGraficos(data) {
-            requestAnimationFrame(() => {
-                chartStatusUF(data);
-                setTimeout(() => chartMediaConcluida(data), 200);
-                setTimeout(() => chartGap(data), 300);
-                setTimeout(() => chartSemanal(data), 400);
-                setTimeout(() => chartTimeline(data), 500);
-                setTimeout(() => chartAuth(data), 600);
-            });
-        }
-
         function destroyChart(id) {
             if (charts[id]) {
-                charts[id].destroy();
+                try { charts[id].destroy(); } catch (e) {}
                 delete charts[id];
             }
         }
@@ -4119,7 +3814,10 @@
             return isNaN(d) ? null : d;
         }
 
-        // ===== EVENTOS DE FILTRO =====
+        // ============================================================
+        //  EVENTOS DE FILTRO
+        // ============================================================
+
         document.getElementById('filtroLoja').addEventListener('keyup', function() {
             activeFilter = null;
             filteredData = [];
@@ -4188,7 +3886,7 @@
         function gerarPaginaTabela(data, ufAtual, lojaAtual, inicio, fim) {
             const dadosJSON = JSON.stringify(data);
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            const ufOptions = ufs.map(u => 
+            const ufOptions = ufs.map(u =>
                 `<option value="${u}" ${u === ufAtual ? 'selected' : ''}>${u}</option>`
             ).join('');
 
@@ -4539,6 +4237,7 @@
         // ============================================================
 
         let tipoFundo = 'degradê';
+        let aplicandoCores = false;
 
         function togglePresentation() { document.body.classList.toggle('presentation-mode'); }
         window.togglePresentation = togglePresentation;
@@ -4551,7 +4250,7 @@
             arrow.textContent = open ? '▼' : '▲';
         }
 
-        function setTipoFundo(tipo, salvar = true) {
+        function setTipoFundo(tipo, isRemote = false) {
             tipoFundo = tipo;
             document.getElementById('btnSolido').classList.toggle('active', tipo === 'solido');
             document.getElementById('btnDegradê').classList.toggle('active', tipo === 'degradê');
@@ -4560,40 +4259,46 @@
             document.getElementById('corDegradeBase').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('corDegradeFim').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('linhaAngulo').style.display = tipo === 'degradê' ? 'flex' : 'none';
-            aplicarCores(salvar);
+            aplicarCores(isRemote);
         }
 
-        function aplicarCores(salvar = true) {
-            if (tipoFundo === 'solido') {
-                const c = document.getElementById('corFundo1').value;
-                document.getElementById('corFundo1Hex').textContent = c;
-                document.body.style.background = c;
-                if (salvar) {
-                    salvarConfiguracoesSupabase({ 
-                        tipo_fundo: 'solido', 
-                        cor_fundo1: c 
-                    });
+        function aplicarCores(isRemote = false) {
+            if (aplicandoCores) return;
+            aplicandoCores = true;
+
+            try {
+                if (tipoFundo === 'solido') {
+                    const c = document.getElementById('corFundo1').value;
+                    document.getElementById('corFundo1Hex').textContent = c;
+                    document.body.style.background = c;
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({ tipo_fundo: 'solido', cor_fundo1: c });
+                    }
+                } else {
+                    const c1 = document.getElementById('corGrad1').value;
+                    const c2 = document.getElementById('corGrad2').value;
+                    const c3 = document.getElementById('corGrad3').value;
+                    const ang = document.getElementById('anguloGrad').value;
+                    document.getElementById('corGrad1Hex').textContent = c1;
+                    document.getElementById('corGrad2Hex').textContent = c2;
+                    document.getElementById('corGrad3Hex').textContent = c3;
+                    document.body.style.background =
+                        'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({
+                            tipo_fundo: 'degrade',
+                            cor_grad1: c1,
+                            cor_grad2: c2,
+                            cor_grad3: c3,
+                            angulo_grad: parseInt(ang, 10)
+                        });
+                    }
                 }
-            } else {
-                const c1 = document.getElementById('corGrad1').value;
-                const c2 = document.getElementById('corGrad2').value;
-                const c3 = document.getElementById('corGrad3').value;
-                const ang = document.getElementById('anguloGrad').value;
-                document.getElementById('corGrad1Hex').textContent = c1;
-                document.getElementById('corGrad2Hex').textContent = c2;
-                document.getElementById('corGrad3Hex').textContent = c3;
-                document.body.style.background =
-                    'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
-                document.body.style.backgroundAttachment = 'fixed';
-                if (salvar) {
-                    salvarConfiguracoesSupabase({
-                        tipo_fundo: 'degrade',
-                        cor_grad1: c1, 
-                        cor_grad2: c2, 
-                        cor_grad3: c3, 
-                        angulo_grad: parseInt(ang, 10)
-                    });
-                }
+            } catch (e) {
+                console.error('Erro ao aplicar cores:', e);
+            } finally {
+                setTimeout(() => { aplicandoCores = false; }, 100);
             }
         }
 
@@ -4633,7 +4338,455 @@
             }
         }
 
-        // ===== LOGO UPLOAD =====
+        // ============================================================
+        //  FUNÇÃO DE UPLOAD
+        // ============================================================
+
+        function abrirUpload() {
+            if (currentRole === 'visualizador') {
+                alert('Você não tem permissão para atualizar a planilha.');
+                return;
+            }
+            document.getElementById('excelFileInput').click();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('excelFileInput');
+
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['xlsx', 'xls'].includes(ext)) {
+                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
+                    this.value = '';
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'flex';
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
+                        if (!sheetName) {
+                            sheetName = workbook.SheetNames[0];
+                        }
+
+                        const worksheet = workbook.Sheets[sheetName];
+                        if (!worksheet) {
+                            throw new Error('Nenhuma aba encontrada.');
+                        }
+
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                            defval: '',
+                            raw: true,
+                            blankrows: false
+                        });
+
+                        if (!jsonData || jsonData.length === 0) {
+                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
+                        }
+
+                        const dadosNormalizados = jsonData.map(row => {
+                            const novo = {};
+                            Object.keys(row).forEach(key => {
+                                const chaveLimpa = key.trim();
+                                novo[chaveLimpa] = row[key];
+                            });
+                            return novo;
+                        });
+
+                        originalData = dadosNormalizados;
+                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
+
+                        activeFilter = null;
+                        await salvarDashboardDataSupabase(originalData);
+                        aplicarFiltros();
+
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
+                        event.target.value = '';
+
+                    } catch (error) {
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
+                        console.error(error);
+                        event.target.value = '';
+                    }
+                };
+
+                reader.onerror = function() {
+                    document.getElementById('loading').style.display = 'none';
+                    showToast('❌ Erro ao ler o arquivo.', 'error');
+                    event.target.value = '';
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        });
+
+        // ============================================================
+        //  AUTO-REFRESH
+        // ============================================================
+
+        function toggleAutoRefresh() {
+            autoRefreshActive = !autoRefreshActive;
+            const btn = document.getElementById('btnAutoRefresh');
+            const status = document.getElementById('autoRefreshStatus');
+
+            if (autoRefreshActive) {
+                status.textContent = 'ON (30s)';
+                btn.classList.add('active-auto');
+                autoRefreshInterval = setInterval(() => {
+                    carregarDashboardDataSupabase();
+                }, 30000);
+                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
+            } else {
+                status.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+                clearInterval(autoRefreshInterval);
+                showToast('⏹️ Auto-Refresh desativado', 'info');
+            }
+        }
+
+        // ============================================================
+        //  REALTIME
+        // ============================================================
+
+        function iniciarRealtime() {
+            try {
+                supabaseClient
+                    .channel('configuracoes-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                        console.log('🔄 Configurações alteradas, recarregando...');
+                        carregarConfiguracoesSupabase();
+                    })
+                    .subscribe();
+
+                supabaseClient
+                    .channel('dashboard-data-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
+                        await carregarDashboardDataSupabase();
+                        aplicarFiltros();
+                        if (autoRefreshActive) {
+                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
+                        }
+                    })
+                    .subscribe();
+
+                supabaseClient
+                    .channel('usuarios-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
+                        await carregarUsuariosSupabase();
+                        if (userManagementVisible) renderizarUsuarios();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.error('Erro ao iniciar Realtime:', e);
+            }
+        }
+
+        // ============================================================
+        //  LOGIN
+        // ============================================================
+
+        function selecionarPerfil(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.role === role);
+            });
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function doLogin() {
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            const usuario = usuarios.find(u => u.role === selectedRole && u.senha === pass);
+
+            if (!usuario) {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent =
+                    '❌ Senha inválida para o perfil selecionado. Tente novamente.';
+                return;
+            }
+
+            document.getElementById('loginError').style.display = 'none';
+            currentRole = usuario.role;
+            window._role = usuario.role;
+            isLoggedIn = true;
+
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('dashboardContent').style.display = 'block';
+
+            carregarConfiguracoesSupabase().then(() => {
+                atualizarUI(usuario);
+                if (originalData.length === 0) {
+                    carregarDadosExemplo();
+                } else {
+                    aplicarFiltros();
+                }
+            });
+
+            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
+        }
+
+        function atualizarUI(usuario) {
+            const roleNames = { admin: 'Admin', gerente: 'Gerente', visualizador: 'Visualizador' };
+            document.getElementById('userRoleDisplay').textContent = roleNames[usuario.role];
+            document.getElementById('userRoleTag').textContent = usuario.role.toUpperCase();
+
+            const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
+            const isAdmin = usuario.role === 'admin';
+
+            document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
+            document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
+
+            document.querySelectorAll('.logo-box').forEach(el => {
+                if (usuario.role === 'visualizador') {
+                    el.classList.remove('clickable');
+                    el.classList.add('no-click');
+                    el.onclick = null;
+                } else {
+                    el.classList.remove('no-click');
+                    el.classList.add('clickable');
+                    el.onclick = function() {
+                        const inputId = this.id === 'logoClienteBox' ? 'logoClienteInput' : 'logoEmpresaInput';
+                        document.getElementById(inputId).click();
+                    };
+                }
+            });
+
+            const labelEmpresa = document.getElementById('labelEmpresa');
+            const labelCliente = document.getElementById('labelCliente');
+            if (usuario.role === 'visualizador') {
+                labelEmpresa.classList.add('hidden-label');
+                labelCliente.classList.add('hidden-label');
+            } else {
+                labelEmpresa.classList.remove('hidden-label');
+                labelCliente.classList.remove('hidden-label');
+            }
+
+            const btnUser = document.getElementById('btnGerenciarUsuarios');
+            if (isAdmin) {
+                btnUser.style.display = 'flex';
+                btnUser.replaceWith(btnUser.cloneNode(true));
+                const newBtn = document.getElementById('btnGerenciarUsuarios');
+                newBtn.onclick = function() { toggleUserManagement(); };
+            } else {
+                btnUser.style.display = 'none';
+                document.getElementById('userManagement').classList.remove('visible');
+                userManagementVisible = false;
+            }
+
+            const btnAdd = document.getElementById('btnAdicionarUsuario');
+            btnAdd.replaceWith(btnAdd.cloneNode(true));
+            const newAdd = document.getElementById('btnAdicionarUsuario');
+            newAdd.onclick = function() { adicionarUsuario(); };
+
+            const previsaoContainer = document.getElementById('previsaoManualContainer');
+            const ritmoContainer = document.getElementById('ritmoManualContainer');
+
+            if (isAdmin && previsaoManualAtiva) {
+                previsaoContainer.classList.add('admin-only');
+                previsaoContainer.style.display = 'block';
+            } else {
+                previsaoContainer.classList.remove('admin-only');
+                previsaoContainer.style.display = 'none';
+            }
+
+            if (isAdmin && ritmoManualAtivo) {
+                ritmoContainer.classList.add('admin-only');
+                ritmoContainer.style.display = 'block';
+            } else {
+                ritmoContainer.classList.remove('admin-only');
+                ritmoContainer.style.display = 'none';
+            }
+
+            atualizarBadgeFiltro();
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            currentRole = 'admin';
+            window._role = 'admin';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('userManagement').classList.remove('visible');
+            userManagementVisible = false;
+            activeFilter = null;
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshActive = false;
+                document.getElementById('autoRefreshStatus').textContent = 'OFF';
+                document.getElementById('btnAutoRefresh').classList.remove('active-auto');
+            }
+            selectedRole = 'admin';
+            document.querySelectorAll('.role-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.role === 'admin');
+            });
+            showToast('👋 Logout realizado com sucesso', 'info', 1500);
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // ============================================================
+        //  GESTÃO DE USUÁRIOS
+        // ============================================================
+
+        function toggleUserManagement() {
+            if (currentRole !== 'admin') {
+                alert('Apenas Administradores podem gerenciar usuários.');
+                return;
+            }
+
+            userManagementVisible = !userManagementVisible;
+            const el = document.getElementById('userManagement');
+
+            if (userManagementVisible) {
+                el.classList.add('visible');
+                renderizarUsuarios();
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+            } else {
+                el.classList.remove('visible');
+            }
+        }
+
+        function renderizarUsuarios() {
+            const tbody = document.getElementById('userTableBody');
+            const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
+            const linhas = usuarios.map(u => `
+                    <tr>
+                        <td>${u.nome}</td>
+                        <td>${roleNames[u.role] || u.role}</td>
+                        <td class="user-actions">
+                            <button class="edit-btn" onclick="editarUsuario(${u.id})">✏️</button>
+                            <button class="delete-btn" onclick="excluirUsuario(${u.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `);
+            tbody.innerHTML = linhas.join('');
+        }
+
+        async function adicionarUsuario() {
+            const nome = document.getElementById('newUserName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            const senha = document.getElementById('newUserPassword').value.trim() || '123';
+
+            if (!nome) {
+                alert('Digite um nome para o usuário.');
+                return;
+            }
+
+            if (usuarios.find(u => u.nome.toLowerCase() === nome.toLowerCase())) {
+                alert('Já existe um usuário com este nome.');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .insert({ nome, role, senha })
+                    .select()
+                    .single();
+
+                if (error) {
+                    alert('❌ Erro ao adicionar usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                usuarios.push(data);
+                renderizarUsuarios();
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserPassword').value = '123';
+                showToast('✅ Usuário adicionado com sucesso!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao adicionar usuário: ' + e.message);
+            }
+        }
+
+        async function editarUsuario(id) {
+            const usuario = usuarios.find(u => u.id === id);
+            if (!usuario) return;
+
+            const novoNome = prompt('Novo nome:', usuario.nome);
+            if (novoNome && novoNome.trim()) {
+                if (usuarios.find(u => u.nome.toLowerCase() === novoNome.trim().toLowerCase() && u.id !== id)) {
+                    alert('Já existe um usuário com este nome.');
+                    return;
+                }
+                usuario.nome = novoNome.trim();
+            }
+
+            const novaSenha = prompt('Nova senha (deixe em branco para manter):', usuario.senha);
+            if (novaSenha !== null && novaSenha.trim() !== '') {
+                usuario.senha = novaSenha.trim();
+            }
+
+            const novoRole = prompt('Novo perfil (admin, gerente, visualizador):', usuario.role);
+            if (novoRole && ['admin', 'gerente', 'visualizador'].includes(novoRole.trim().toLowerCase())) {
+                usuario.role = novoRole.trim().toLowerCase();
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .update({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
+                    .eq('id', id);
+
+                if (error) {
+                    alert('❌ Erro ao atualizar usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                renderizarUsuarios();
+                showToast('✅ Usuário atualizado!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao atualizar usuário: ' + e.message);
+            }
+        }
+
+        async function excluirUsuario(id) {
+            if (id <= 3) {
+                alert('❌ Não é possível excluir usuários padrão.');
+                return;
+            }
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert('❌ Erro ao excluir usuário no Supabase:\n' + error.message);
+                    return;
+                }
+
+                usuarios = usuarios.filter(u => u.id !== id);
+                renderizarUsuarios();
+                showToast('✅ Usuário removido!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao excluir usuário: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  LOGO UPLOAD
+        // ============================================================
+
         function setupLogoUpload(inputId, imgId, placeholderId) {
             document.getElementById(inputId).addEventListener('change', function() {
                 const file = this.files[0];
@@ -4659,17 +4812,18 @@
         // ============================================================
         //  INICIALIZAÇÃO
         // ============================================================
+
         async function initApp() {
             try {
                 await Promise.all([
                     carregarUsuariosSupabase(),
                     carregarDashboardDataSupabase()
                 ]);
-                
+
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê', false);
+                setTipoFundo('degradê', true);
             }
             supabaseReady = true;
             iniciarRealtime();
