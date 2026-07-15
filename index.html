@@ -1480,14 +1480,43 @@
                         <div class="cor-linha"><label>Principal</label><input type="color" id="corDestaque" value="#6DD5FA" class="color-input" oninput="aplicarCorDestaque(this.value)"><span id="corDestaqueHex" class="hex-label">#6DD5FA</span></div>
                     </div>
                     <div class="painel-divider"></div>
+
+                    <!-- ===== TODAS AS CORES DOS GRÁFICOS ===== -->
                     <div class="painel-secao">
                         <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
                         <div class="cor-controles">
-                            <div class="cor-linha"><label>Barras 1</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>Barras 2</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>Barras 3</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
-                            <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                            <!-- Status por UF -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">📊 Status por UF</div>
+                            <div class="cor-linha"><label>Concluída</label><input type="color" id="statusColor1" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>Aguardando Agend.</label><input type="color" id="statusColor2" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>Agendada</label><input type="color" id="statusColor3" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            
+                            <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
+                            
+                            <!-- Média de Lojas por Dia -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">📈 Média de Lojas por Dia</div>
+                            <div class="cor-linha"><label>Barras (abaixo da média)</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Barras (acima da média)</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>Linha da Média</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            
+                            <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
+                            
+                            <!-- Gap por UF -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">📊 Gap por UF</div>
+                            <div class="cor-linha"><label>Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            
+                            <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
+                            
+                            <!-- Lojas Agendadas -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">📅 Lojas Agendadas</div>
+                            <div class="cor-linha"><label>Barras Agendadas</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <div class="cor-linha"><label>Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                            
+                            <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
+                            
+                            <!-- Fundo dos Gráficos -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">🎨 Fundo dos Gráficos</div>
                             <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
@@ -1668,6 +1697,41 @@
                         aplicarCorDestaque(config.cor_destaque);
                     }
 
+                    // ===== CARREGAR TODAS AS CORES DOS GRÁFICOS =====
+                    if (config.chart_colors) {
+                        try {
+                            const cc = typeof config.chart_colors === 'string' ? 
+                                JSON.parse(config.chart_colors) : config.chart_colors;
+                            
+                            if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
+                                chartColors.bar1 = cc.bar1; }
+                            if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
+                                chartColors.bar2 = cc.bar2; }
+                            if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
+                                chartColors.bar3 = cc.bar3; }
+                            if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
+                                chartColors.bar4 = cc.bar4; }
+                            if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
+                                chartColors.line = cc.line; }
+                            if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
+                                chartColors.bg = cc.bg; }
+                            if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
+                                chartColors.gap1 = cc.gap1; }
+                            if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
+                                chartColors.gap2 = cc.gap2; }
+                            if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
+                                chartColors.status1 = cc.status1; }
+                            if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
+                                chartColors.status2 = cc.status2; }
+                            if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
+                                chartColors.status3 = cc.status3; }
+                        } catch (e) {
+                            console.error('Erro ao parsear chart_colors:', e);
+                        }
+                    }
+
+                    aplicarCorFundoGraficos();
+
                     if (originalData && originalData.length > 0) {
                         const data = getDataParaExibir();
                         atualizarGraficos(data);
@@ -1769,7 +1833,12 @@
             bar3: '#FFD93D',
             bar4: '#C77DFF',
             line: '#FF6B6B',
-            bg: '#0D1B2A'
+            bg: '#0D1B2A',
+            gap1: '#6DD5FA',
+            gap2: '#6BCB77',
+            status1: '#6BCB77',
+            status2: '#FFD93D',
+            status3: '#6DD5FA'
         };
 
         // ============================================================
@@ -2228,6 +2297,56 @@
         });
 
         // ============================================================
+        //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO COMPLETA
+        // ============================================================
+        function atualizarCoresGraficos() {
+            // Cores do gráfico "Média de Lojas por Dia"
+            chartColors.bar1 = document.getElementById('chartColor1').value;
+            chartColors.bar2 = document.getElementById('chartColor2').value;
+            chartColors.bar3 = document.getElementById('chartColor3').value;
+            
+            // Cores do gráfico "Lojas Agendadas"
+            chartColors.bar4 = document.getElementById('chartColor4').value;
+            chartColors.line = document.getElementById('chartLineColor').value;
+            
+            // Cores do gráfico "Gap por UF"
+            chartColors.gap1 = document.getElementById('gapColor1').value;
+            chartColors.gap2 = document.getElementById('gapColor2').value;
+            
+            // Cores do gráfico "Status por UF"
+            chartColors.status1 = document.getElementById('statusColor1').value;
+            chartColors.status2 = document.getElementById('statusColor2').value;
+            chartColors.status3 = document.getElementById('statusColor3').value;
+            
+            // Fundo dos gráficos
+            chartColors.bg = document.getElementById('chartBgColor').value;
+
+            // Aplica o fundo
+            aplicarCorFundoGraficos();
+
+            // Salva no Supabase
+            salvarConfiguracoesSupabase({
+                chart_colors: {
+                    bar1: chartColors.bar1,
+                    bar2: chartColors.bar2,
+                    bar3: chartColors.bar3,
+                    bar4: chartColors.bar4,
+                    line: chartColors.line,
+                    bg: chartColors.bg,
+                    gap1: chartColors.gap1,
+                    gap2: chartColors.gap2,
+                    status1: chartColors.status1,
+                    status2: chartColors.status2,
+                    status3: chartColors.status3
+                }
+            });
+
+            // Atualiza os gráficos
+            const data = getDataParaExibir();
+            atualizarGraficos(data);
+        }
+
+        // ============================================================
         //  FUNÇÕES DO DASHBOARD
         // ============================================================
 
@@ -2606,31 +2725,6 @@
             });
         }
 
-        function atualizarCoresGraficos() {
-            chartColors.bar1 = document.getElementById('chartColor1').value;
-            chartColors.bar2 = document.getElementById('chartColor2').value;
-            chartColors.bar3 = document.getElementById('chartColor3').value;
-            chartColors.bar4 = document.getElementById('chartColor4').value;
-            chartColors.line = document.getElementById('chartLineColor').value;
-            chartColors.bg = document.getElementById('chartBgColor').value;
-
-            aplicarCorFundoGraficos();
-
-            salvarConfiguracoesSupabase({
-                chart_colors: {
-                    bar1: chartColors.bar1,
-                    bar2: chartColors.bar2,
-                    bar3: chartColors.bar3,
-                    bar4: chartColors.bar4,
-                    line: chartColors.line,
-                    bg: chartColors.bg
-                }
-            });
-
-            const data = getDataParaExibir();
-            atualizarGraficos(data);
-        }
-
         // ============================================================
         //  EXPORTAR PDF
         // ============================================================
@@ -2705,11 +2799,11 @@
                 matrix[st][uf] = (matrix[st][uf] || 0) + 1;
             });
 
-            const colorPalette = [chartColors.bar1, chartColors.bar2, chartColors.bar3, chartColors.bar4, chartColors.line];
+            const colorPalette = [chartColors.status1, chartColors.status2, chartColors.status3, chartColors.line];
             const datasets = statuses.map((st, i) => ({
                 label: st,
                 data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
-                backgroundColor: colorPalette[i % colorPalette.length],
+                backgroundColor: colorPalette[i % colorPalette.length] || '#888',
                 borderRadius: 4,
                 borderSkipped: false
             }));
@@ -2870,15 +2964,15 @@
                     datasets: [{
                         label: 'PDVs Planejados',
                         data: planejado,
-                        backgroundColor: chartColors.bar1 + '88',
-                        borderColor: chartColors.bar1,
+                        backgroundColor: chartColors.gap1 + '88',
+                        borderColor: chartColors.gap1,
                         borderWidth: 2,
                         borderRadius: 4,
                     }, {
                         label: 'PDVs Realizados',
                         data: realizado,
-                        backgroundColor: chartColors.bar2 + '88',
-                        borderColor: chartColors.bar2,
+                        backgroundColor: chartColors.gap2 + '88',
+                        borderColor: chartColors.gap2,
                         borderWidth: 2,
                         borderRadius: 4,
                     }]
@@ -3071,11 +3165,11 @@
                         type: 'line',
                         label: 'Acumulado',
                         data: acumulado,
-                        borderColor: chartColors.bar3,
+                        borderColor: chartColors.line,
                         backgroundColor: 'transparent',
                         borderWidth: 2.5,
                         pointRadius: 4,
-                        pointBackgroundColor: chartColors.bar3,
+                        pointBackgroundColor: chartColors.line,
                         tension: .4,
                         yAxisID: 'y2',
                         order: 1,
@@ -3092,7 +3186,7 @@
                         x: { ticks: { color: '#fff', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,.07)' } },
                         y: { ticks: { color: chartColors.bar4 }, grid: { color: 'rgba(255,255,255,.07)' },
                             beginAtZero: true },
-                        y2: { position: 'right', ticks: { color: chartColors.bar3 }, grid: { display: false },
+                        y2: { position: 'right', ticks: { color: chartColors.line }, grid: { display: false },
                             beginAtZero: true }
                     }
                 }
