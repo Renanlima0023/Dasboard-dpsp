@@ -11,7 +11,8 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
@@ -235,14 +236,6 @@
         }
         .toolbar-btn.success:hover {
             background: rgba(107, 203, 119, 0.2);
-        }
-        .toolbar-btn.info {
-            background: rgba(255, 217, 61, 0.12);
-            color: #FFD93D;
-            border: 1px solid rgba(255, 217, 61, 0.15);
-        }
-        .toolbar-btn.info:hover {
-            background: rgba(255, 217, 61, 0.2);
         }
         .user-badge {
             font-size: 13px;
@@ -564,37 +557,6 @@
             font-size: 28px;
             font-weight: bold;
             margin-top: 4px;
-        }
-        .manual-container {
-            display: none;
-            margin-top: 4px;
-        }
-        .manual-container.admin-only {
-            display: block;
-        }
-        .manual-container input[type="date"],
-        .manual-container input[type="number"] {
-            padding: 4px 10px;
-            border-radius: 8px;
-            border: 1.5px solid rgba(109, 213, 250, 0.25);
-            background: rgba(255, 255, 255, 0.07);
-            color: #fff;
-            font-size: 12px;
-            outline: none;
-            cursor: pointer;
-            width: 100%;
-            max-width: 150px;
-        }
-        .manual-container input[type="date"]:focus,
-        .manual-container input[type="number"]:focus {
-            border-color: rgba(109, 213, 250, 0.6);
-        }
-        .manual-container input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-        }
-        .manual-container input[type="number"]::-webkit-inner-spin-button {
-            opacity: 0.5;
         }
 
         /* ===== UF PROGRESS CARDS ===== */
@@ -1126,16 +1088,6 @@
             border-color: rgba(255, 217, 61, 0.15);
             color: #FFD93D;
         }
-        .filter-badge.admin-badge {
-            background: rgba(255, 217, 61, 0.12);
-            border-color: rgba(255, 217, 61, 0.15);
-            color: #FFD93D;
-        }
-        .filter-badge.ritmo-badge {
-            background: rgba(107, 203, 119, 0.12);
-            border-color: rgba(107, 203, 119, 0.15);
-            color: #6BCB77;
-        }
 
         /* ===== TOAST ===== */
         .toast {
@@ -1176,148 +1128,6 @@
             text-align: center;
             margin-top: 10px;
             padding: 6px;
-        }
-
-        /* ===== GUIA DE GRÁFICOS - MODAL DINÂMICO ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-overlay.show {
-            display: flex;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-content {
-            background: rgba(8, 15, 25, 0.98);
-            border: 1px solid rgba(109, 213, 250, 0.15);
-            border-radius: 24px;
-            max-width: 950px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 40px 45px;
-            position: relative;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-        }
-        .modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .modal-content::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        .modal-content::-webkit-scrollbar-thumb {
-            background: rgba(109, 213, 250, 0.3);
-            border-radius: 10px;
-        }
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            opacity: 0.4;
-            transition: .2s;
-            background: none;
-            border: none;
-            color: #fff;
-        }
-        .modal-close:hover {
-            opacity: 1;
-            transform: rotate(90deg);
-        }
-        .modal-content h2 {
-            font-size: 26px;
-            margin-bottom: 6px;
-            color: #6DD5FA;
-        }
-        .modal-content .subtitle-modal {
-            opacity: 0.4;
-            font-size: 14px;
-            margin-bottom: 30px;
-            border-left: 3px solid #6DD5FA;
-            padding-left: 14px;
-        }
-        .guia-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 18px 22px;
-            margin-bottom: 16px;
-            border-left: 4px solid rgba(109, 213, 250, 0.2);
-            transition: .2s;
-        }
-        .guia-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: #6DD5FA;
-        }
-        .guia-item .guia-titulo {
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 6px;
-        }
-        .guia-item .guia-titulo .icon {
-            font-size: 20px;
-        }
-        .guia-item .guia-descricao {
-            opacity: 0.7;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .guia-item .guia-cores {
-            margin-top: 8px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .guia-item .guia-cores .cor-amostra {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        .guia-item .guia-cores .cor-amostra .bolinha {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.15);
-            display: inline-block;
-        }
-        .guia-item .guia-dicas {
-            margin-top: 8px;
-            font-size: 13px;
-            opacity: 0.5;
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .guia-item .guia-dicas span {
-            background: rgba(255,255,255,0.05);
-            padding: 2px 12px;
-            border-radius: 12px;
-        }
-        .guia-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.06);
-            margin: 20px 0;
         }
 
         @media(max-width:768px) {
@@ -1377,20 +1187,6 @@
                 min-width: 80px;
                 font-size: 10px;
             }
-            .modal-content {
-                padding: 25px 20px;
-            }
-            .guia-item .guia-dicas {
-                flex-direction: column;
-                gap: 4px;
-            }
-            .chart-wrapper canvas {
-                height: 250px !important;
-            }
-            .guia-item .guia-cores {
-                flex-direction: column;
-                gap: 4px;
-            }
         }
     </style>
 </head>
@@ -1411,26 +1207,9 @@
             </div>
 
             <label>Senha</label>
-            <input type="password" id="loginPassword" placeholder="Digite a senha" value="">
+            <input type="password" id="loginPassword" placeholder="Digite a senha" value="123">
             <div id="loginError" class="login-error">❌ Senha inválida. Tente novamente.</div>
             <button class="login-btn" id="loginBtn">Entrar</button>
-        </div>
-    </div>
-
-    <!-- ===== GUIA DE GRÁFICOS - MODAL DINÂMICO ===== -->
-    <div class="modal-overlay" id="guiaModal">
-        <div class="modal-content" id="guiaModalContent">
-            <button class="modal-close" onclick="fecharGuia()">✕</button>
-            <h2>📖 Guia dos Gráficos</h2>
-            <div class="subtitle-modal">Entenda o que cada gráfico representa no dashboard</div>
-            <div id="guiaContainer"></div>
-            <div class="guia-divider"></div>
-            <div style="opacity:0.4;font-size:13px;text-align:center;">
-                🔍 Todos os gráficos são interativos — clique em qualquer barra ou ponto para filtrar os dados do dashboard.
-            </div>
-            <div style="opacity:0.3;font-size:11px;text-align:center;margin-top:10px;">
-                🎨 As cores exibidas abaixo são atualizadas automaticamente conforme suas configurações no painel de controle.
-            </div>
         </div>
     </div>
 
@@ -1448,7 +1227,7 @@
                     <button class="toolbar-btn" onclick="togglePresentation()">🖥️ Apresentação</button>
                     <button class="toolbar-btn primary" id="btnGerenciarUsuarios">👥 Gerenciar Usuários</button>
                     <button class="toolbar-btn success" onclick="exportarPDF()">📄 Exportar PDF</button>
-                    <button class="toolbar-btn info" onclick="abrirGuia()">📖 Guia dos Gráficos</button>
+                    <button class="toolbar-btn danger" onclick="limparDadosAntigos()">🗑️ Limpar Dados Antigos</button>
                 </div>
                 <div class="toolbar-right">
                     <span class="user-badge">
@@ -1520,16 +1299,10 @@
                         <div class="status-item">
                             <div class="label">Previsão de Conclusão</div>
                             <div class="value" id="previsaoConclusao" style="font-size:22px;">-</div>
-                            <div class="manual-container" id="previsaoManualContainer">
-                                <input type="date" id="previsaoManualDate" onchange="atualizarPrevisaoManual()">
-                            </div>
                         </div>
                         <div class="status-item">
                             <div class="label">Ritmo (lojas/dia)</div>
                             <div class="value" id="ritmoDiario" style="font-size:22px;">0</div>
-                            <div class="manual-container" id="ritmoManualContainer">
-                                <input type="number" id="ritmoManualInput" step="0.1" min="0" placeholder="Ex: 2.5" onchange="atualizarRitmoManual()" style="max-width:120px;">
-                            </div>
                         </div>
                         <div class="status-item">
                             <div class="label">Lojas Restantes</div>
@@ -1587,24 +1360,19 @@
             </div>
 
             <div class="grid" style="grid-template-columns:1fr;">
-                <div class="box">
-                    <h2>📊 Semanal: Planejado vs Realizado <span class="filter-indicator"></span></h2>
-                    <div class="chart-wrapper" id="chartWrapperSemanal"><canvas id="semanalChart"></canvas></div>
-                    <div id="semanalEmpty" class="empty-state">Nenhum dado semanal disponível.</div>
-                </div>
-            </div>
-
-            <div class="grid">
                 <div class="box"><h2>⏳ Linha do Tempo <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper3"><canvas id="timelineChart"></canvas></div>
                     <div id="timelineEmpty" class="empty-state">Sem datas de autorização.</div>
                 </div>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box"><h2>📅 Lojas Agendadas por Data de Autorização <span class="filter-indicator"></span></h2>
                     <div class="chart-wrapper" id="chartWrapper4"><canvas id="authChart"></canvas></div>
                     <div id="authEmpty" class="empty-state">Nenhuma data de autorização registrada.</div>
                 </div>
             </div>
 
+            <!-- ===== ALERTAS ===== -->
             <div class="box box-alertas" id="alertasBox">
                 <h2>🚨 Alertas e Riscos <span style="font-size:12px;opacity:0.4;font-weight:400;">(clique para detalhes)</span></h2>
                 <div id="alertasContainer">
@@ -1612,6 +1380,7 @@
                 </div>
             </div>
 
+            <!-- ===== ÚLTIMAS ATUALIZAÇÕES ===== -->
             <div class="grid" style="grid-template-columns:1fr;">
                 <div class="box">
                     <h2>🔄 Últimas Atualizações <span style="font-size:12px;opacity:0.4;font-weight:400;">(últimas 10)</span></h2>
@@ -1621,6 +1390,7 @@
                 </div>
             </div>
 
+            <!-- ===== BOTÕES ===== -->
             <div class="table-button-wrapper">
                 <button class="btn-ver-tabela" id="btnVerTabela" onclick="abrirTabelaCompleta()">
                     📋 Ver Tabela Completa
@@ -1634,12 +1404,15 @@
                 </button>
             </div>
 
+            <!-- ===== ÚLTIMA SINCRONIZAÇÃO ===== -->
             <div class="ultima-sincronizacao" id="ultimaSincronizacao">
                 Última atualização: carregando...
             </div>
 
+            <!-- ===== GESTÃO DE USUÁRIOS ===== -->
             <div id="userManagement" class="user-management">
                 <h3>👥 Gerenciar Usuários <span style="font-size:12px;opacity:0.4;font-weight:400;">(apenas Admin)</span></h3>
+
                 <table class="user-table">
                     <thead>
                         <tr>
@@ -1650,6 +1423,7 @@
                     </thead>
                     <tbody id="userTableBody"></tbody>
                 </table>
+
                 <div class="add-user-form">
                     <input type="text" id="newUserName" placeholder="Nome do usuário">
                     <select id="newUserRole">
@@ -1662,6 +1436,7 @@
                 </div>
             </div>
 
+            <!-- PAINEL CONTROLE -->
             <div id="painelControle" class="painel-controle">
                 <div class="painel-header" onclick="togglePainel()">
                     <span>⚙️ Configurações</span>
@@ -1673,15 +1448,6 @@
                         <button class="toolbar-btn acao-btn" onclick="abrirUpload()">📂 Atualizar Planilha</button>
                         <button class="toolbar-btn acao-btn" onclick="togglePresentation()">🖥️ Modo Apresentação</button>
                         <button class="toolbar-btn acao-btn" onclick="exportarPDF()">📄 Exportar PDF</button>
-                        <button class="toolbar-btn acao-btn btn-calculo-auto" id="btnCalculoAuto" onclick="toggleCalculoAuto()">
-                            📊 Cálculo Automático: <span id="calculoAutoStatus">ON</span>
-                        </button>
-                        <button class="toolbar-btn acao-btn btn-previsao-manual" id="btnPrevisaoManual" onclick="togglePrevisaoManual()">
-                            📅 Previsão Manual: <span id="previsaoManualStatus">OFF</span>
-                        </button>
-                        <button class="toolbar-btn acao-btn btn-ritmo-manual" id="btnRitmoManual" onclick="toggleRitmoManual()">
-                            📊 Ritmo Manual: <span id="ritmoManualStatus">OFF</span>
-                        </button>
                     </div>
                     <div class="painel-divider"></div>
                     <div class="painel-secao">
@@ -1717,19 +1483,12 @@
                     <div class="painel-secao">
                         <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
                         <div class="cor-controles">
-                            <div class="cor-linha"><label>📈 Barras (Média)</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📈 Acima da Média</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>📈 Linha Média</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>📅 Barras Agendadas</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
-                            <div class="cor-linha"><label>📅 Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
-                            <div class="cor-linha"><label>📊 Gap Planejado</label><input type="color" id="gapColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📊 Gap Realizado</label><input type="color" id="gapColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>📊 Status Concluída</label><input type="color" id="statusColor1" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>📊 Status Aguardando Agend.</label><input type="color" id="statusColor2" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
-                            <div class="cor-linha"><label>📊 Status Agendada</label><input type="color" id="statusColor3" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📊 Barras Planejado</label><input type="color" id="semanalColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
-                            <div class="cor-linha"><label>📊 Barras Realizado</label><input type="color" id="semanalColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
-                            <div class="cor-linha"><label>🎨 Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
+                            <div class="cor-linha"><label>Barras 1</label><input type="color" id="chartColor1" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Barras 2</label><input type="color" id="chartColor2" value="#6BCB77" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6BCB77</span></div>
+                            <div class="cor-linha"><label>Barras 3</label><input type="color" id="chartColor3" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            <div class="cor-linha"><label>Barras 4</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
+                            <div class="cor-linha"><label>Linha</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
+                            <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
                         </div>
                     </div>
                 </div>
@@ -1748,12 +1507,238 @@
         Chart.register(ChartDataLabels);
 
         // ============================================================
-        //  SUPABASE - CONFIGURAÇÃO
+        //  SUPABASE - CONFIGURAÇÃO CORRIGIDA (COM HEADERS)
         // ============================================================
         const SUPABASE_URL = 'https://fhneshazhuqqwczbdzks.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zaoYTt6pm46YiN-E333hDw_5_6uSXsr';
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ============================================================
+        //  SUPABASE - USANDO FETCH DIRETO (MAIS CONFIÁVEL)
+        // ============================================================
+        async function supabaseFetch(endpoint, options = {}) {
+            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+
+            const headers = {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
+                ...options.headers
+            };
+
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            if (response.status === 204) {
+                return { success: true };
+            }
+
+            return response.json();
+        }
+
+        // ============================================================
+        //  TESTE DE CONEXÃO COM O SUPABASE
+        // ============================================================
+        async function testarConexaoSupabase() {
+            try {
+                console.log('🔄 Testando conexão com Supabase...');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    console.log('✅ Conexão com Supabase OK!');
+                    return true;
+                } else {
+                    const texto = await response.text();
+                    console.error('❌ Erro na conexão:', response.status, texto);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Falha ao conectar:', error.message);
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  CARREGAR DADOS - VERSÃO COM FETCH
+        // ============================================================
+        async function carregarDashboardDataSupabase() {
+            try {
+                console.log('🔄 Carregando dados do Supabase...');
+                const data = await supabaseFetch('dashboard_data?select=dados&id=eq.1');
+
+                if (data && data.length > 0 && data[0].dados) {
+                    originalData = data[0].dados;
+                    console.log('✅ Dados carregados:', originalData.length, 'registros');
+                    atualizarUltimaSincronizacao();
+                } else {
+                    console.log('ℹ️ Nenhum dado encontrado, usando exemplo...');
+                    carregarDadosExemplo();
+                }
+            } catch (e) {
+                console.error('❌ Erro ao carregar dados:', e);
+                showToast('⚠️ Erro ao carregar dados, usando exemplo local', 'info', 3000);
+                carregarDadosExemplo();
+            }
+        }
+
+        // ============================================================
+        //  SALVAR DADOS - VERSÃO COM FETCH (OTIMIZADO)
+        // ============================================================
+        async function salvarDashboardDataSupabase(dados) {
+            try {
+                console.log('🔄 Salvando dados no Supabase...');
+
+                // 1. Deleta os dados antigos
+                await supabaseFetch('dashboard_data?id=eq.1', {
+                    method: 'DELETE'
+                });
+
+                // 2. Insere os novos dados
+                await supabaseFetch('dashboard_data', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: 1,
+                        dados: dados,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                console.log('✅ Dados salvos com sucesso!');
+                showToast('✅ Dados sincronizados com sucesso!', 'success');
+                atualizarUltimaSincronizacao();
+                return true;
+            } catch (e) {
+                console.error('❌ Erro ao salvar dados:', e);
+                showToast('❌ Erro ao sincronizar com o Supabase', 'error');
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  CARREGAR CONFIGURAÇÕES - VERSÃO COM FETCH
+        // ============================================================
+        async function carregarConfiguracoesSupabase() {
+            try {
+                console.log('🔄 Carregando configurações...');
+                const data = await supabaseFetch('configuracoes?select=*&id=eq.1');
+
+                if (data && data.length > 0) {
+                    const config = data[0];
+                    console.log('✅ Configurações carregadas:', config);
+
+                    if (config.logo_cliente) {
+                        document.getElementById('logoClienteImg').src = config.logo_cliente;
+                        document.getElementById('logoClienteImg').style.display = 'block';
+                        document.getElementById('logoClientePlaceholder').style.display = 'none';
+                    }
+                    if (config.logo_empresa) {
+                        document.getElementById('logoEmpresaImg').src = config.logo_empresa;
+                        document.getElementById('logoEmpresaImg').style.display = 'block';
+                        document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
+                    }
+
+                    if (config.tipo_fundo === 'solido') {
+                        document.getElementById('corFundo1').value = config.cor_fundo1 || '#1F2A44';
+                        setTipoFundo('solido');
+                    } else {
+                        document.getElementById('corGrad1').value = config.cor_grad1 || '#1F2A44';
+                        document.getElementById('corGrad2').value = config.cor_grad2 || '#243B55';
+                        document.getElementById('corGrad3').value = config.cor_grad3 || '#3A506B';
+                        document.getElementById('anguloGrad').value = config.angulo_grad || 135;
+                        document.getElementById('anguloVal').textContent = (config.angulo_grad || 135) + '°';
+                        setTipoFundo('degradê');
+                    }
+
+                    if (config.cor_destaque) {
+                        document.getElementById('corDestaque').value = config.cor_destaque;
+                        aplicarCorDestaque(config.cor_destaque);
+                    }
+
+                    if (originalData && originalData.length > 0) {
+                        const data = getDataParaExibir();
+                        atualizarGraficos(data);
+                    }
+                } else {
+                    console.log('ℹ️ Nenhuma configuração encontrada, criando padrão...');
+                    await supabaseFetch('configuracoes', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: 1,
+                            tipo_fundo: 'degrade',
+                            cor_grad1: '#1F2A44',
+                            cor_grad2: '#243B55',
+                            cor_grad3: '#3A506B',
+                            angulo_grad: 135,
+                            cor_destaque: '#6DD5FA',
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                }
+            } catch (e) {
+                console.error('❌ Erro ao carregar configurações:', e);
+            }
+        }
+
+        // ============================================================
+        //  SALVAR CONFIGURAÇÕES - VERSÃO COM FETCH
+        // ============================================================
+        async function salvarConfiguracoesSupabase(parcial) {
+            try {
+                console.log('🔄 Salvando configurações...', parcial);
+
+                // Busca configuração atual
+                const data = await supabaseFetch('configuracoes?select=*&id=eq.1');
+                let config = {};
+
+                if (data && data.length > 0) {
+                    config = data[0];
+                }
+
+                // Faz merge
+                const merged = {
+                    ...config,
+                    ...parcial,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Se chart_colors for objeto, converte para string
+                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
+                    merged.chart_colors = JSON.stringify(parcial.chart_colors);
+                }
+
+                // Remove campos undefined
+                Object.keys(merged).forEach(key => {
+                    if (merged[key] === undefined) delete merged[key];
+                });
+
+                // Salva
+                await supabaseFetch('configuracoes?id=eq.1', {
+                    method: 'PATCH',
+                    body: JSON.stringify(merged)
+                });
+
+                console.log('✅ Configurações salvas!');
+                return true;
+            } catch (e) {
+                console.error('❌ Erro ao salvar configurações:', e);
+                showToast('❌ Erro ao salvar configurações', 'error');
+                return false;
+            }
+        }
 
         // ============================================================
         //  SISTEMA DE USUÁRIOS
@@ -1773,246 +1758,40 @@
         let autoRefreshInterval = null;
         let autoRefreshActive = false;
 
-        // ============================================================
-        //  VARIÁVEIS DE CONFIGURAÇÃO MANUAL - GLOBAIS
-        // ============================================================
-        let calculoAutoAtivo = true;
-        let previsaoManualAtiva = false;
-        let previsaoManualData = null;
-        let ritmoManualAtivo = false;
-        let ritmoManualValor = null;
-
+        // ===== FILTRO ATIVO =====
         let activeFilter = null;
         let filteredData = [];
 
+        // ===== CORES DOS GRÁFICOS =====
         let chartColors = {
             bar1: '#6DD5FA',
             bar2: '#6BCB77',
             bar3: '#FFD93D',
             bar4: '#C77DFF',
             line: '#FF6B6B',
-            bg: '#0D1B2A',
-            gap1: '#6DD5FA',
-            gap2: '#6BCB77',
-            status1: '#6BCB77',
-            status2: '#FFD93D',
-            status3: '#6DD5FA',
-            semanal1: '#6DD5FA',
-            semanal2: '#6BCB77'
+            bg: '#0D1B2A'
         };
 
         // ============================================================
-        //  CONTROLE DE ATUALIZAÇÃO DE GRÁFICOS
+        //  TOAST NOTIFICATION
         // ============================================================
-        let atualizacaoGraficosEmAndamento = false;
-        let filaAtualizacaoGraficos = [];
-        let timeoutGraficos = null;
-        let ultimoHashDados = null;
-
-        function gerarHashDados(data) {
-            try {
-                const relevantes = data.slice(0, 100).map(r => ({
-                    UF: r.UF,
-                    STATUS: r.STATUS,
-                    'QTDE PDVs total': r['QTDE PDVs total'],
-                    'REALIZADO': r['REALIZADO'],
-                    'DATA DO ROLLOUT': r['DATA DO ROLLOUT'],
-                    'DATA AUTORIZAÇÃO': r['DATA AUTORIZAÇÃO']
-                }));
-                return JSON.stringify(relevantes);
-            } catch (e) {
-                return Date.now().toString();
-            }
-        }
-
-        function atualizarGraficosComControle(data) {
-            if (atualizacaoGraficosEmAndamento) {
-                filaAtualizacaoGraficos.push(data);
-                return;
-            }
-
-            const novoHash = gerarHashDados(data);
-            if (novoHash === ultimoHashDados && Object.keys(charts).length > 0) {
-                return;
-            }
-            ultimoHashDados = novoHash;
-
-            if (timeoutGraficos) {
-                clearTimeout(timeoutGraficos);
-            }
-
-            atualizacaoGraficosEmAndamento = true;
-            timeoutGraficos = setTimeout(() => {
-                try {
-                    Object.keys(charts).forEach(key => {
-                        if (charts[key]) {
-                            try { charts[key].destroy(); } catch (e) {}
-                            delete charts[key];
-                        }
-                    });
-
-                    if (data && data.length > 0) {
-                        chartStatusUF(data);
-                        chartMediaConcluida(data);
-                        chartGap(data);
-                        chartSemanal(data);
-                        chartTimeline(data);
-                        chartAuth(data);
-                    }
-                } catch (e) {
-                    console.error('Erro ao atualizar gráficos:', e);
-                } finally {
-                    atualizacaoGraficosEmAndamento = false;
-                    timeoutGraficos = null;
-
-                    if (filaAtualizacaoGraficos.length > 0) {
-                        const proximo = filaAtualizacaoGraficos.shift();
-                        atualizarGraficosComControle(proximo);
-                    }
-                }
-            }, 300);
-        }
-
-        // ============================================================
-        //  TOAST
-        // ============================================================
-        let toastTimer = null;
-        let ultimoToast = {};
-
         function showToast(message, type = 'info', duration = 4000) {
-            const chave = message + type;
-            if (ultimoToast[chave] && Date.now() - ultimoToast[chave] < 2000) {
-                return;
-            }
-            ultimoToast[chave] = Date.now();
-
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type;
             toast.classList.add('show');
-
-            if (toastTimer) {
-                clearTimeout(toastTimer);
-            }
-
-            toastTimer = setTimeout(() => {
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
                 toast.classList.remove('show');
-                toastTimer = null;
             }, duration);
         }
 
         // ============================================================
-        //  GUIA DE GRÁFICOS
+        //  CARREGAR USUÁRIOS
         // ============================================================
-        function abrirGuia() {
-            gerarGuiaDinamico();
-            document.getElementById('guiaModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function fecharGuia() {
-            document.getElementById('guiaModal').classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        function gerarGuiaDinamico() {
-            const container = document.getElementById('guiaContainer');
-            const itens = [{
-                icon: '📊',
-                titulo: 'Status por UF',
-                descricao: 'Apresenta a distribuição das lojas por estado (UF) e seus respectivos status.',
-                cores: [
-                    { label: 'Concluída', cor: chartColors.status1 || '#6BCB77' },
-                    { label: 'Aguardando Agend.', cor: chartColors.status2 || '#FFD93D' },
-                    { label: 'Agendada', cor: chartColors.status3 || '#6DD5FA' }
-                ],
-                dicas: ['💡 Clique em uma UF para filtrar']
-            }, {
-                icon: '📈',
-                titulo: 'Média de Lojas Concluídas por Dia',
-                descricao: 'Mostra a quantidade de lojas concluídas por dia (barras) e a média diária.',
-                cores: [
-                    { label: 'Barras (abaixo da média)', cor: chartColors.bar1 || '#6DD5FA' },
-                    { label: 'Barras (acima da média)', cor: chartColors.bar2 || '#6BCB77' },
-                    { label: 'Linha da Média', cor: chartColors.bar3 || '#FFD93D' }
-                ],
-                dicas: ['💡 Clique em um dia para ver os detalhes']
-            }, {
-                icon: '📊',
-                titulo: 'Gap por UF (Planejado vs Realizado)',
-                descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por estado.',
-                cores: [
-                    { label: 'PDVs Planejados', cor: chartColors.gap1 || '#6DD5FA' },
-                    { label: 'PDVs Realizados', cor: chartColors.gap2 || '#6BCB77' }
-                ],
-                dicas: ['💡 Clique em uma UF para filtrar']
-            }, {
-                icon: '📊',
-                titulo: 'Semanal: Planejado vs Realizado',
-                descricao: 'Compara o total de PDVs planejados versus os PDVs realizados por semana.',
-                cores: [
-                    { label: 'Planejado (PDVs)', cor: chartColors.semanal1 || '#6DD5FA' },
-                    { label: 'Realizado (PDVs)', cor: chartColors.semanal2 || '#6BCB77' }
-                ],
-                dicas: ['💡 Clique em uma semana para filtrar']
-            }, {
-                icon: '⏳',
-                titulo: 'Linha do Tempo',
-                descricao: 'Exibe o acumulado de lojas autorizadas ao longo do tempo.',
-                cores: [
-                    { label: 'Acumulado', cor: chartColors.bar1 || '#6DD5FA' },
-                    { label: 'Autorizações no mês', cor: chartColors.bar3 || '#FFD93D' }
-                ],
-                dicas: ['💡 Clique em um mês para filtrar']
-            }, {
-                icon: '📅',
-                titulo: 'Lojas Agendadas por Data de Autorização',
-                descricao: 'Mostra a distribuição das lojas agendadas por data de autorização.',
-                cores: [
-                    { label: 'Lojas agendadas', cor: chartColors.bar4 || '#C77DFF' },
-                    { label: 'Acumulado', cor: chartColors.line || '#FF6B6B' }
-                ],
-                dicas: ['💡 Clique em um dia para filtrar']
-            }];
-
-            container.innerHTML = itens.map(item => `
-                <div class="guia-item">
-                    <div class="guia-titulo"><span class="icon">${item.icon}</span> ${item.titulo}</div>
-                    <div class="guia-descricao">${item.descricao}</div>
-                    <div class="guia-cores">
-                        ${item.cores.map(c => `
-                            <span class="cor-amostra">
-                                <span class="bolinha" style="background:${c.cor};"></span>
-                                ${c.label}
-                            </span>
-                        `).join('')}
-                    </div>
-                    <div class="guia-dicas">${item.dicas.map(d => `<span>${d}</span>`).join('')}</div>
-                </div>
-            `).join('');
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') fecharGuia();
-        });
-        document.getElementById('guiaModal').addEventListener('click', function(e) {
-            if (e.target === this) fecharGuia();
-        });
-
-        // ============================================================
-        //  SUPABASE - CARREGAMENTO
-        // ============================================================
-
         async function carregarUsuariosSupabase() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('usuarios')
-                    .select('*')
-                    .order('id', { ascending: true });
-                if (error) {
-                    console.error('Erro ao carregar usuários:', error);
-                    return;
-                }
+                const data = await supabaseFetch('usuarios?select=*&order=id.asc');
                 if (data && data.length > 0) {
                     usuarios = data;
                 }
@@ -2021,23 +1800,69 @@
             }
         }
 
-        async function carregarDashboardDataSupabase() {
+        // ============================================================
+        //  FUNÇÃO PARA LIMPAR DADOS ANTIGOS
+        // ============================================================
+        async function limparDadosAntigos() {
+            if (!confirm('⚠️ Isso vai apagar todos os dados antigos do banco. Continuar?')) {
+                return;
+            }
+
+            showToast('🔄 Limpando dados antigos...', 'info', 3000);
+
             try {
-                const { data, error } = await supabaseClient
-                    .from('dashboard_data')
-                    .select('dados')
-                    .eq('id', 1)
-                    .single();
-                if (error) {
-                    console.error('Erro ao carregar dados:', error);
-                    return;
+                // 1. Deleta todos os registros de dashboard_data
+                await supabaseFetch('dashboard_data?id=gt.0', {
+                    method: 'DELETE'
+                });
+
+                // 2. Remove logos em base64
+                await supabaseFetch('configuracoes?id=eq.1', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        logo_cliente: null,
+                        logo_empresa: null,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                // 3. Recarrega os dados
+                await carregarDashboardDataSupabase();
+
+                if (originalData.length === 0) {
+                    carregarDadosExemplo();
+                } else {
+                    aplicarFiltros();
                 }
-                if (data && Array.isArray(data.dados)) {
-                    originalData = data.dados;
-                    atualizarUltimaSincronizacao();
-                }
-            } catch (e) {
-                console.error('Erro ao carregar dados:', e);
+
+                showToast('✅ Dados limpos com sucesso!', 'success', 3000);
+
+            } catch (error) {
+                console.error('Erro ao limpar dados:', error);
+                showToast('❌ Erro ao limpar dados: ' + error.message, 'error', 4000);
+            }
+        }
+
+        // ============================================================
+        //  AUTO-REFRESH
+        // ============================================================
+        function toggleAutoRefresh() {
+            autoRefreshActive = !autoRefreshActive;
+            const btn = document.getElementById('btnAutoRefresh');
+            const status = document.getElementById('autoRefreshStatus');
+
+            if (autoRefreshActive) {
+                status.textContent = 'ON (30s)';
+                btn.classList.add('active-auto');
+                autoRefreshInterval = setInterval(() => {
+                    carregarDashboardDataSupabase();
+                }, 30000);
+                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
+            } else {
+                status.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+                clearInterval(autoRefreshInterval);
+                showToast('⏹️ Auto-Refresh desativado', 'info');
             }
         }
 
@@ -2047,526 +1872,360 @@
             el.textContent = '🔄 Última atualização: ' + agora;
         }
 
-        async function salvarDashboardDataSupabase(dados) {
-            try {
-                const { error } = await supabaseClient
-                    .from('dashboard_data')
-                    .upsert({ id: 1, dados: dados, updated_at: new Date().toISOString() });
-                if (error) {
-                    console.error('Erro ao salvar dados:', error);
-                    showToast('❌ Erro ao sincronizar com o Supabase', 'error');
-                } else {
-                    showToast('✅ Dados sincronizados com sucesso!', 'success');
-                    atualizarUltimaSincronizacao();
-                }
-            } catch (e) {
-                console.error('Erro ao salvar dados:', e);
-                showToast('❌ Erro ao sincronizar', 'error');
-            }
+        // ============================================================
+        //  LOGIN
+        // ============================================================
+
+        function selecionarPerfil(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.role === role);
+            });
+            document.getElementById('loginError').style.display = 'none';
         }
 
-        // ============================================================
-        //  CONFIGURAÇÕES - CORRIGIDA PARA COMPARTILHAR VALORES MANUAIS
-        // ============================================================
+        function doLogin() {
+            const pass = document.getElementById('loginPassword').value.trim();
 
-        let carregandoConfiguracoes = false;
-        let aplicandoConfigRemota = false;
-        let salvandoConfig = false;
-        let ultimoConfigVisualHash = null;
+            const usuario = usuarios.find(u => u.role === selectedRole && u.senha === pass);
 
-        async function carregarConfiguracoesSupabase() {
-            if (carregandoConfiguracoes) {
-                console.log('⏳ Já carregando configurações...');
+            if (!usuario) {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent =
+                    '❌ Senha inválida para o perfil selecionado. Tente novamente.';
                 return;
             }
 
-            carregandoConfiguracoes = true;
+            document.getElementById('loginError').style.display = 'none';
+            currentRole = usuario.role;
+            window._role = usuario.role;
+            isLoggedIn = true;
 
-            try {
-                console.log('🔄 Carregando configurações do Supabase...');
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('dashboardContent').style.display = 'block';
 
-                const { data, error } = await supabaseClient
-                    .from('configuracoes')
-                    .select('*')
-                    .eq('id', 1)
-                    .maybeSingle();
+            atualizarUI(usuario);
 
-                if (error) {
-                    console.error('❌ Erro ao carregar configurações:', error);
-                    carregandoConfiguracoes = false;
-                    return;
-                }
+            if (originalData.length === 0) {
+                carregarDadosExemplo();
+            } else {
+                aplicarFiltros();
+            }
 
-                if (!data) {
-                    console.log('⚠️ Nenhuma configuração encontrada, criando padrão...');
-                    const defaultData = {
-                        id: 1,
-                        tipo_fundo: 'degrade',
-                        cor_grad1: '#1F2A44',
-                        cor_grad2: '#243B55',
-                        cor_grad3: '#3A506B',
-                        angulo_grad: 135,
-                        cor_destaque: '#6DD5FA',
-                        calculo_auto: true,
-                        previsao_manual: false,
-                        previsao_data: null,
-                        ritmo_manual: false,
-                        ritmo_valor: null,
-                        chart_colors: JSON.stringify({
-                            bar1: '#6DD5FA',
-                            bar2: '#6BCB77',
-                            bar3: '#FFD93D',
-                            bar4: '#C77DFF',
-                            line: '#FF6B6B',
-                            bg: '#0D1B2A',
-                            gap1: '#6DD5FA',
-                            gap2: '#6BCB77',
-                            status1: '#6BCB77',
-                            status2: '#FFD93D',
-                            status3: '#6DD5FA',
-                            semanal1: '#6DD5FA',
-                            semanal2: '#6BCB77'
-                        }),
-                        updated_at: new Date().toISOString()
+            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
+        }
+
+        function atualizarUI(usuario) {
+            const roleNames = { admin: 'Admin', gerente: 'Gerente', visualizador: 'Visualizador' };
+            document.getElementById('userRoleDisplay').textContent = roleNames[usuario.role];
+            document.getElementById('userRoleTag').textContent = usuario.role.toUpperCase();
+
+            const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
+            const isAdmin = usuario.role === 'admin';
+
+            document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
+            document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
+
+            const btnLimpar = document.querySelector('.toolbar-btn.danger');
+            if (btnLimpar && btnLimpar.textContent.includes('Limpar Dados Antigos')) {
+                btnLimpar.style.display = isAdmin ? 'flex' : 'none';
+            }
+
+            document.querySelectorAll('.logo-box').forEach(el => {
+                if (usuario.role === 'visualizador') {
+                    el.classList.remove('clickable');
+                    el.classList.add('no-click');
+                    el.onclick = null;
+                } else {
+                    el.classList.remove('no-click');
+                    el.classList.add('clickable');
+                    el.onclick = function() {
+                        const inputId = this.id === 'logoClienteBox' ? 'logoClienteInput' :
+                        'logoEmpresaInput';
+                        document.getElementById(inputId).click();
                     };
+                }
+            });
 
-                    const { error: insertError } = await supabaseClient
-                        .from('configuracoes')
-                        .insert(defaultData);
+            const labelEmpresa = document.getElementById('labelEmpresa');
+            const labelCliente = document.getElementById('labelCliente');
+            if (usuario.role === 'visualizador') {
+                labelEmpresa.classList.add('hidden-label');
+                labelCliente.classList.add('hidden-label');
+            } else {
+                labelEmpresa.classList.remove('hidden-label');
+                labelCliente.classList.remove('hidden-label');
+            }
 
-                    if (insertError) {
-                        console.error('❌ Erro ao criar configuração padrão:', insertError);
-                        carregandoConfiguracoes = false;
-                        return;
-                    }
+            const btnUser = document.getElementById('btnGerenciarUsuarios');
+            if (isAdmin) {
+                btnUser.style.display = 'flex';
+                btnUser.replaceWith(btnUser.cloneNode(true));
+                const newBtn = document.getElementById('btnGerenciarUsuarios');
+                newBtn.onclick = function() {
+                    toggleUserManagement();
+                };
+            } else {
+                btnUser.style.display = 'none';
+                document.getElementById('userManagement').classList.remove('visible');
+                userManagementVisible = false;
+            }
 
-                    await carregarConfiguracoesSupabase();
-                    carregandoConfiguracoes = false;
+            const btnAdd = document.getElementById('btnAdicionarUsuario');
+            btnAdd.replaceWith(btnAdd.cloneNode(true));
+            const newAdd = document.getElementById('btnAdicionarUsuario');
+            newAdd.onclick = function() {
+                adicionarUsuario();
+            };
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            currentRole = 'admin';
+            window._role = 'admin';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('userManagement').classList.remove('visible');
+            userManagementVisible = false;
+            activeFilter = null;
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshActive = false;
+                document.getElementById('autoRefreshStatus').textContent = 'OFF';
+                document.getElementById('btnAutoRefresh').classList.remove('active-auto');
+            }
+            selectedRole = 'admin';
+            document.querySelectorAll('.role-btn').forEach(el => {
+                el.classList.toggle('active', el.dataset.role === 'admin');
+            });
+            showToast('👋 Logout realizado com sucesso', 'info', 1500);
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // ============================================================
+        //  GESTÃO DE USUÁRIOS
+        // ============================================================
+
+        function toggleUserManagement() {
+            if (currentRole !== 'admin') {
+                alert('Apenas Administradores podem gerenciar usuários.');
+                return;
+            }
+
+            userManagementVisible = !userManagementVisible;
+            const el = document.getElementById('userManagement');
+
+            if (userManagementVisible) {
+                el.classList.add('visible');
+                renderizarUsuarios();
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+            } else {
+                el.classList.remove('visible');
+            }
+        }
+
+        function renderizarUsuarios() {
+            const tbody = document.getElementById('userTableBody');
+            const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
+            const linhas = usuarios.map(u => `
+                    <tr>
+                        <td>${u.nome}</td>
+                        <td>${roleNames[u.role] || u.role}</td>
+                        <td class="user-actions">
+                            <button class="edit-btn" onclick="editarUsuario(${u.id})">✏️</button>
+                            <button class="delete-btn" onclick="excluirUsuario(${u.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `);
+            tbody.innerHTML = linhas.join('');
+        }
+
+        async function adicionarUsuario() {
+            const nome = document.getElementById('newUserName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            const senha = document.getElementById('newUserPassword').value.trim() || '123';
+
+            if (!nome) {
+                alert('Digite um nome para o usuário.');
+                return;
+            }
+
+            if (usuarios.find(u => u.nome.toLowerCase() === nome.toLowerCase())) {
+                alert('Já existe um usuário com este nome.');
+                return;
+            }
+
+            try {
+                const data = await supabaseFetch('usuarios', {
+                    method: 'POST',
+                    body: JSON.stringify({ nome, role, senha })
+                });
+
+                if (data && data.length > 0) {
+                    usuarios.push(data[0]);
+                    renderizarUsuarios();
+                    document.getElementById('newUserName').value = '';
+                    document.getElementById('newUserPassword').value = '123';
+                    showToast('✅ Usuário adicionado com sucesso!', 'success');
+                }
+            } catch (e) {
+                alert('❌ Erro ao adicionar usuário: ' + e.message);
+            }
+        }
+
+        async function editarUsuario(id) {
+            const usuario = usuarios.find(u => u.id === id);
+            if (!usuario) return;
+
+            const novoNome = prompt('Novo nome:', usuario.nome);
+            if (novoNome && novoNome.trim()) {
+                if (usuarios.find(u => u.nome.toLowerCase() === novoNome.trim().toLowerCase() && u.id !== id)) {
+                    alert('Já existe um usuário com este nome.');
+                    return;
+                }
+                usuario.nome = novoNome.trim();
+            }
+
+            const novaSenha = prompt('Nova senha (deixe em branco para manter):', usuario.senha);
+            if (novaSenha !== null && novaSenha.trim() !== '') {
+                usuario.senha = novaSenha.trim();
+            }
+
+            const novoRole = prompt('Novo perfil (admin, gerente, visualizador):', usuario.role);
+            if (novoRole && ['admin', 'gerente', 'visualizador'].includes(novoRole.trim().toLowerCase())) {
+                usuario.role = novoRole.trim().toLowerCase();
+            }
+
+            try {
+                await supabaseFetch(`usuarios?id=eq.${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
+                });
+                renderizarUsuarios();
+                showToast('✅ Usuário atualizado!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao atualizar usuário: ' + e.message);
+            }
+        }
+
+        async function excluirUsuario(id) {
+            if (id <= 3) {
+                alert('❌ Não é possível excluir usuários padrão.');
+                return;
+            }
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+
+            try {
+                await supabaseFetch(`usuarios?id=eq.${id}`, {
+                    method: 'DELETE'
+                });
+                usuarios = usuarios.filter(u => u.id !== id);
+                renderizarUsuarios();
+                showToast('✅ Usuário removido!', 'success');
+            } catch (e) {
+                alert('❌ Erro ao excluir usuário: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  FUNÇÃO DE UPLOAD
+        // ============================================================
+
+        function abrirUpload() {
+            if (currentRole === 'visualizador') {
+                alert('Você não tem permissão para atualizar a planilha.');
+                return;
+            }
+            document.getElementById('excelFileInput').click();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('excelFileInput');
+
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['xlsx', 'xls'].includes(ext)) {
+                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
+                    this.value = '';
                     return;
                 }
 
-                console.log('📦 Configurações carregadas:', data);
+                document.getElementById('loading').style.display = 'flex';
 
-                // ============================================================
-                //  CARREGAR VALORES MANUAIS - ESSENCIAL PARA TODOS OS USUÁRIOS
-                // ============================================================
-                if (data.calculo_auto !== undefined) {
-                    calculoAutoAtivo = data.calculo_auto;
-                }
-
-                if (data.previsao_manual !== undefined) {
-                    previsaoManualAtiva = data.previsao_manual;
-                    console.log('📅 previsaoManualAtiva:', previsaoManualAtiva);
-                }
-                if (data.previsao_data !== undefined && data.previsao_data !== null) {
-                    previsaoManualData = data.previsao_data;
-                    console.log('📅 previsaoManualData:', previsaoManualData);
-                }
-
-                if (data.ritmo_manual !== undefined) {
-                    ritmoManualAtivo = data.ritmo_manual;
-                    console.log('📊 ritmoManualAtivo:', ritmoManualAtivo);
-                }
-                if (data.ritmo_valor !== undefined && data.ritmo_valor !== null) {
-                    ritmoManualValor = data.ritmo_valor;
-                    console.log('📊 ritmoManualValor:', ritmoManualValor);
-                }
-
-                // Atualizar UI com os valores carregados
-                atualizarStatusCalculoAuto();
-                atualizarStatusPrevisaoManual();
-                atualizarStatusRitmoManual();
-
-                // Logos
-                if (data.logo_cliente) {
-                    document.getElementById('logoClienteImg').src = data.logo_cliente;
-                    document.getElementById('logoClienteImg').style.display = 'block';
-                    document.getElementById('logoClientePlaceholder').style.display = 'none';
-                }
-                if (data.logo_empresa) {
-                    document.getElementById('logoEmpresaImg').src = data.logo_empresa;
-                    document.getElementById('logoEmpresaImg').style.display = 'block';
-                    document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
-                }
-
-                // Cores
-                if (data.tipo_fundo === 'solido') {
-                    document.getElementById('corFundo1').value = data.cor_fundo1 || '#1F2A44';
-                    setTipoFundo('solido', true);
-                } else {
-                    document.getElementById('corGrad1').value = data.cor_grad1 || '#1F2A44';
-                    document.getElementById('corGrad2').value = data.cor_grad2 || '#243B55';
-                    document.getElementById('corGrad3').value = data.cor_grad3 || '#3A506B';
-                    document.getElementById('anguloGrad').value = data.angulo_grad || 135;
-                    document.getElementById('anguloVal').textContent = (data.angulo_grad || 135) + '°';
-                    setTipoFundo('degradê', true);
-                }
-
-                if (data.cor_destaque) {
-                    document.getElementById('corDestaque').value = data.cor_destaque;
-                    aplicarCorDestaque(data.cor_destaque);
-                }
-
-                if (data.chart_colors) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
                     try {
-                        const cc = typeof data.chart_colors === 'string' ?
-                            JSON.parse(data.chart_colors) : data.chart_colors;
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
 
-                        if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
-                            chartColors.bar1 = cc.bar1; }
-                        if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
-                            chartColors.bar2 = cc.bar2; }
-                        if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
-                            chartColors.bar3 = cc.bar3; }
-                        if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
-                            chartColors.bar4 = cc.bar4; }
-                        if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
-                            chartColors.line = cc.line; }
-                        if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
-                            chartColors.bg = cc.bg; }
-                        if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
-                            chartColors.gap1 = cc.gap1; }
-                        if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
-                            chartColors.gap2 = cc.gap2; }
-                        if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
-                            chartColors.status1 = cc.status1; }
-                        if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
-                            chartColors.status2 = cc.status2; }
-                        if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
-                            chartColors.status3 = cc.status3; }
-                        if (cc.semanal1) { document.getElementById('semanalColor1').value = cc.semanal1;
-                            chartColors.semanal1 = cc.semanal1; }
-                        if (cc.semanal2) { document.getElementById('semanalColor2').value = cc.semanal2;
-                            chartColors.semanal2 = cc.semanal2; }
-                    } catch (e) {
-                        console.error('Erro ao parsear chart_colors:', e);
+                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
+                        if (!sheetName) {
+                            sheetName = workbook.SheetNames[0];
+                        }
+
+                        const worksheet = workbook.Sheets[sheetName];
+                        if (!worksheet) {
+                            throw new Error('Nenhuma aba encontrada.');
+                        }
+
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                            defval: '',
+                            raw: true,
+                            blankrows: false
+                        });
+
+                        if (!jsonData || jsonData.length === 0) {
+                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
+                        }
+
+                        const dadosNormalizados = jsonData.map(row => {
+                            const novo = {};
+                            Object.keys(row).forEach(key => {
+                                const chaveLimpa = key.trim();
+                                novo[chaveLimpa] = row[key];
+                            });
+                            return novo;
+                        });
+
+                        originalData = dadosNormalizados;
+                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
+
+                        activeFilter = null;
+                        await salvarDashboardDataSupabase(originalData);
+                        aplicarFiltros();
+
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
+                        event.target.value = '';
+
+                    } catch (error) {
+                        document.getElementById('loading').style.display = 'none';
+                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
+                        console.error(error);
+                        event.target.value = '';
                     }
-                }
+                };
 
-                aplicarCorFundoGraficos();
+                reader.onerror = function() {
+                    document.getElementById('loading').style.display = 'none';
+                    showToast('❌ Erro ao ler o arquivo.', 'error');
+                    event.target.value = '';
+                };
 
-                // Atualizar dados e gráficos
-                if (originalData && originalData.length > 0) {
-                    const dataExibida = getDataParaExibir();
-                    atualizarCards(dataExibida);
-                    atualizarGraficosComControle(dataExibida);
-                }
-
-                // Atualizar badges
-                atualizarBadgeFiltro();
-
-                carregandoConfiguracoes = false;
-                console.log('✅ Configurações carregadas com sucesso!');
-
-            } catch (e) {
-                console.error('❌ Erro ao carregar configurações:', e);
-                carregandoConfiguracoes = false;
-            }
-        }
-
-        // ============================================================
-        //  FUNÇÃO PARA SALVAR CONFIGURAÇÕES
-        // ============================================================
-
-        function salvarConfiguracoesSupabase(parcial) {
-            if (salvandoConfig || aplicandoConfigRemota) {
-                console.log('⏳ Salvamento em andamento, ignorando...');
-                return;
-            }
-
-            salvandoConfig = true;
-            const dadosParaSalvar = {
-                id: 1,
-                ...parcial,
-                updated_at: new Date().toISOString()
-            };
-
-            // Remover campos undefined
-            Object.keys(dadosParaSalvar).forEach(key => {
-                if (dadosParaSalvar[key] === undefined) delete dadosParaSalvar[key];
+                reader.readAsArrayBuffer(file);
             });
-
-            console.log('💾 Salvando configurações:', dadosParaSalvar);
-
-            supabaseClient
-                .from('configuracoes')
-                .upsert(dadosParaSalvar, { onConflict: 'id' })
-                .then(({ data, error }) => {
-                    if (error) {
-                        console.error('❌ Erro ao salvar configurações:', error);
-                        showToast('❌ Erro ao salvar configurações: ' + error.message, 'error', 3000);
-                    } else {
-                        console.log('✅ Configurações salvas com sucesso!');
-
-                        // ATUALIZAR VARIÁVEIS LOCAIS IMEDIATAMENTE
-                        if (parcial.calculo_auto !== undefined) {
-                            calculoAutoAtivo = parcial.calculo_auto;
-                            atualizarStatusCalculoAuto();
-                        }
-
-                        if (parcial.previsao_manual !== undefined) {
-                            previsaoManualAtiva = parcial.previsao_manual;
-                            if (parcial.previsao_data !== undefined) {
-                                previsaoManualData = parcial.previsao_data;
-                            }
-                            atualizarStatusPrevisaoManual();
-                        }
-
-                        if (parcial.ritmo_manual !== undefined) {
-                            ritmoManualAtivo = parcial.ritmo_manual;
-                            if (parcial.ritmo_valor !== undefined) {
-                                ritmoManualValor = parcial.ritmo_valor;
-                            }
-                            atualizarStatusRitmoManual();
-                        }
-
-                        // Mostrar toast apenas para ações manuais
-                        if (parcial.calculo_auto !== undefined) {
-                            showToast(calculoAutoAtivo ? '📊 Cálculo automático ativado' : '📊 Cálculo manual ativado',
-                                'info', 2000);
-                        } else if (parcial.previsao_manual !== undefined) {
-                            showToast(previsaoManualAtiva ? '📅 Previsão manual ativada' :
-                                '📅 Previsão manual desativada', 'info', 2000);
-                        } else if (parcial.ritmo_manual !== undefined) {
-                            showToast(ritmoManualAtivo ? '📊 Ritmo manual ativado' : '📊 Ritmo manual desativado',
-                                'info', 2000);
-                        } else if (parcial.previsao_data !== undefined) {
-                            showToast('📅 Data de previsão atualizada para ' + parcial.previsao_data, 'success', 1500);
-                        } else if (parcial.ritmo_valor !== undefined) {
-                            showToast('📊 Ritmo atualizado para ' + parcial.ritmo_valor + ' lojas/dia', 'success',
-                            1500);
-                        }
-
-                        // Atualizar cards com os novos valores
-                        if (originalData && originalData.length > 0) {
-                            const data = getDataParaExibir();
-                            atualizarCards(data);
-                        }
-
-                        // Atualizar badges
-                        atualizarBadgeFiltro();
-                    }
-                })
-                .catch(e => {
-                    console.error('❌ Erro:', e);
-                    showToast('❌ Erro ao salvar configurações', 'error', 3000);
-                })
-                .finally(() => {
-                    setTimeout(() => {
-                        salvandoConfig = false;
-                    }, 500);
-                });
-        }
-
-        // ============================================================
-        //  FUNÇÕES DE CONTROLE MANUAL - CORRIGIDAS
-        // ============================================================
-
-        function toggleCalculoAuto() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar o cálculo automático', 'error', 2000);
-                return;
-            }
-            calculoAutoAtivo = !calculoAutoAtivo;
-            atualizarStatusCalculoAuto();
-            salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function atualizarStatusCalculoAuto() {
-            const statusEl = document.getElementById('calculoAutoStatus');
-            const btn = document.getElementById('btnCalculoAuto');
-            if (calculoAutoAtivo) {
-                statusEl.textContent = 'ON';
-                btn.classList.add('active-auto');
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-            }
-        }
-
-        function togglePrevisaoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
-                return;
-            }
-
-            previsaoManualAtiva = !previsaoManualAtiva;
-
-            if (previsaoManualAtiva && !previsaoManualData) {
-                const hoje = new Date();
-                hoje.setDate(hoje.getDate() + 30);
-                previsaoManualData = hoje.toISOString().slice(0, 10);
-            }
-
-            if (!previsaoManualAtiva) {
-                previsaoManualData = null;
-            }
-
-            atualizarStatusPrevisaoManual();
-
-            salvarConfiguracoesSupabase({
-                previsao_manual: previsaoManualAtiva,
-                previsao_data: previsaoManualData
-            });
-
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function atualizarStatusPrevisaoManual() {
-            const statusEl = document.getElementById('previsaoManualStatus');
-            const btn = document.getElementById('btnPrevisaoManual');
-            const container = document.getElementById('previsaoManualContainer');
-            const dataInput = document.getElementById('previsaoManualDate');
-            const isAdmin = currentRole === 'admin';
-
-            if (previsaoManualAtiva) {
-                statusEl.textContent = 'ON';
-                btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
-                if (previsaoManualData) {
-                    dataInput.value = previsaoManualData;
-                }
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                container.classList.remove('admin-only');
-                container.style.display = 'none';
-            }
-
-            // Atualizar cards e badges
-            if (originalData && originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-            atualizarBadgeFiltro();
-        }
-
-        function atualizarPrevisaoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
-                return;
-            }
-
-            const dataInput = document.getElementById('previsaoManualDate');
-            if (!dataInput.value) {
-                showToast('⚠️ Selecione uma data válida', 'error', 2000);
-                return;
-            }
-
-            previsaoManualData = dataInput.value;
-            previsaoManualAtiva = true;
-
-            salvarConfiguracoesSupabase({
-                previsao_data: previsaoManualData,
-                previsao_manual: true
-            });
-
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function toggleRitmoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
-                return;
-            }
-
-            ritmoManualAtivo = !ritmoManualAtivo;
-
-            if (!ritmoManualAtivo) {
-                ritmoManualValor = null;
-            }
-
-            atualizarStatusRitmoManual();
-
-            salvarConfiguracoesSupabase({
-                ritmo_manual: ritmoManualAtivo,
-                ritmo_valor: ritmoManualValor
-            });
-
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
-
-        function atualizarStatusRitmoManual() {
-            const statusEl = document.getElementById('ritmoManualStatus');
-            const btn = document.getElementById('btnRitmoManual');
-            const container = document.getElementById('ritmoManualContainer');
-            const input = document.getElementById('ritmoManualInput');
-            const isAdmin = currentRole === 'admin';
-
-            if (ritmoManualAtivo) {
-                statusEl.textContent = 'ON';
-                btn.classList.add('active-auto');
-                if (isAdmin) {
-                    container.classList.add('admin-only');
-                    container.style.display = 'block';
-                } else {
-                    container.classList.remove('admin-only');
-                    container.style.display = 'none';
-                }
-                if (ritmoManualValor !== null) {
-                    input.value = ritmoManualValor;
-                }
-            } else {
-                statusEl.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                container.classList.remove('admin-only');
-                container.style.display = 'none';
-            }
-
-            // Atualizar cards e badges
-            if (originalData && originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-            atualizarBadgeFiltro();
-        }
-
-        function atualizarRitmoManual() {
-            if (currentRole !== 'admin') {
-                showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
-                return;
-            }
-
-            const input = document.getElementById('ritmoManualInput');
-            const valor = parseFloat(input.value);
-
-            if (isNaN(valor) || valor < 0) {
-                showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
-                return;
-            }
-
-            ritmoManualValor = valor;
-            ritmoManualAtivo = true;
-
-            salvarConfiguracoesSupabase({
-                ritmo_valor: ritmoManualValor,
-                ritmo_manual: true
-            });
-
-            if (originalData.length > 0) {
-                const data = getDataParaExibir();
-                atualizarCards(data);
-            }
-        }
+        });
 
         // ============================================================
         //  FUNÇÕES DO DASHBOARD
@@ -2622,10 +2281,6 @@
             return data;
         }
 
-        // ============================================================
-        //  ATUALIZAR CARDS - USANDO VALORES MANUAIS
-        // ============================================================
-
         function atualizarCards(data) {
             const totalLojas = data.length;
             const totalPdvs = data.reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
@@ -2636,49 +2291,18 @@
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
 
-            let ritmoDiario = 0;
             const dataAtual = new Date();
-
-            // PRIORIDADE: RITMO MANUAL (se ativo)
-            if (ritmoManualAtivo && ritmoManualValor !== null) {
-                ritmoDiario = ritmoManualValor;
-                console.log('📊 Usando RITMO MANUAL:', ritmoDiario);
-            } else if (calculoAutoAtivo) {
-                const dataLimite = new Date(dataAtual);
-                dataLimite.setDate(dataLimite.getDate() - 30);
-                const ultimos30Dias = data.filter(r => {
-                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                    return d && d >= dataLimite && d <= dataAtual;
-                });
-                const concluidasUltimos30 = ultimos30Dias.filter(isConcluida).length;
-                const diasComDados = new Set(ultimos30Dias.map(r => {
-                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                    return d ? d.toISOString().slice(0, 10) : null;
-                }).filter(Boolean)).size;
-                ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 :
-                    0;
-            } else {
-                const todasConcluidas = data.filter(isConcluida);
-                if (todasConcluidas.length > 0) {
-                    const datas = todasConcluidas.map(r => parseExcelDate(r['DATA DO ROLLOUT'])).filter(Boolean);
-                    if (datas.length > 0) {
-                        const primeiraData = new Date(Math.min(...datas));
-                        const ultimaData = new Date(Math.max(...datas));
-                        const diffDias = Math.max(1, Math.ceil((ultimaData - primeiraData) / (1000 * 60 * 60 * 24)));
-                        ritmoDiario = Math.round((todasConcluidas.length / diffDias) * 10) / 10;
-                    }
-                }
-            }
+            const dataLimite = new Date(dataAtual);
+            dataLimite.setDate(dataLimite.getDate() - 30);
+            const ultimos30Dias = data.filter(r => {
+                const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                return d && d >= dataLimite && d <= dataAtual;
+            });
+            const ritmoDiario = ultimos30Dias.length > 0 ?
+                Math.round((ultimos30Dias.filter(isConcluida).length / 30) * 10) / 10 : 0;
 
             let previsao = '-';
-
-            // PRIORIDADE: PREVISÃO MANUAL (se ativa)
-            if (previsaoManualAtiva && previsaoManualData) {
-                const dataParts = previsaoManualData.split('-');
-                const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
-                previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
-                console.log('📅 Usando PREVISÃO MANUAL:', previsao);
-            } else if (ritmoDiario > 0 && lojasRestantes > 0) {
+            if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
                 dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
@@ -2729,7 +2353,7 @@
         function aplicarFiltros() {
             const data = getDataParaExibir();
             atualizarCards(data);
-            atualizarGraficosComControle(data);
+            atualizarGraficos(data);
             popularFiltros(originalData);
             atualizarBadgeFiltro();
             atualizarUltimaSincronizacao();
@@ -2751,10 +2375,6 @@
                     return data;
             }
         }
-
-        // ============================================================
-        //  BADGES - MOSTRA PARA TODOS OS PERFIS
-        // ============================================================
 
         function atualizarBadgeFiltro() {
             const status = document.getElementById('filterStatus');
@@ -2779,28 +2399,6 @@
                 const periodo = (inicio ? inicio : '...') + ' → ' + (fim ? fim : '...');
                 badges.push(
                     `<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`
-                    );
-            }
-
-            if (!calculoAutoAtivo) {
-                badges.push(
-                    `<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`
-                    );
-            }
-
-            // BADGES PARA TODOS OS PERFIS (não apenas admin)
-            if (previsaoManualAtiva) {
-                const dataExibida = previsaoManualData ?
-                    new Date(previsaoManualData).toLocaleDateString('pt-BR') :
-                    'Não definida';
-                badges.push(
-                    `<span class="filter-badge admin-badge">📅 Previsão Manual: ${dataExibida}</span>`
-                    );
-            }
-
-            if (ritmoManualAtivo && ritmoManualValor !== null) {
-                badges.push(
-                    `<span class="filter-badge ritmo-badge">📊 Ritmo Manual: ${ritmoManualValor} lojas/dia</span>`
                     );
             }
 
@@ -2858,17 +2456,17 @@
             const cores = ['#6DD5FA', '#6BCB77', '#FFD93D', '#C77DFF', '#FF6B6B', '#FF9F43', '#00D2D3', '#F368E0'];
 
             container.innerHTML = ufData.map((item, index) => `
-                <div class="uf-card" onclick="filtrarPorUF('${item.uf}')" title="Clique para filtrar por ${item.uf}">
-                    <div class="uf-nome">
-                        ${item.uf}
-                        <span class="uf-count">${item.concluidas}/${item.total}</span>
+                    <div class="uf-card" onclick="filtrarPorUF('${item.uf}')" title="Clique para filtrar por ${item.uf}">
+                        <div class="uf-nome">
+                            ${item.uf}
+                            <span class="uf-count">${item.concluidas}/${item.total}</span>
+                        </div>
+                        <div class="uf-progress">
+                            <div style="width:${item.progresso}%;background:${cores[index % cores.length]};"></div>
+                        </div>
+                        <div class="uf-percent">${item.progresso}%</div>
                     </div>
-                    <div class="uf-progress">
-                        <div style="width:${item.progresso}%;background:${cores[index % cores.length]};"></div>
-                    </div>
-                    <div class="uf-percent">${item.progresso}%</div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         function filtrarPorUF(uf) {
@@ -2944,12 +2542,12 @@
             }
 
             container.innerHTML = alertasFinais.map(a => `
-                <div class="alerta-item" style="${a.nivel === 'critico' ? 'border-left:3px solid #FF6B6B;' : a.nivel === 'alto' ? 'border-left:3px solid #FF9F43;' : 'border-left:3px solid #FFD93D;'}">
-                    <span class="alerta-icon">${a.icon}</span>
-                    <span class="alerta-texto">${a.texto}</span>
-                    <span class="alerta-tag">${a.tag}</span>
-                </div>
-            `).join('');
+                    <div class="alerta-item" style="${a.nivel === 'critico' ? 'border-left:3px solid #FF6B6B;' : a.nivel === 'alto' ? 'border-left:3px solid #FF9F43;' : 'border-left:3px solid #FFD93D;'}">
+                        <span class="alerta-icon">${a.icon}</span>
+                        <span class="alerta-texto">${a.texto}</span>
+                        <span class="alerta-tag">${a.tag}</span>
+                    </div>
+                `).join('');
         }
 
         // ============================================================
@@ -2988,17 +2586,17 @@
                 const dataStr = dataRollout ? dataRollout.toLocaleDateString('pt-BR') : '-';
                 const status = r.STATUS || 'N/D';
                 return `
-                    <div class="ultima-atualizacao-item">
-                        <span class="loja-nome">${r.LOJAS || 'Sem nome'}</span>
-                        <span class="loja-status ${getStatusClass(status)}">${status}</span>
-                        <span class="loja-data">📅 ${dataStr}</span>
-                    </div>
-                `;
+                        <div class="ultima-atualizacao-item">
+                            <span class="loja-nome">${r.LOJAS || 'Sem nome'}</span>
+                            <span class="loja-status ${getStatusClass(status)}">${status}</span>
+                            <span class="loja-data">📅 ${dataStr}</span>
+                        </div>
+                    `;
             }).join('');
         }
 
         // ============================================================
-        //  CORES DOS GRÁFICOS
+        //  COR DE FUNDO DOS GRÁFICOS
         // ============================================================
 
         function aplicarCorFundoGraficos() {
@@ -3015,19 +2613,8 @@
             chartColors.bar4 = document.getElementById('chartColor4').value;
             chartColors.line = document.getElementById('chartLineColor').value;
             chartColors.bg = document.getElementById('chartBgColor').value;
-            chartColors.gap1 = document.getElementById('gapColor1').value;
-            chartColors.gap2 = document.getElementById('gapColor2').value;
-            chartColors.status1 = document.getElementById('statusColor1').value;
-            chartColors.status2 = document.getElementById('statusColor2').value;
-            chartColors.status3 = document.getElementById('statusColor3').value;
-            chartColors.semanal1 = document.getElementById('semanalColor1').value;
-            chartColors.semanal2 = document.getElementById('semanalColor2').value;
 
             aplicarCorFundoGraficos();
-
-            if (document.getElementById('guiaModal').classList.contains('show')) {
-                gerarGuiaDinamico();
-            }
 
             salvarConfiguracoesSupabase({
                 chart_colors: {
@@ -3036,19 +2623,12 @@
                     bar3: chartColors.bar3,
                     bar4: chartColors.bar4,
                     line: chartColors.line,
-                    bg: chartColors.bg,
-                    gap1: chartColors.gap1,
-                    gap2: chartColors.gap2,
-                    status1: chartColors.status1,
-                    status2: chartColors.status2,
-                    status3: chartColors.status3,
-                    semanal1: chartColors.semanal1,
-                    semanal2: chartColors.semanal2
+                    bg: chartColors.bg
                 }
             });
 
             const data = getDataParaExibir();
-            atualizarGraficosComControle(data);
+            atualizarGraficos(data);
         }
 
         // ============================================================
@@ -3100,7 +2680,7 @@
         }
 
         // ============================================================
-        //  GRÁFICOS - FUNÇÕES INDIVIDUAIS
+        //  GRÁFICOS COM INTERAÇÃO (CLICK)
         // ============================================================
 
         function setupChartClick(chart, callback) {
@@ -3116,127 +2696,46 @@
         function chartStatusUF(data) {
             destroyChart('statusUFChart');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-
-            if (ufs.length === 0) {
-                document.getElementById('statusUFChart').style.display = 'none';
-                return;
-            }
-            document.getElementById('statusUFChart').style.display = 'block';
-
-            const statusConfig = [
-                { key: 'CONCLUÍDA', label: 'Concluída', color: chartColors.status1 || '#6BCB77' },
-                { key: 'AGUARDANDO', label: 'Aguardando Agend.', color: chartColors.status2 || '#FFD93D' },
-                { key: 'AGENDADA', label: 'Agendada', color: chartColors.status3 || '#6DD5FA' }
-            ];
-
-            const getStatusCategory = (status) => {
-                const s = String(status || '').toUpperCase();
-                if (s.includes('CONCLU')) return 'CONCLUÍDA';
-                if (s.includes('AGUARDANDO') || s.includes('PENDENTE') || s.includes('PENDENCIADA')) return 'AGUARDANDO';
-                if (s.includes('AGENDADA')) return 'AGENDADA';
-                return 'AGUARDANDO';
-            };
-
+            const statuses = [...new Set(data.map(r => r.STATUS || 'N/D').filter(Boolean))];
             const matrix = {};
-            ufs.forEach(uf => {
-                matrix[uf] = {};
-                statusConfig.forEach(sc => matrix[uf][sc.key] = 0);
-            });
-
             data.forEach(r => {
                 const uf = r.UF || 'N/D';
-                const statusCat = getStatusCategory(r.STATUS);
-                if (matrix[uf] && matrix[uf][statusCat] !== undefined) {
-                    matrix[uf][statusCat]++;
-                }
+                const st = r.STATUS || 'N/D';
+                if (!matrix[st]) matrix[st] = {};
+                matrix[st][uf] = (matrix[st][uf] || 0) + 1;
             });
 
-            function getTextColor(hexColor) {
-                let r, g, b;
-                if (hexColor.startsWith('#')) {
-                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor);
-                    if (result) {
-                        r = parseInt(result[1], 16);
-                        g = parseInt(result[2], 16);
-                        b = parseInt(result[3], 16);
-                    }
-                }
-                if (r === undefined) r = 100;
-                if (g === undefined) g = 100;
-                if (b === undefined) b = 100;
-                const luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                return luminancia > 0.5 ? '#000000' : '#FFFFFF';
-            }
-
-            const datasets = statusConfig.map(sc => {
-                const textColor = getTextColor(sc.color);
-                return {
-                    label: sc.label,
-                    data: ufs.map(uf => {
-                        const total = statusConfig.reduce((sum, s) => sum + (matrix[uf][s.key] || 0), 0);
-                        if (total === 0) return 0;
-                        return Math.round((matrix[uf][sc.key] || 0) / total * 100);
-                    }),
-                    backgroundColor: sc.color,
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    borderRadius: 2,
-                    _textColor: textColor
-                };
-            });
+            const colorPalette = [chartColors.bar1, chartColors.bar2, chartColors.bar3, chartColors.bar4, chartColors.line];
+            const datasets = statuses.map((st, i) => ({
+                label: st,
+                data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
+                backgroundColor: colorPalette[i % colorPalette.length],
+                borderRadius: 4,
+                borderSkipped: false
+            }));
 
             const ctx = document.getElementById('statusUFChart').getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: ufs, datasets: datasets },
+                data: { labels: ufs, datasets },
                 options: {
-                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         datalabels: {
-                            display: (ctx) => { const value = ctx.dataset.data[ctx.dataIndex]; return value > 0; },
-                            color: (ctx) => ctx.dataset._textColor || '#fff',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: (value) => value + '%',
+                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: v => v,
                             anchor: 'center',
-                            align: 'center',
-                            offset: 0
+                            align: 'center'
                         },
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: { color: '#fff', boxWidth: 14, padding: 10, font: { size: 11 } }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const uf = context.chart.data.labels[context.dataIndex];
-                                    const status = context.dataset.label;
-                                    const value = context.parsed.x || 0;
-                                    const total = context.chart.data.datasets.reduce((sum, ds) => {
-                                        return sum + (ds.data[context.dataIndex] || 0);
-                                    }, 0);
-                                    const qtd = Math.round(value / 100 * total);
-                                    return `${status}: ${qtd} (${value}%)`;
-                                }
-                            }
-                        }
+                        legend: { display: true, position: 'top', labels: { color: '#fff', boxWidth: 14,
+                                font: { size: 11 } } }
                     },
                     scales: {
-                        x: {
-                            stacked: true,
-                            ticks: { color: '#fff', font: { size: 11 }, callback: function(value) { return value +
-                                    '%'; } },
-                            grid: { color: 'rgba(255,255,255,0.07)' },
-                            beginAtZero: true,
-                            max: 100
-                        },
-                        y: {
-                            stacked: true,
-                            ticks: { color: '#fff', font: { size: 12, weight: 'bold' } },
-                            grid: { display: false }
-                        }
+                        x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
+                        y: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } }
                     }
                 }
             });
@@ -3246,7 +2745,6 @@
                 activeFilter = null;
                 filteredData = [];
                 aplicarFiltros();
-                showToast(`🔍 Filtrando por ${label}`, 'info', 1500);
             });
 
             charts['statusUFChart'] = chart;
@@ -3372,15 +2870,15 @@
                     datasets: [{
                         label: 'PDVs Planejados',
                         data: planejado,
-                        backgroundColor: chartColors.gap1 + '88',
-                        borderColor: chartColors.gap1,
+                        backgroundColor: chartColors.bar1 + '88',
+                        borderColor: chartColors.bar1,
                         borderWidth: 2,
                         borderRadius: 4,
                     }, {
                         label: 'PDVs Realizados',
                         data: realizado,
-                        backgroundColor: chartColors.gap2 + '88',
-                        borderColor: chartColors.gap2,
+                        backgroundColor: chartColors.bar2 + '88',
+                        borderColor: chartColors.bar2,
                         borderWidth: 2,
                         borderRadius: 4,
                     }]
@@ -3415,177 +2913,6 @@
             });
 
             charts['gapChart'] = chart;
-        }
-
-        function chartSemanal(data) {
-            destroyChart('semanalChart');
-
-            const comData = data.filter(r => r['DATA DO ROLLOUT'] && parseExcelDate(r['DATA DO ROLLOUT']));
-            const emptyDiv = document.getElementById('semanalEmpty');
-            const canvas = document.getElementById('semanalChart');
-
-            if (!comData.length) {
-                emptyDiv.style.display = 'block';
-                canvas.style.display = 'none';
-                return;
-            }
-            emptyDiv.style.display = 'none';
-            canvas.style.display = 'block';
-
-            const porSemana = {};
-            const planejadoPorSemana = {};
-            const semanaData = {};
-
-            comData.forEach(r => {
-                const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                if (!d) return;
-
-                const primeiroDia = new Date(d.getFullYear(), 0, 1);
-                const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
-                const semana = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
-                const ano = d.getFullYear();
-                const key = ano + '-S' + String(semana).padStart(2, '0');
-
-                if (!porSemana[key]) {
-                    porSemana[key] = 0;
-                    planejadoPorSemana[key] = 0;
-                    semanaData[key] = { inicio: d, fim: d };
-                }
-
-                porSemana[key]++;
-                planejadoPorSemana[key] += safeNumber(r['QTDE PDVs total']);
-
-                if (d < semanaData[key].inicio) semanaData[key].inicio = d;
-                if (d > semanaData[key].fim) semanaData[key].fim = d;
-            });
-
-            const sortedKeys = Object.keys(porSemana).sort();
-
-            const labels = sortedKeys.map(k => {
-                const [ano, semana] = k.split('-S');
-                const data = semanaData[k];
-                if (data && data.inicio && data.fim) {
-                    const ini = data.inicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                    const fim = data.fim.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                    return `${semana}/${ano.slice(2)}\n${ini} - ${fim}`;
-                }
-                return `S${semana}/${ano.slice(2)}`;
-            });
-
-            const realizado = sortedKeys.map(k => porSemana[k]);
-            const planejado = sortedKeys.map(k => planejadoPorSemana[k]);
-
-            const ctx = document.getElementById('semanalChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Planejado (PDVs)',
-                        data: planejado,
-                        backgroundColor: chartColors.semanal1 + 'CC',
-                        borderColor: chartColors.semanal1,
-                        borderWidth: 2,
-                        borderRadius: 4,
-                        datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: chartColors.semanal1,
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (v) => v > 0 ? v : '',
-                            anchor: 'end',
-                            align: 'top',
-                            offset: 2
-                        }
-                    }, {
-                        label: 'Realizado (PDVs)',
-                        data: realizado,
-                        backgroundColor: chartColors.semanal2 + 'CC',
-                        borderColor: chartColors.semanal2,
-                        borderWidth: 2,
-                        borderRadius: 4,
-                        datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                            color: chartColors.semanal2,
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (v) => v > 0 ? v : '',
-                            anchor: 'end',
-                            align: 'top',
-                            offset: 2
-                        }
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: { color: '#fff', boxWidth: 16, padding: 15, font: { size: 12, weight: 'bold' } }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.dataset.label || '';
-                                    const value = context.parsed.y || 0;
-                                    return `${label}: ${value}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: '#fff',
-                                font: { size: 9 },
-                                maxRotation: 60,
-                                minRotation: 30,
-                                callback: function(value, index, ticks) {
-                                    const label = this.getLabelForValue(value);
-                                    return label;
-                                }
-                            },
-                            grid: { color: 'rgba(255,255,255,0.07)' }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#fff', font: { size: 11 }, stepSize: 1 },
-                            grid: { color: 'rgba(255,255,255,0.07)' }
-                        }
-                    }
-                }
-            });
-
-            setupChartClick(chart, function(label) {
-                const match = label.match(/(\d+)\/(\d+)/);
-                if (match) {
-                    const semana = match[1];
-                    const ano = '20' + match[2];
-                    const semanaNum = parseInt(semana);
-
-                    const dataFiltrada = originalData.filter(r => {
-                        const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                        if (!d) return false;
-                        const primeiroDia = new Date(d.getFullYear(), 0, 1);
-                        const diff = (d - primeiroDia) / (1000 * 60 * 60 * 24);
-                        const sem = Math.ceil((diff + primeiroDia.getDay() + 1) / 7);
-                        return d.getFullYear() === parseInt(ano) && sem === semanaNum;
-                    });
-
-                    if (dataFiltrada.length > 0) {
-                        filteredData = dataFiltrada;
-                        activeFilter = null;
-                        document.getElementById('filtroLoja').value = '';
-                        document.getElementById('filtroUF').value = 'TODOS';
-                        aplicarFiltros();
-                        document.getElementById('filterStatus').innerHTML =
-                            `<span class="filter-badge">📆 Semana ${semana}/${ano} <span class="remove" onclick="limparFiltros()">✕</span></span>`;
-                        showToast(`🔍 Filtrando pela Semana ${semana}/${ano}`, 'info', 1500);
-                    }
-                }
-            });
-
-            charts['semanalChart'] = chart;
         }
 
         function chartTimeline(data) {
@@ -3790,9 +3117,19 @@
             charts['authChart'] = chart;
         }
 
+        function atualizarGraficos(data) {
+            requestAnimationFrame(() => {
+                chartStatusUF(data);
+                setTimeout(() => chartMediaConcluida(data), 200);
+                setTimeout(() => chartGap(data), 300);
+                setTimeout(() => chartTimeline(data), 400);
+                setTimeout(() => chartAuth(data), 600);
+            });
+        }
+
         function destroyChart(id) {
             if (charts[id]) {
-                try { charts[id].destroy(); } catch (e) {}
+                charts[id].destroy();
                 delete charts[id];
             }
         }
@@ -3814,10 +3151,7 @@
             return isNaN(d) ? null : d;
         }
 
-        // ============================================================
-        //  EVENTOS DE FILTRO
-        // ============================================================
-
+        // ===== EVENTOS DE FILTRO =====
         document.getElementById('filtroLoja').addEventListener('keyup', function() {
             activeFilter = null;
             filteredData = [];
@@ -3891,315 +3225,315 @@
             ).join('');
 
             const formatDateFn = `
-                function formatarData(val) {
-                    if (!val) return '-';
-                    if (typeof val === 'number') {
-                        const d = new Date(Math.round((val - 25569) * 86400 * 1000));
-                        if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                    function formatarData(val) {
+                        if (!val) return '-';
+                        if (typeof val === 'number') {
+                            const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+                            if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                            return String(val);
+                        }
+                        if (typeof val === 'string') {
+                            if (val.includes('/')) {
+                                const parts = val.split('/');
+                                if (parts.length === 3) {
+                                    const d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                                    if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                                }
+                            }
+                            const d = new Date(val);
+                            if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
+                            return val;
+                        }
                         return String(val);
                     }
-                    if (typeof val === 'string') {
-                        if (val.includes('/')) {
-                            const parts = val.split('/');
-                            if (parts.length === 3) {
-                                const d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-                                if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
-                            }
-                        }
-                        const d = new Date(val);
-                        if (!isNaN(d)) return d.toLocaleDateString('pt-BR');
-                        return val;
-                    }
-                    return String(val);
-                }
-            `;
+                `;
 
             return `<!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Tabela Completa - Rollout</title>
-                <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-                    body { background: #0D1B2A; color: #fff; padding: 30px; }
-                    .container { max-width: 1400px; margin: auto; }
-                    h1 { margin-bottom: 10px; font-size: 24px; }
-                    .info { opacity: 0.5; margin-bottom: 20px; font-size: 14px; }
-                    .info span { color: #6DD5FA; }
-                    
-                    .filtros-tabela {
-                        display: flex;
-                        gap: 12px;
-                        flex-wrap: wrap;
-                        margin-bottom: 20px;
-                        padding: 16px 20px;
-                        background: rgba(255,255,255,0.04);
-                        border-radius: 12px;
-                        border: 1px solid rgba(255,255,255,0.06);
-                        align-items: center;
-                    }
-                    .filtros-tabela label {
-                        font-size: 12px;
-                        opacity: 0.5;
-                        font-weight: 600;
-                        text-transform: uppercase;
-                    }
-                    .filtros-tabela select,
-                    .filtros-tabela input {
-                        padding: 8px 14px;
-                        border-radius: 8px;
-                        border: 1.5px solid rgba(109,213,250,0.2);
-                        background: rgba(255,255,255,0.05);
-                        color: #fff;
-                        font-size: 13px;
-                        outline: none;
-                        min-width: 150px;
-                    }
-                    .filtros-tabela select:focus,
-                    .filtros-tabela input:focus {
-                        border-color: rgba(109,213,250,0.5);
-                    }
-                    .filtros-tabela select option {
-                        background: #1F2A44;
-                        color: #fff;
-                    }
-                    .filtros-tabela .clear-filter-table {
-                        padding: 6px 14px;
-                        border-radius: 8px;
-                        border: 1px solid rgba(255,107,107,0.2);
-                        background: rgba(255,107,107,0.08);
-                        color: #FF6B6B;
-                        font-size: 12px;
-                        cursor: pointer;
-                        transition: .2s;
-                    }
-                    .filtros-tabela .clear-filter-table:hover {
-                        background: rgba(255,107,107,0.15);
-                    }
-                    .filtros-tabela .total-registros {
-                        margin-left: auto;
-                        opacity: 0.4;
-                        font-size: 13px;
-                    }
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Tabela Completa - Rollout</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+                        body { background: #0D1B2A; color: #fff; padding: 30px; }
+                        .container { max-width: 1400px; margin: auto; }
+                        h1 { margin-bottom: 10px; font-size: 24px; }
+                        .info { opacity: 0.5; margin-bottom: 20px; font-size: 14px; }
+                        .info span { color: #6DD5FA; }
+                        
+                        .filtros-tabela {
+                            display: flex;
+                            gap: 12px;
+                            flex-wrap: wrap;
+                            margin-bottom: 20px;
+                            padding: 16px 20px;
+                            background: rgba(255,255,255,0.04);
+                            border-radius: 12px;
+                            border: 1px solid rgba(255,255,255,0.06);
+                            align-items: center;
+                        }
+                        .filtros-tabela label {
+                            font-size: 12px;
+                            opacity: 0.5;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                        }
+                        .filtros-tabela select,
+                        .filtros-tabela input {
+                            padding: 8px 14px;
+                            border-radius: 8px;
+                            border: 1.5px solid rgba(109,213,250,0.2);
+                            background: rgba(255,255,255,0.05);
+                            color: #fff;
+                            font-size: 13px;
+                            outline: none;
+                            min-width: 150px;
+                        }
+                        .filtros-tabela select:focus,
+                        .filtros-tabela input:focus {
+                            border-color: rgba(109,213,250,0.5);
+                        }
+                        .filtros-tabela select option {
+                            background: #1F2A44;
+                            color: #fff;
+                        }
+                        .filtros-tabela .clear-filter-table {
+                            padding: 6px 14px;
+                            border-radius: 8px;
+                            border: 1px solid rgba(255,107,107,0.2);
+                            background: rgba(255,107,107,0.08);
+                            color: #FF6B6B;
+                            font-size: 12px;
+                            cursor: pointer;
+                            transition: .2s;
+                        }
+                        .filtros-tabela .clear-filter-table:hover {
+                            background: rgba(255,107,107,0.15);
+                        }
+                        .filtros-tabela .total-registros {
+                            margin-left: auto;
+                            opacity: 0.4;
+                            font-size: 13px;
+                        }
 
-                    table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden; }
-                    th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; font-size: 13px; }
-                    th { background: rgba(109,213,250,0.08); opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-                    tr:hover { background: rgba(255,255,255,0.02); }
-                    .badge { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-                    .badge-concluida { background: rgba(107,203,119,0.2); color: #6BCB77; }
-                    .badge-agendada { background: rgba(109,213,250,0.2); color: #6DD5FA; }
-                    .badge-pendente { background: rgba(255,107,107,0.2); color: #FF6B6B; }
-                    .badge-execucao { background: rgba(199,125,255,0.2); color: #C77DFF; }
-                    .badge-aguardando { background: rgba(255,217,61,0.2); color: #FFD93D; }
-                    .badge-default { background: rgba(255,255,255,0.05); color: #aaa; }
-                    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-                    .export-btn { 
-                        padding: 10px 24px; 
-                        border: none; 
-                        border-radius: 12px; 
-                        background: rgba(109,213,250,0.15); 
-                        border: 1px solid rgba(109,213,250,0.2); 
-                        color: #6DD5FA; 
-                        font-weight: 700; 
-                        cursor: pointer; 
-                        transition: .2s;
-                    }
-                    .export-btn:hover { background: rgba(109,213,250,0.25); }
-                    .back-btn {
-                        padding: 10px 24px;
-                        border: none;
-                        border-radius: 12px;
-                        background: rgba(255,255,255,0.05);
-                        color: #fff;
-                        cursor: pointer;
-                        transition: .2s;
-                    }
-                    .back-btn:hover { background: rgba(255,255,255,0.1); }
-                    .progress-bar { 
-                        display: inline-block; 
-                        height: 8px; 
-                        width: 80px; 
-                        background: rgba(255,255,255,0.08); 
-                        border-radius: 10px; 
-                        overflow: hidden;
-                        vertical-align: middle;
-                        margin-right: 8px;
-                    }
-                    .progress-bar div { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6DD5FA, #6BCB77); }
-                    .progress-text { font-size: 12px; opacity: 0.7; }
-                    .footer { margin-top: 20px; opacity: 0.3; font-size: 12px; }
-                    .data-cell { font-family: monospace; font-size: 12px; }
-                    
-                    @media(max-width:768px) { 
-                        th, td { padding: 8px 10px; font-size: 11px; }
-                        .progress-bar { width: 50px; }
-                        body { padding: 15px; }
-                        .filtros-tabela { flex-direction: column; align-items: stretch; }
-                        .filtros-tabela .total-registros { margin-left: 0; text-align: center; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>📋 Tabela Completa - Rollout</h1>
-                    <div class="info">Visualização completa dos dados do rollout | Total: <span id="totalRegistrosHeader">${data.length}</span> registros</div>
+                        table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden; }
+                        th, td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; font-size: 13px; }
+                        th { background: rgba(109,213,250,0.08); opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+                        tr:hover { background: rgba(255,255,255,0.02); }
+                        .badge { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+                        .badge-concluida { background: rgba(107,203,119,0.2); color: #6BCB77; }
+                        .badge-agendada { background: rgba(109,213,250,0.2); color: #6DD5FA; }
+                        .badge-pendente { background: rgba(255,107,107,0.2); color: #FF6B6B; }
+                        .badge-execucao { background: rgba(199,125,255,0.2); color: #C77DFF; }
+                        .badge-aguardando { background: rgba(255,217,61,0.2); color: #FFD93D; }
+                        .badge-default { background: rgba(255,255,255,0.05); color: #aaa; }
+                        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+                        .export-btn { 
+                            padding: 10px 24px; 
+                            border: none; 
+                            border-radius: 12px; 
+                            background: rgba(109,213,250,0.15); 
+                            border: 1px solid rgba(109,213,250,0.2); 
+                            color: #6DD5FA; 
+                            font-weight: 700; 
+                            cursor: pointer; 
+                            transition: .2s;
+                        }
+                        .export-btn:hover { background: rgba(109,213,250,0.25); }
+                        .back-btn {
+                            padding: 10px 24px;
+                            border: none;
+                            border-radius: 12px;
+                            background: rgba(255,255,255,0.05);
+                            color: #fff;
+                            cursor: pointer;
+                            transition: .2s;
+                        }
+                        .back-btn:hover { background: rgba(255,255,255,0.1); }
+                        .progress-bar { 
+                            display: inline-block; 
+                            height: 8px; 
+                            width: 80px; 
+                            background: rgba(255,255,255,0.08); 
+                            border-radius: 10px; 
+                            overflow: hidden;
+                            vertical-align: middle;
+                            margin-right: 8px;
+                        }
+                        .progress-bar div { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6DD5FA, #6BCB77); }
+                        .progress-text { font-size: 12px; opacity: 0.7; }
+                        .footer { margin-top: 20px; opacity: 0.3; font-size: 12px; }
+                        .data-cell { font-family: monospace; font-size: 12px; }
+                        
+                        @media(max-width:768px) { 
+                            th, td { padding: 8px 10px; font-size: 11px; }
+                            .progress-bar { width: 50px; }
+                            body { padding: 15px; }
+                            .filtros-tabela { flex-direction: column; align-items: stretch; }
+                            .filtros-tabela .total-registros { margin-left: 0; text-align: center; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>📋 Tabela Completa - Rollout</h1>
+                        <div class="info">Visualização completa dos dados do rollout | Total: <span id="totalRegistrosHeader">${data.length}</span> registros</div>
 
-                    <div class="filtros-tabela" id="filtrosTabela">
-                        <label>UF</label>
-                        <select id="filtroUFTable">
-                            <option value="TODOS">Todos os Estados</option>
-                            ${ufOptions}
-                        </select>
-                        <label>Loja</label>
-                        <input type="text" id="filtroLojaTable" placeholder="🔍 Buscar loja..." value="${lojaAtual}">
-                        <button class="clear-filter-table" onclick="limparFiltrosTable()">✕ Limpar</button>
-                        <span class="total-registros">Total: <span id="totalCountTable">0</span> registros</span>
+                        <div class="filtros-tabela" id="filtrosTabela">
+                            <label>UF</label>
+                            <select id="filtroUFTable">
+                                <option value="TODOS">Todos os Estados</option>
+                                ${ufOptions}
+                            </select>
+                            <label>Loja</label>
+                            <input type="text" id="filtroLojaTable" placeholder="🔍 Buscar loja..." value="${lojaAtual}">
+                            <button class="clear-filter-table" onclick="limparFiltrosTable()">✕ Limpar</button>
+                            <span class="total-registros">Total: <span id="totalCountTable">0</span> registros</span>
+                        </div>
+
+                        <div class="actions">
+                            <button class="back-btn" onclick="window.close()">← Voltar</button>
+                            <button class="export-btn" onclick="exportCSV()">📥 Exportar CSV</button>
+                            <button class="export-btn" onclick="window.print()">🖨️ Imprimir</button>
+                        </div>
+
+                        <div style="overflow-x:auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Loja</th>
+                                        <th>Cidade</th>
+                                        <th>UF</th>
+                                        <th>Status</th>
+                                        <th>Progresso</th>
+                                        <th>PDVs Total</th>
+                                        <th>PDVs Realizado</th>
+                                        <th>Data Rollout</th>
+                                        <th>Data Autorização</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBodyComplete">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="footer">
+                            Dashboard Rollout Windows → Linux | Gerado em ${new Date().toLocaleString()}
+                        </div>
                     </div>
 
-                    <div class="actions">
-                        <button class="back-btn" onclick="window.close()">← Voltar</button>
-                        <button class="export-btn" onclick="exportCSV()">📥 Exportar CSV</button>
-                        <button class="export-btn" onclick="window.print()">🖨️ Imprimir</button>
-                    </div>
+                    <script>
+                        const dadosCompletos = ${dadosJSON};
+                        const ufAtual = "${ufAtual}";
+                        const lojaAtual = "${lojaAtual}";
 
-                    <div style="overflow-x:auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Loja</th>
-                                    <th>Cidade</th>
-                                    <th>UF</th>
-                                    <th>Status</th>
-                                    <th>Progresso</th>
-                                    <th>PDVs Total</th>
-                                    <th>PDVs Realizado</th>
-                                    <th>Data Rollout</th>
-                                    <th>Data Autorização</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBodyComplete">
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="footer">
-                        Dashboard Rollout Windows → Linux | Gerado em ${new Date().toLocaleString()}
-                    </div>
-                </div>
+                        ${formatDateFn}
 
-                <script>
-                    const dadosCompletos = ${dadosJSON};
-                    const ufAtual = "${ufAtual}";
-                    const lojaAtual = "${lojaAtual}";
+                        function renderizarTabela() {
+                            const uf = document.getElementById('filtroUFTable').value;
+                            const loja = document.getElementById('filtroLojaTable').value.toLowerCase();
 
-                    ${formatDateFn}
+                            let dados = [...dadosCompletos];
 
-                    function renderizarTabela() {
-                        const uf = document.getElementById('filtroUFTable').value;
-                        const loja = document.getElementById('filtroLojaTable').value.toLowerCase();
+                            if (uf !== 'TODOS') {
+                                dados = dados.filter(r => String(r.UF || '') === uf);
+                            }
+                            if (loja) {
+                                dados = dados.filter(r => String(r.LOJAS || '').toLowerCase().includes(loja));
+                            }
 
-                        let dados = [...dadosCompletos];
+                            function safeNumber(v) {
+                                if (v === null || v === undefined || v === '') return 0;
+                                if (typeof v === 'number') return v;
+                                const n = parseFloat(String(v).replace('%', '').replace(/\\s/g, '').replace(',', '.').replace(/[^\\d.-]/g, ''));
+                                return isNaN(n) ? 0 : n;
+                            }
 
-                        if (uf !== 'TODOS') {
-                            dados = dados.filter(r => String(r.UF || '') === uf);
-                        }
-                        if (loja) {
-                            dados = dados.filter(r => String(r.LOJAS || '').toLowerCase().includes(loja));
-                        }
+                            function calcEvolucao(r) {
+                                const previsto = safeNumber(r['QTDE PDVs total']);
+                                const realizado = safeNumber(r['REALIZADO']);
+                                if (!previsto) return 0;
+                                return Math.round((realizado / previsto) * 100);
+                            }
 
-                        function safeNumber(v) {
-                            if (v === null || v === undefined || v === '') return 0;
-                            if (typeof v === 'number') return v;
-                            const n = parseFloat(String(v).replace('%', '').replace(/\\s/g, '').replace(',', '.').replace(/[^\\d.-]/g, ''));
-                            return isNaN(n) ? 0 : n;
-                        }
+                            function getStatusBadge(status) {
+                                const s = String(status || 'N/D').toUpperCase();
+                                if (s.includes('CONCLU')) return 'badge-concluida';
+                                if (s.includes('AGENDADA')) return 'badge-agendada';
+                                if (s.includes('PENDENCIADA')) return 'badge-pendente';
+                                if (s.includes('EXECUÇÃO') || s.includes('EXECUCAO')) return 'badge-execucao';
+                                if (s.includes('AGUARDANDO')) return 'badge-aguardando';
+                                return 'badge-default';
+                            }
 
-                        function calcEvolucao(r) {
-                            const previsto = safeNumber(r['QTDE PDVs total']);
-                            const realizado = safeNumber(r['REALIZADO']);
-                            if (!previsto) return 0;
-                            return Math.round((realizado / previsto) * 100);
-                        }
-
-                        function getStatusBadge(status) {
-                            const s = String(status || 'N/D').toUpperCase();
-                            if (s.includes('CONCLU')) return 'badge-concluida';
-                            if (s.includes('AGENDADA')) return 'badge-agendada';
-                            if (s.includes('PENDENCIADA')) return 'badge-pendente';
-                            if (s.includes('EXECUÇÃO') || s.includes('EXECUCAO')) return 'badge-execucao';
-                            if (s.includes('AGUARDANDO')) return 'badge-aguardando';
-                            return 'badge-default';
-                        }
-
-                        const tbody = document.getElementById('tableBodyComplete');
-                        const linhas = dados.map(r => {
-                            const evol = calcEvolucao(r);
-                            return \`
-                                <tr>
-                                    <td><strong>\${r.LOJAS || ''}</strong></td>
-                                    <td>\${r.CIDADE || ''}</td>
-                                    <td>\${r.UF || ''}</td>
-                                    <td><span class="badge \${getStatusBadge(r.STATUS)}">\${r.STATUS || 'N/D'}</span></td>
-                                    <td>
-                                        <div class="progress-bar"><div style="width:\${evol}%"></div></div>
-                                        <span class="progress-text">\${evol}%</span>
-                                    </td>
-                                    <td>\${safeNumber(r['QTDE PDVs total'])}</td>
-                                    <td>\${safeNumber(r['REALIZADO'])}</td>
-                                    <td class="data-cell">\${formatarData(r['DATA DO ROLLOUT'])}</td>
-                                    <td class="data-cell">\${formatarData(r['DATA AUTORIZAÇÃO'])}</td>
-                                </tr>
-                            \`;
-                        });
-                        tbody.innerHTML = linhas.join('');
-
-                        document.getElementById('totalCountTable').textContent = dados.length;
-                        document.getElementById('totalRegistrosHeader').textContent = dados.length;
-                    }
-
-                    function limparFiltrosTable() {
-                        document.getElementById('filtroUFTable').value = 'TODOS';
-                        document.getElementById('filtroLojaTable').value = '';
-                        renderizarTabela();
-                    }
-
-                    function exportCSV() {
-                        let csv = "Loja,Cidade,UF,Status,Progresso,PDVs Total,PDVs Realizado,Data Rollout,Data Autorização\\n";
-                        const rows = document.querySelectorAll('#tableBodyComplete tr');
-                        rows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            const data = [];
-                            cells.forEach((cell, i) => {
-                                let text = cell.textContent.trim();
-                                if (i === 4) {
-                                    const parts = text.split('%');
-                                    text = parts[0] + '%';
-                                }
-                                data.push('"' + text + '"');
+                            const tbody = document.getElementById('tableBodyComplete');
+                            const linhas = dados.map(r => {
+                                const evol = calcEvolucao(r);
+                                return \`
+                                    <tr>
+                                        <td><strong>\${r.LOJAS || ''}</strong></td>
+                                        <td>\${r.CIDADE || ''}</td>
+                                        <td>\${r.UF || ''}</td>
+                                        <td><span class="badge \${getStatusBadge(r.STATUS)}">\${r.STATUS || 'N/D'}</span></td>
+                                        <td>
+                                            <div class="progress-bar"><div style="width:\${evol}%"></div></div>
+                                            <span class="progress-text">\${evol}%</span>
+                                        </td>
+                                        <td>\${safeNumber(r['QTDE PDVs total'])}</td>
+                                        <td>\${safeNumber(r['REALIZADO'])}</td>
+                                        <td class="data-cell">\${formatarData(r['DATA DO ROLLOUT'])}</td>
+                                        <td class="data-cell">\${formatarData(r['DATA AUTORIZAÇÃO'])}</td>
+                                    </tr>
+                                \`;
                             });
-                            csv += data.join(',') + '\\n';
+                            tbody.innerHTML = linhas.join('');
+
+                            document.getElementById('totalCountTable').textContent = dados.length;
+                            document.getElementById('totalRegistrosHeader').textContent = dados.length;
+                        }
+
+                        function limparFiltrosTable() {
+                            document.getElementById('filtroUFTable').value = 'TODOS';
+                            document.getElementById('filtroLojaTable').value = '';
+                            renderizarTabela();
+                        }
+
+                        function exportCSV() {
+                            let csv = "Loja,Cidade,UF,Status,Progresso,PDVs Total,PDVs Realizado,Data Rollout,Data Autorização\\n";
+                            const rows = document.querySelectorAll('#tableBodyComplete tr');
+                            rows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                const data = [];
+                                cells.forEach((cell, i) => {
+                                    let text = cell.textContent.trim();
+                                    if (i === 4) {
+                                        const parts = text.split('%');
+                                        text = parts[0] + '%';
+                                    }
+                                    data.push('"' + text + '"');
+                                });
+                                csv += data.join(',') + '\\n';
+                            });
+                            const blob = new Blob([csv], { type: 'text/csv' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'rollout_tabela_completa.csv';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }
+
+                        document.getElementById('filtroUFTable').addEventListener('change', renderizarTabela);
+                        document.getElementById('filtroLojaTable').addEventListener('keyup', renderizarTabela);
+
+                        renderizarTabela();
+
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape') window.close();
                         });
-                        const blob = new Blob([csv], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'rollout_tabela_completa.csv';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }
-
-                    document.getElementById('filtroUFTable').addEventListener('change', renderizarTabela);
-                    document.getElementById('filtroLojaTable').addEventListener('keyup', renderizarTabela);
-
-                    renderizarTabela();
-
-                    document.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape') window.close();
-                    });
-                <\/script>
-            </body>
-            </html>`;
+                    <\/script>
+                </body>
+                </html>`;
         }
 
         // ============================================================
@@ -4237,7 +3571,6 @@
         // ============================================================
 
         let tipoFundo = 'degradê';
-        let aplicandoCores = false;
 
         function togglePresentation() { document.body.classList.toggle('presentation-mode'); }
         window.togglePresentation = togglePresentation;
@@ -4250,7 +3583,7 @@
             arrow.textContent = open ? '▼' : '▲';
         }
 
-        function setTipoFundo(tipo, isRemote = false) {
+        function setTipoFundo(tipo) {
             tipoFundo = tipo;
             document.getElementById('btnSolido').classList.toggle('active', tipo === 'solido');
             document.getElementById('btnDegradê').classList.toggle('active', tipo === 'degradê');
@@ -4259,46 +3592,36 @@
             document.getElementById('corDegradeBase').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('corDegradeFim').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('linhaAngulo').style.display = tipo === 'degradê' ? 'flex' : 'none';
-            aplicarCores(isRemote);
+            aplicarCores();
         }
 
-        function aplicarCores(isRemote = false) {
-            if (aplicandoCores) return;
-            aplicandoCores = true;
-
-            try {
-                if (tipoFundo === 'solido') {
-                    const c = document.getElementById('corFundo1').value;
-                    document.getElementById('corFundo1Hex').textContent = c;
-                    document.body.style.background = c;
-                    if (!isRemote) {
-                        salvarConfiguracoesSupabase({ tipo_fundo: 'solido', cor_fundo1: c });
-                    }
-                } else {
-                    const c1 = document.getElementById('corGrad1').value;
-                    const c2 = document.getElementById('corGrad2').value;
-                    const c3 = document.getElementById('corGrad3').value;
-                    const ang = document.getElementById('anguloGrad').value;
-                    document.getElementById('corGrad1Hex').textContent = c1;
-                    document.getElementById('corGrad2Hex').textContent = c2;
-                    document.getElementById('corGrad3Hex').textContent = c3;
-                    document.body.style.background =
-                        'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
-                    document.body.style.backgroundAttachment = 'fixed';
-                    if (!isRemote) {
-                        salvarConfiguracoesSupabase({
-                            tipo_fundo: 'degrade',
-                            cor_grad1: c1,
-                            cor_grad2: c2,
-                            cor_grad3: c3,
-                            angulo_grad: parseInt(ang, 10)
-                        });
-                    }
-                }
-            } catch (e) {
-                console.error('Erro ao aplicar cores:', e);
-            } finally {
-                setTimeout(() => { aplicandoCores = false; }, 100);
+        function aplicarCores() {
+            if (tipoFundo === 'solido') {
+                const c = document.getElementById('corFundo1').value;
+                document.getElementById('corFundo1Hex').textContent = c;
+                document.body.style.background = c;
+                salvarConfiguracoesSupabase({
+                    tipo_fundo: 'solido',
+                    cor_fundo1: c
+                });
+            } else {
+                const c1 = document.getElementById('corGrad1').value;
+                const c2 = document.getElementById('corGrad2').value;
+                const c3 = document.getElementById('corGrad3').value;
+                const ang = document.getElementById('anguloGrad').value;
+                document.getElementById('corGrad1Hex').textContent = c1;
+                document.getElementById('corGrad2Hex').textContent = c2;
+                document.getElementById('corGrad3Hex').textContent = c3;
+                document.body.style.background =
+                    'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
+                document.body.style.backgroundAttachment = 'fixed';
+                salvarConfiguracoesSupabase({
+                    tipo_fundo: 'degrade',
+                    cor_grad1: c1,
+                    cor_grad2: c2,
+                    cor_grad3: c3,
+                    angulo_grad: parseInt(ang, 10)
+                });
             }
         }
 
@@ -4323,7 +3646,7 @@
             aplicarCores();
         }
 
-        function aplicarCorDestaque(cor, salvar = true) {
+        function aplicarCorDestaque(cor) {
             document.getElementById('corDestaqueHex').textContent = cor;
             document.documentElement.style.setProperty('--destaque', cor);
             document.querySelectorAll('.progress div').forEach(el => {
@@ -4333,460 +3656,10 @@
                 el.style.borderColor = cor + '44';
                 el.style.background = cor + '20';
             });
-            if (salvar) {
-                salvarConfiguracoesSupabase({ cor_destaque: cor });
-            }
+            salvarConfiguracoesSupabase({ cor_destaque: cor });
         }
 
-        // ============================================================
-        //  FUNÇÃO DE UPLOAD
-        // ============================================================
-
-        function abrirUpload() {
-            if (currentRole === 'visualizador') {
-                alert('Você não tem permissão para atualizar a planilha.');
-                return;
-            }
-            document.getElementById('excelFileInput').click();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('excelFileInput');
-
-            fileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!['xlsx', 'xls'].includes(ext)) {
-                    alert('Por favor, selecione um arquivo .xlsx ou .xls');
-                    this.value = '';
-                    return;
-                }
-
-                document.getElementById('loading').style.display = 'flex';
-
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-
-                        let sheetName = workbook.SheetNames.find(s => s.trim() === 'Rollout');
-                        if (!sheetName) {
-                            sheetName = workbook.SheetNames[0];
-                        }
-
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) {
-                            throw new Error('Nenhuma aba encontrada.');
-                        }
-
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-                            defval: '',
-                            raw: true,
-                            blankrows: false
-                        });
-
-                        if (!jsonData || jsonData.length === 0) {
-                            throw new Error('Nenhum dado encontrado na aba "' + sheetName + '"');
-                        }
-
-                        const dadosNormalizados = jsonData.map(row => {
-                            const novo = {};
-                            Object.keys(row).forEach(key => {
-                                const chaveLimpa = key.trim();
-                                novo[chaveLimpa] = row[key];
-                            });
-                            return novo;
-                        });
-
-                        originalData = dadosNormalizados;
-                        console.log('✅ Planilha carregada:', originalData.length, 'registros');
-
-                        activeFilter = null;
-                        await salvarDashboardDataSupabase(originalData);
-                        aplicarFiltros();
-
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('✅ Planilha carregada com ' + originalData.length + ' registros!', 'success');
-                        event.target.value = '';
-
-                    } catch (error) {
-                        document.getElementById('loading').style.display = 'none';
-                        showToast('❌ Erro ao carregar planilha: ' + error.message, 'error');
-                        console.error(error);
-                        event.target.value = '';
-                    }
-                };
-
-                reader.onerror = function() {
-                    document.getElementById('loading').style.display = 'none';
-                    showToast('❌ Erro ao ler o arquivo.', 'error');
-                    event.target.value = '';
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
-        });
-
-        // ============================================================
-        //  AUTO-REFRESH
-        // ============================================================
-
-        function toggleAutoRefresh() {
-            autoRefreshActive = !autoRefreshActive;
-            const btn = document.getElementById('btnAutoRefresh');
-            const status = document.getElementById('autoRefreshStatus');
-
-            if (autoRefreshActive) {
-                status.textContent = 'ON (30s)';
-                btn.classList.add('active-auto');
-                autoRefreshInterval = setInterval(() => {
-                    carregarDashboardDataSupabase();
-                }, 30000);
-                showToast('🔄 Auto-Refresh ativado (30 segundos)', 'success');
-            } else {
-                status.textContent = 'OFF';
-                btn.classList.remove('active-auto');
-                clearInterval(autoRefreshInterval);
-                showToast('⏹️ Auto-Refresh desativado', 'info');
-            }
-        }
-
-        // ============================================================
-        //  REALTIME
-        // ============================================================
-
-        function iniciarRealtime() {
-            try {
-                supabaseClient
-                    .channel('configuracoes-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
-                        console.log('🔄 Configurações alteradas, recarregando...');
-                        carregarConfiguracoesSupabase();
-                    })
-                    .subscribe();
-
-                supabaseClient
-                    .channel('dashboard-data-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
-                        await carregarDashboardDataSupabase();
-                        aplicarFiltros();
-                        if (autoRefreshActive) {
-                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
-                        }
-                    })
-                    .subscribe();
-
-                supabaseClient
-                    .channel('usuarios-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
-                        await carregarUsuariosSupabase();
-                        if (userManagementVisible) renderizarUsuarios();
-                    })
-                    .subscribe();
-            } catch (e) {
-                console.error('Erro ao iniciar Realtime:', e);
-            }
-        }
-
-        // ============================================================
-        //  LOGIN
-        // ============================================================
-
-        function selecionarPerfil(role) {
-            selectedRole = role;
-            document.querySelectorAll('.role-btn').forEach(el => {
-                el.classList.toggle('active', el.dataset.role === role);
-            });
-            document.getElementById('loginError').style.display = 'none';
-        }
-
-        function doLogin() {
-            const pass = document.getElementById('loginPassword').value.trim();
-
-            const usuario = usuarios.find(u => u.role === selectedRole && u.senha === pass);
-
-            if (!usuario) {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('loginError').textContent =
-                    '❌ Senha inválida para o perfil selecionado. Tente novamente.';
-                return;
-            }
-
-            document.getElementById('loginError').style.display = 'none';
-            currentRole = usuario.role;
-            window._role = usuario.role;
-            isLoggedIn = true;
-
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('dashboardContent').style.display = 'block';
-
-            carregarConfiguracoesSupabase().then(() => {
-                atualizarUI(usuario);
-                if (originalData.length === 0) {
-                    carregarDadosExemplo();
-                } else {
-                    aplicarFiltros();
-                }
-            });
-
-            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
-        }
-
-        function atualizarUI(usuario) {
-            const roleNames = { admin: 'Admin', gerente: 'Gerente', visualizador: 'Visualizador' };
-            document.getElementById('userRoleDisplay').textContent = roleNames[usuario.role];
-            document.getElementById('userRoleTag').textContent = usuario.role.toUpperCase();
-
-            const isAdminGerente = (usuario.role === 'admin' || usuario.role === 'gerente');
-            const isAdmin = usuario.role === 'admin';
-
-            document.getElementById('uploadBtn').style.display = isAdminGerente ? 'flex' : 'none';
-            document.getElementById('painelControle').style.display = isAdminGerente ? 'block' : 'none';
-
-            document.querySelectorAll('.logo-box').forEach(el => {
-                if (usuario.role === 'visualizador') {
-                    el.classList.remove('clickable');
-                    el.classList.add('no-click');
-                    el.onclick = null;
-                } else {
-                    el.classList.remove('no-click');
-                    el.classList.add('clickable');
-                    el.onclick = function() {
-                        const inputId = this.id === 'logoClienteBox' ? 'logoClienteInput' : 'logoEmpresaInput';
-                        document.getElementById(inputId).click();
-                    };
-                }
-            });
-
-            const labelEmpresa = document.getElementById('labelEmpresa');
-            const labelCliente = document.getElementById('labelCliente');
-            if (usuario.role === 'visualizador') {
-                labelEmpresa.classList.add('hidden-label');
-                labelCliente.classList.add('hidden-label');
-            } else {
-                labelEmpresa.classList.remove('hidden-label');
-                labelCliente.classList.remove('hidden-label');
-            }
-
-            const btnUser = document.getElementById('btnGerenciarUsuarios');
-            if (isAdmin) {
-                btnUser.style.display = 'flex';
-                btnUser.replaceWith(btnUser.cloneNode(true));
-                const newBtn = document.getElementById('btnGerenciarUsuarios');
-                newBtn.onclick = function() { toggleUserManagement(); };
-            } else {
-                btnUser.style.display = 'none';
-                document.getElementById('userManagement').classList.remove('visible');
-                userManagementVisible = false;
-            }
-
-            const btnAdd = document.getElementById('btnAdicionarUsuario');
-            btnAdd.replaceWith(btnAdd.cloneNode(true));
-            const newAdd = document.getElementById('btnAdicionarUsuario');
-            newAdd.onclick = function() { adicionarUsuario(); };
-
-            const previsaoContainer = document.getElementById('previsaoManualContainer');
-            const ritmoContainer = document.getElementById('ritmoManualContainer');
-
-            if (isAdmin && previsaoManualAtiva) {
-                previsaoContainer.classList.add('admin-only');
-                previsaoContainer.style.display = 'block';
-            } else {
-                previsaoContainer.classList.remove('admin-only');
-                previsaoContainer.style.display = 'none';
-            }
-
-            if (isAdmin && ritmoManualAtivo) {
-                ritmoContainer.classList.add('admin-only');
-                ritmoContainer.style.display = 'block';
-            } else {
-                ritmoContainer.classList.remove('admin-only');
-                ritmoContainer.style.display = 'none';
-            }
-
-            atualizarBadgeFiltro();
-        }
-
-        function logout() {
-            isLoggedIn = false;
-            currentRole = 'admin';
-            window._role = 'admin';
-            document.getElementById('dashboardContent').style.display = 'none';
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('userManagement').classList.remove('visible');
-            userManagementVisible = false;
-            activeFilter = null;
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshActive = false;
-                document.getElementById('autoRefreshStatus').textContent = 'OFF';
-                document.getElementById('btnAutoRefresh').classList.remove('active-auto');
-            }
-            selectedRole = 'admin';
-            document.querySelectorAll('.role-btn').forEach(el => {
-                el.classList.toggle('active', el.dataset.role === 'admin');
-            });
-            showToast('👋 Logout realizado com sucesso', 'info', 1500);
-        }
-
-        document.getElementById('loginBtn').addEventListener('click', doLogin);
-        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') doLogin();
-        });
-
-        // ============================================================
-        //  GESTÃO DE USUÁRIOS
-        // ============================================================
-
-        function toggleUserManagement() {
-            if (currentRole !== 'admin') {
-                alert('Apenas Administradores podem gerenciar usuários.');
-                return;
-            }
-
-            userManagementVisible = !userManagementVisible;
-            const el = document.getElementById('userManagement');
-
-            if (userManagementVisible) {
-                el.classList.add('visible');
-                renderizarUsuarios();
-                setTimeout(() => {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
-            } else {
-                el.classList.remove('visible');
-            }
-        }
-
-        function renderizarUsuarios() {
-            const tbody = document.getElementById('userTableBody');
-            const roleNames = { admin: '👑 Admin', gerente: '📋 Gerente', visualizador: '👀 Visualizador' };
-            const linhas = usuarios.map(u => `
-                    <tr>
-                        <td>${u.nome}</td>
-                        <td>${roleNames[u.role] || u.role}</td>
-                        <td class="user-actions">
-                            <button class="edit-btn" onclick="editarUsuario(${u.id})">✏️</button>
-                            <button class="delete-btn" onclick="excluirUsuario(${u.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `);
-            tbody.innerHTML = linhas.join('');
-        }
-
-        async function adicionarUsuario() {
-            const nome = document.getElementById('newUserName').value.trim();
-            const role = document.getElementById('newUserRole').value;
-            const senha = document.getElementById('newUserPassword').value.trim() || '123';
-
-            if (!nome) {
-                alert('Digite um nome para o usuário.');
-                return;
-            }
-
-            if (usuarios.find(u => u.nome.toLowerCase() === nome.toLowerCase())) {
-                alert('Já existe um usuário com este nome.');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('usuarios')
-                    .insert({ nome, role, senha })
-                    .select()
-                    .single();
-
-                if (error) {
-                    alert('❌ Erro ao adicionar usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                usuarios.push(data);
-                renderizarUsuarios();
-                document.getElementById('newUserName').value = '';
-                document.getElementById('newUserPassword').value = '123';
-                showToast('✅ Usuário adicionado com sucesso!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao adicionar usuário: ' + e.message);
-            }
-        }
-
-        async function editarUsuario(id) {
-            const usuario = usuarios.find(u => u.id === id);
-            if (!usuario) return;
-
-            const novoNome = prompt('Novo nome:', usuario.nome);
-            if (novoNome && novoNome.trim()) {
-                if (usuarios.find(u => u.nome.toLowerCase() === novoNome.trim().toLowerCase() && u.id !== id)) {
-                    alert('Já existe um usuário com este nome.');
-                    return;
-                }
-                usuario.nome = novoNome.trim();
-            }
-
-            const novaSenha = prompt('Nova senha (deixe em branco para manter):', usuario.senha);
-            if (novaSenha !== null && novaSenha.trim() !== '') {
-                usuario.senha = novaSenha.trim();
-            }
-
-            const novoRole = prompt('Novo perfil (admin, gerente, visualizador):', usuario.role);
-            if (novoRole && ['admin', 'gerente', 'visualizador'].includes(novoRole.trim().toLowerCase())) {
-                usuario.role = novoRole.trim().toLowerCase();
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('usuarios')
-                    .update({ nome: usuario.nome, senha: usuario.senha, role: usuario.role })
-                    .eq('id', id);
-
-                if (error) {
-                    alert('❌ Erro ao atualizar usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                renderizarUsuarios();
-                showToast('✅ Usuário atualizado!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao atualizar usuário: ' + e.message);
-            }
-        }
-
-        async function excluirUsuario(id) {
-            if (id <= 3) {
-                alert('❌ Não é possível excluir usuários padrão.');
-                return;
-            }
-            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-
-            try {
-                const { error } = await supabaseClient
-                    .from('usuarios')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    alert('❌ Erro ao excluir usuário no Supabase:\n' + error.message);
-                    return;
-                }
-
-                usuarios = usuarios.filter(u => u.id !== id);
-                renderizarUsuarios();
-                showToast('✅ Usuário removido!', 'success');
-            } catch (e) {
-                alert('❌ Erro ao excluir usuário: ' + e.message);
-            }
-        }
-
-        // ============================================================
-        //  LOGO UPLOAD
-        // ============================================================
-
+        // ===== LOGO UPLOAD =====
         function setupLogoUpload(inputId, imgId, placeholderId) {
             document.getElementById(inputId).addEventListener('change', function() {
                 const file = this.files[0];
@@ -4810,10 +3683,58 @@
         setupLogoUpload('logoEmpresaInput', 'logoEmpresaImg', 'logoEmpresaPlaceholder');
 
         // ============================================================
-        //  INICIALIZAÇÃO
+        //  REALTIME
         // ============================================================
+        function iniciarRealtime() {
+            try {
+                // Realtime para configurações
+                supabaseClient
+                    .channel('configuracoes-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                        console.log('🔄 Configurações alteradas, recarregando...');
+                        carregarConfiguracoesSupabase();
+                    })
+                    .subscribe();
 
+                // Realtime para dados do dashboard
+                supabaseClient
+                    .channel('dashboard-data-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
+                        await carregarDashboardDataSupabase();
+                        aplicarFiltros();
+                        if (autoRefreshActive) {
+                            showToast('🔄 Dados atualizados automaticamente!', 'info', 2000);
+                        }
+                    })
+                    .subscribe();
+
+                // Realtime para usuários
+                supabaseClient
+                    .channel('usuarios-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
+                        await carregarUsuariosSupabase();
+                        if (userManagementVisible) renderizarUsuarios();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.error('Erro ao iniciar Realtime:', e);
+            }
+        }
+
+        // ============================================================
+        //  INICIALIZAÇÃO GERAL
+        // ============================================================
         async function initApp() {
+            // Testa a conexão primeiro
+            const conexaoOK = await testarConexaoSupabase();
+
+            if (!conexaoOK) {
+                console.warn('⚠️ Supabase offline, usando dados locais...');
+                showToast('⚠️ Modo offline - usando dados locais', 'info', 4000);
+                carregarDadosExemplo();
+                return;
+            }
+
             try {
                 await Promise.all([
                     carregarUsuariosSupabase(),
@@ -4823,13 +3744,16 @@
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê', true);
+                setTipoFundo('degradê');
+                carregarDadosExemplo();
             }
+
             supabaseReady = true;
             iniciarRealtime();
             showToast('🚀 Dashboard carregado!', 'info', 2000);
         }
 
+        // Inicializa a aplicação
         initApp();
     </script>
 
