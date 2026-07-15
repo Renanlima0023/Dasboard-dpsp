@@ -237,6 +237,14 @@
         .toolbar-btn.success:hover {
             background: rgba(107, 203, 119, 0.2);
         }
+        .toolbar-btn.info {
+            background: rgba(255, 217, 61, 0.12);
+            color: #FFD93D;
+            border: 1px solid rgba(255, 217, 61, 0.15);
+        }
+        .toolbar-btn.info:hover {
+            background: rgba(255, 217, 61, 0.2);
+        }
         .user-badge {
             font-size: 13px;
             opacity: 0.7;
@@ -557,6 +565,39 @@
             font-size: 28px;
             font-weight: bold;
             margin-top: 4px;
+        }
+
+        /* ===== CONTROLES MANUAIS ===== */
+        .manual-container {
+            display: none;
+            margin-top: 4px;
+        }
+        .manual-container.admin-only {
+            display: block;
+        }
+        .manual-container input[type="date"],
+        .manual-container input[type="number"] {
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(109, 213, 250, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+            color: #fff;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 150px;
+        }
+        .manual-container input[type="date"]:focus,
+        .manual-container input[type="number"]:focus {
+            border-color: rgba(109, 213, 250, 0.6);
+        }
+        .manual-container input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        .manual-container input[type="number"]::-webkit-inner-spin-button {
+            opacity: 0.5;
         }
 
         /* ===== UF PROGRESS CARDS ===== */
@@ -945,6 +986,27 @@
         .acao-btn:hover {
             background: rgba(109, 213, 250, .2) !important;
         }
+        .btn-calculo-auto.active-auto {
+            background: rgba(107, 203, 119, 0.25) !important;
+            border-color: #6BCB77 !important;
+        }
+        .btn-calculo-auto.active-auto span {
+            color: #6BCB77;
+        }
+        .btn-previsao-manual.active-auto {
+            background: rgba(255, 217, 61, 0.25) !important;
+            border-color: #FFD93D !important;
+        }
+        .btn-previsao-manual.active-auto span {
+            color: #FFD93D;
+        }
+        .btn-ritmo-manual.active-auto {
+            background: rgba(199, 125, 255, 0.25) !important;
+            border-color: #C77DFF !important;
+        }
+        .btn-ritmo-manual.active-auto span {
+            color: #C77DFF;
+        }
 
         /* ===== GESTÃO DE USUÁRIOS ===== */
         .user-management {
@@ -1087,6 +1149,16 @@
             background: rgba(255, 217, 61, 0.12);
             border-color: rgba(255, 217, 61, 0.15);
             color: #FFD93D;
+        }
+        .filter-badge.admin-badge {
+            background: rgba(255, 217, 61, 0.12);
+            border-color: rgba(255, 217, 61, 0.15);
+            color: #FFD93D;
+        }
+        .filter-badge.ritmo-badge {
+            background: rgba(107, 203, 119, 0.12);
+            border-color: rgba(107, 203, 119, 0.15);
+            color: #6BCB77;
         }
 
         /* ===== TOAST ===== */
@@ -1299,10 +1371,16 @@
                         <div class="status-item">
                             <div class="label">Previsão de Conclusão</div>
                             <div class="value" id="previsaoConclusao" style="font-size:22px;">-</div>
+                            <div class="manual-container" id="previsaoManualContainer">
+                                <input type="date" id="previsaoManualDate" onchange="atualizarPrevisaoManual()">
+                            </div>
                         </div>
                         <div class="status-item">
                             <div class="label">Ritmo (lojas/dia)</div>
                             <div class="value" id="ritmoDiario" style="font-size:22px;">0</div>
+                            <div class="manual-container" id="ritmoManualContainer">
+                                <input type="number" id="ritmoManualInput" step="0.1" min="0" placeholder="Ex: 2.5" onchange="atualizarRitmoManual()" style="max-width:120px;">
+                            </div>
                         </div>
                         <div class="status-item">
                             <div class="label">Lojas Restantes</div>
@@ -1448,6 +1526,15 @@
                         <button class="toolbar-btn acao-btn" onclick="abrirUpload()">📂 Atualizar Planilha</button>
                         <button class="toolbar-btn acao-btn" onclick="togglePresentation()">🖥️ Modo Apresentação</button>
                         <button class="toolbar-btn acao-btn" onclick="exportarPDF()">📄 Exportar PDF</button>
+                        <button class="toolbar-btn acao-btn btn-calculo-auto" id="btnCalculoAuto" onclick="toggleCalculoAuto()">
+                            📊 Cálculo Automático: <span id="calculoAutoStatus">ON</span>
+                        </button>
+                        <button class="toolbar-btn acao-btn btn-previsao-manual" id="btnPrevisaoManual" onclick="togglePrevisaoManual()">
+                            📅 Previsão Manual: <span id="previsaoManualStatus">OFF</span>
+                        </button>
+                        <button class="toolbar-btn acao-btn btn-ritmo-manual" id="btnRitmoManual" onclick="toggleRitmoManual()">
+                            📊 Ritmo Manual: <span id="ritmoManualStatus">OFF</span>
+                        </button>
                     </div>
                     <div class="painel-divider"></div>
                     <div class="painel-secao">
@@ -1536,13 +1623,13 @@
         Chart.register(ChartDataLabels);
 
         // ============================================================
-        //  SUPABASE - CONFIGURAÇÃO CORRIGIDA (COM HEADERS)
+        //  SUPABASE - CONFIGURAÇÃO
         // ============================================================
         const SUPABASE_URL = 'https://fhneshazhuqqwczbdzks.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zaoYTt6pm46YiN-E333hDw_5_6uSXsr';
 
         // ============================================================
-        //  SUPABASE - USANDO FETCH DIRETO (MAIS CONFIÁVEL)
+        //  SUPABASE - USANDO FETCH DIRETO
         // ============================================================
         async function supabaseFetch(endpoint, options = {}) {
             const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
@@ -1573,7 +1660,7 @@
         }
 
         // ============================================================
-        //  TESTE DE CONEXÃO COM O SUPABASE
+        //  TESTE DE CONEXÃO
         // ============================================================
         async function testarConexaoSupabase() {
             try {
@@ -1602,7 +1689,7 @@
         }
 
         // ============================================================
-        //  CARREGAR DADOS - VERSÃO COM FETCH
+        //  CARREGAR DADOS
         // ============================================================
         async function carregarDashboardDataSupabase() {
             try {
@@ -1625,18 +1712,16 @@
         }
 
         // ============================================================
-        //  SALVAR DADOS - VERSÃO COM FETCH (OTIMIZADO)
+        //  SALVAR DADOS
         // ============================================================
         async function salvarDashboardDataSupabase(dados) {
             try {
                 console.log('🔄 Salvando dados no Supabase...');
 
-                // 1. Deleta os dados antigos
                 await supabaseFetch('dashboard_data?id=eq.1', {
                     method: 'DELETE'
                 });
 
-                // 2. Insere os novos dados
                 await supabaseFetch('dashboard_data', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -1658,7 +1743,7 @@
         }
 
         // ============================================================
-        //  CARREGAR CONFIGURAÇÕES - VERSÃO COM FETCH
+        //  CARREGAR CONFIGURAÇÕES
         // ============================================================
         async function carregarConfiguracoesSupabase() {
             try {
@@ -1669,6 +1754,29 @@
                     const config = data[0];
                     console.log('✅ Configurações carregadas:', config);
 
+                    // ===== CARREGAR VALORES MANUAIS =====
+                    if (config.calculo_auto !== undefined) {
+                        calculoAutoAtivo = config.calculo_auto;
+                    }
+                    if (config.previsao_manual !== undefined) {
+                        previsaoManualAtiva = config.previsao_manual;
+                    }
+                    if (config.previsao_data !== undefined && config.previsao_data !== null) {
+                        previsaoManualData = config.previsao_data;
+                    }
+                    if (config.ritmo_manual !== undefined) {
+                        ritmoManualAtivo = config.ritmo_manual;
+                    }
+                    if (config.ritmo_valor !== undefined && config.ritmo_valor !== null) {
+                        ritmoManualValor = config.ritmo_valor;
+                    }
+
+                    // Atualizar UI
+                    atualizarStatusCalculoAuto();
+                    atualizarStatusPrevisaoManual();
+                    atualizarStatusRitmoManual();
+
+                    // Logos
                     if (config.logo_cliente) {
                         document.getElementById('logoClienteImg').src = config.logo_cliente;
                         document.getElementById('logoClienteImg').style.display = 'block';
@@ -1680,6 +1788,7 @@
                         document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                     }
 
+                    // Cores
                     if (config.tipo_fundo === 'solido') {
                         document.getElementById('corFundo1').value = config.cor_fundo1 || '#1F2A44';
                         setTipoFundo('solido');
@@ -1700,9 +1809,9 @@
                     // ===== CARREGAR TODAS AS CORES DOS GRÁFICOS =====
                     if (config.chart_colors) {
                         try {
-                            const cc = typeof config.chart_colors === 'string' ? 
+                            const cc = typeof config.chart_colors === 'string' ?
                                 JSON.parse(config.chart_colors) : config.chart_colors;
-                            
+
                             if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
                                 chartColors.bar1 = cc.bar1; }
                             if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
@@ -1748,6 +1857,9 @@
                             cor_grad3: '#3A506B',
                             angulo_grad: 135,
                             cor_destaque: '#6DD5FA',
+                            calculo_auto: true,
+                            previsao_manual: false,
+                            ritmo_manual: false,
                             updated_at: new Date().toISOString()
                         })
                     });
@@ -1758,13 +1870,12 @@
         }
 
         // ============================================================
-        //  SALVAR CONFIGURAÇÕES - VERSÃO COM FETCH
+        //  SALVAR CONFIGURAÇÕES
         // ============================================================
         async function salvarConfiguracoesSupabase(parcial) {
             try {
                 console.log('🔄 Salvando configurações...', parcial);
 
-                // Busca configuração atual
                 const data = await supabaseFetch('configuracoes?select=*&id=eq.1');
                 let config = {};
 
@@ -1772,24 +1883,20 @@
                     config = data[0];
                 }
 
-                // Faz merge
                 const merged = {
                     ...config,
                     ...parcial,
                     updated_at: new Date().toISOString()
                 };
 
-                // Se chart_colors for objeto, converte para string
                 if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
                     merged.chart_colors = JSON.stringify(parcial.chart_colors);
                 }
 
-                // Remove campos undefined
                 Object.keys(merged).forEach(key => {
                     if (merged[key] === undefined) delete merged[key];
                 });
 
-                // Salva
                 await supabaseFetch('configuracoes?id=eq.1', {
                     method: 'PATCH',
                     body: JSON.stringify(merged)
@@ -1842,6 +1949,15 @@
         };
 
         // ============================================================
+        //  VARIÁVEIS DE CONFIGURAÇÃO MANUAL
+        // ============================================================
+        let calculoAutoAtivo = true;
+        let previsaoManualAtiva = false;
+        let previsaoManualData = null;
+        let ritmoManualAtivo = false;
+        let ritmoManualValor = null;
+
+        // ============================================================
         //  TOAST NOTIFICATION
         // ============================================================
         function showToast(message, type = 'info', duration = 4000) {
@@ -1880,12 +1996,10 @@
             showToast('🔄 Limpando dados antigos...', 'info', 3000);
 
             try {
-                // 1. Deleta todos os registros de dashboard_data
                 await supabaseFetch('dashboard_data?id=gt.0', {
                     method: 'DELETE'
                 });
 
-                // 2. Remove logos em base64
                 await supabaseFetch('configuracoes?id=eq.1', {
                     method: 'PATCH',
                     body: JSON.stringify({
@@ -1895,7 +2009,6 @@
                     })
                 });
 
-                // 3. Recarrega os dados
                 await carregarDashboardDataSupabase();
 
                 if (originalData.length === 0) {
@@ -1939,6 +2052,214 @@
             const el = document.getElementById('ultimaSincronizacao');
             const agora = new Date().toLocaleString('pt-BR');
             el.textContent = '🔄 Última atualização: ' + agora;
+        }
+
+        // ============================================================
+        //  CONTROLES MANUAIS - FUNÇÕES
+        // ============================================================
+
+        function toggleCalculoAuto() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o cálculo automático', 'error', 2000);
+                return;
+            }
+            calculoAutoAtivo = !calculoAutoAtivo;
+            atualizarStatusCalculoAuto();
+            salvarConfiguracoesSupabase({ calculo_auto: calculoAutoAtivo });
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusCalculoAuto() {
+            const statusEl = document.getElementById('calculoAutoStatus');
+            const btn = document.getElementById('btnCalculoAuto');
+            if (calculoAutoAtivo) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+            }
+        }
+
+        function togglePrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão manual', 'error', 2000);
+                return;
+            }
+
+            previsaoManualAtiva = !previsaoManualAtiva;
+
+            if (previsaoManualAtiva && !previsaoManualData) {
+                const hoje = new Date();
+                hoje.setDate(hoje.getDate() + 30);
+                previsaoManualData = hoje.toISOString().slice(0, 10);
+            }
+
+            if (!previsaoManualAtiva) {
+                previsaoManualData = null;
+            }
+
+            atualizarStatusPrevisaoManual();
+
+            salvarConfiguracoesSupabase({
+                previsao_manual: previsaoManualAtiva,
+                previsao_data: previsaoManualData
+            });
+
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusPrevisaoManual() {
+            const statusEl = document.getElementById('previsaoManualStatus');
+            const btn = document.getElementById('btnPrevisaoManual');
+            const container = document.getElementById('previsaoManualContainer');
+            const dataInput = document.getElementById('previsaoManualDate');
+            const isAdmin = currentRole === 'admin';
+
+            if (previsaoManualAtiva) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+                if (isAdmin) {
+                    container.classList.add('admin-only');
+                    container.style.display = 'block';
+                } else {
+                    container.classList.remove('admin-only');
+                    container.style.display = 'none';
+                }
+                if (previsaoManualData) {
+                    dataInput.value = previsaoManualData;
+                }
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+                container.classList.remove('admin-only');
+                container.style.display = 'none';
+            }
+
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            atualizarBadgeFiltro();
+        }
+
+        function atualizarPrevisaoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar a previsão', 'error', 2000);
+                return;
+            }
+
+            const dataInput = document.getElementById('previsaoManualDate');
+            if (!dataInput.value) {
+                showToast('⚠️ Selecione uma data válida', 'error', 2000);
+                return;
+            }
+
+            previsaoManualData = dataInput.value;
+            previsaoManualAtiva = true;
+
+            salvarConfiguracoesSupabase({
+                previsao_data: previsaoManualData,
+                previsao_manual: true
+            });
+
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function toggleRitmoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o ritmo manual', 'error', 2000);
+                return;
+            }
+
+            ritmoManualAtivo = !ritmoManualAtivo;
+
+            if (!ritmoManualAtivo) {
+                ritmoManualValor = null;
+            }
+
+            atualizarStatusRitmoManual();
+
+            salvarConfiguracoesSupabase({
+                ritmo_manual: ritmoManualAtivo,
+                ritmo_valor: ritmoManualValor
+            });
+
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+        }
+
+        function atualizarStatusRitmoManual() {
+            const statusEl = document.getElementById('ritmoManualStatus');
+            const btn = document.getElementById('btnRitmoManual');
+            const container = document.getElementById('ritmoManualContainer');
+            const input = document.getElementById('ritmoManualInput');
+            const isAdmin = currentRole === 'admin';
+
+            if (ritmoManualAtivo) {
+                statusEl.textContent = 'ON';
+                btn.classList.add('active-auto');
+                if (isAdmin) {
+                    container.classList.add('admin-only');
+                    container.style.display = 'block';
+                } else {
+                    container.classList.remove('admin-only');
+                    container.style.display = 'none';
+                }
+                if (ritmoManualValor !== null) {
+                    input.value = ritmoManualValor;
+                }
+            } else {
+                statusEl.textContent = 'OFF';
+                btn.classList.remove('active-auto');
+                container.classList.remove('admin-only');
+                container.style.display = 'none';
+            }
+
+            if (originalData && originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
+            atualizarBadgeFiltro();
+        }
+
+        function atualizarRitmoManual() {
+            if (currentRole !== 'admin') {
+                showToast('🔒 Apenas Administradores podem alterar o ritmo', 'error', 2000);
+                return;
+            }
+
+            const input = document.getElementById('ritmoManualInput');
+            const valor = parseFloat(input.value);
+
+            if (isNaN(valor) || valor < 0) {
+                showToast('⚠️ Digite um valor válido (ex: 2.5)', 'error', 2000);
+                return;
+            }
+
+            ritmoManualValor = valor;
+            ritmoManualAtivo = true;
+
+            salvarConfiguracoesSupabase({
+                ritmo_valor: ritmoManualValor,
+                ritmo_manual: true
+            });
+
+            if (originalData.length > 0) {
+                const data = getDataParaExibir();
+                atualizarCards(data);
+            }
         }
 
         // ============================================================
@@ -2046,6 +2367,28 @@
             newAdd.onclick = function() {
                 adicionarUsuario();
             };
+
+            // Atualizar containers manuais
+            const previsaoContainer = document.getElementById('previsaoManualContainer');
+            const ritmoContainer = document.getElementById('ritmoManualContainer');
+
+            if (isAdmin && previsaoManualAtiva) {
+                previsaoContainer.classList.add('admin-only');
+                previsaoContainer.style.display = 'block';
+            } else {
+                previsaoContainer.classList.remove('admin-only');
+                previsaoContainer.style.display = 'none';
+            }
+
+            if (isAdmin && ritmoManualAtivo) {
+                ritmoContainer.classList.add('admin-only');
+                ritmoContainer.style.display = 'block';
+            } else {
+                ritmoContainer.classList.remove('admin-only');
+                ritmoContainer.style.display = 'none';
+            }
+
+            atualizarBadgeFiltro();
         }
 
         function logout() {
@@ -2300,31 +2643,24 @@
         //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO COMPLETA
         // ============================================================
         function atualizarCoresGraficos() {
-            // Cores do gráfico "Média de Lojas por Dia"
+            console.log('🔄 Atualizando cores dos gráficos...');
+
             chartColors.bar1 = document.getElementById('chartColor1').value;
             chartColors.bar2 = document.getElementById('chartColor2').value;
             chartColors.bar3 = document.getElementById('chartColor3').value;
-            
-            // Cores do gráfico "Lojas Agendadas"
             chartColors.bar4 = document.getElementById('chartColor4').value;
             chartColors.line = document.getElementById('chartLineColor').value;
-            
-            // Cores do gráfico "Gap por UF"
             chartColors.gap1 = document.getElementById('gapColor1').value;
             chartColors.gap2 = document.getElementById('gapColor2').value;
-            
-            // Cores do gráfico "Status por UF"
             chartColors.status1 = document.getElementById('statusColor1').value;
             chartColors.status2 = document.getElementById('statusColor2').value;
             chartColors.status3 = document.getElementById('statusColor3').value;
-            
-            // Fundo dos gráficos
             chartColors.bg = document.getElementById('chartBgColor').value;
 
-            // Aplica o fundo
+            console.log('📊 Cores atualizadas:', chartColors);
+
             aplicarCorFundoGraficos();
 
-            // Salva no Supabase
             salvarConfiguracoesSupabase({
                 chart_colors: {
                     bar1: chartColors.bar1,
@@ -2341,9 +2677,17 @@
                 }
             });
 
-            // Atualiza os gráficos
             const data = getDataParaExibir();
+
+            Object.keys(charts).forEach(key => {
+                if (charts[key]) {
+                    try { charts[key].destroy(); } catch (e) {}
+                    delete charts[key];
+                }
+            });
+
             atualizarGraficos(data);
+            showToast('🎨 Cores dos gráficos atualizadas!', 'success', 1500);
         }
 
         // ============================================================
@@ -2410,18 +2754,49 @@
             const lojasRestantes = totalLojas - lojasFinalizadas;
             const progressoGeral = totalLojas > 0 ? Math.round((lojasFinalizadas / totalLojas) * 100) : 0;
 
+            let ritmoDiario = 0;
             const dataAtual = new Date();
-            const dataLimite = new Date(dataAtual);
-            dataLimite.setDate(dataLimite.getDate() - 30);
-            const ultimos30Dias = data.filter(r => {
-                const d = parseExcelDate(r['DATA DO ROLLOUT']);
-                return d && d >= dataLimite && d <= dataAtual;
-            });
-            const ritmoDiario = ultimos30Dias.length > 0 ?
-                Math.round((ultimos30Dias.filter(isConcluida).length / 30) * 10) / 10 : 0;
+
+            // PRIORIDADE: RITMO MANUAL (se ativo)
+            if (ritmoManualAtivo && ritmoManualValor !== null) {
+                ritmoDiario = ritmoManualValor;
+                console.log('📊 Usando RITMO MANUAL:', ritmoDiario);
+            } else if (calculoAutoAtivo) {
+                const dataLimite = new Date(dataAtual);
+                dataLimite.setDate(dataLimite.getDate() - 30);
+                const ultimos30Dias = data.filter(r => {
+                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                    return d && d >= dataLimite && d <= dataAtual;
+                });
+                const concluidasUltimos30 = ultimos30Dias.filter(isConcluida).length;
+                const diasComDados = new Set(ultimos30Dias.map(r => {
+                    const d = parseExcelDate(r['DATA DO ROLLOUT']);
+                    return d ? d.toISOString().slice(0, 10) : null;
+                }).filter(Boolean)).size;
+                ritmoDiario = diasComDados > 0 ? Math.round((concluidasUltimos30 / Math.max(diasComDados, 1)) * 10) / 10 :
+                    0;
+            } else {
+                const todasConcluidas = data.filter(isConcluida);
+                if (todasConcluidas.length > 0) {
+                    const datas = todasConcluidas.map(r => parseExcelDate(r['DATA DO ROLLOUT'])).filter(Boolean);
+                    if (datas.length > 0) {
+                        const primeiraData = new Date(Math.min(...datas));
+                        const ultimaData = new Date(Math.max(...datas));
+                        const diffDias = Math.max(1, Math.ceil((ultimaData - primeiraData) / (1000 * 60 * 60 * 24)));
+                        ritmoDiario = Math.round((todasConcluidas.length / diffDias) * 10) / 10;
+                    }
+                }
+            }
 
             let previsao = '-';
-            if (ritmoDiario > 0 && lojasRestantes > 0) {
+
+            // PRIORIDADE: PREVISÃO MANUAL (se ativa)
+            if (previsaoManualAtiva && previsaoManualData) {
+                const dataParts = previsaoManualData.split('-');
+                const dataManual = new Date(parseInt(dataParts[0]), parseInt(dataParts[1]) - 1, parseInt(dataParts[2]));
+                previsao = dataManual.toLocaleDateString('pt-BR') + ' 📅';
+                console.log('📅 Usando PREVISÃO MANUAL:', previsao);
+            } else if (ritmoDiario > 0 && lojasRestantes > 0) {
                 const diasRestantes = Math.ceil(lojasRestantes / ritmoDiario);
                 const dataPrevisao = new Date(dataAtual);
                 dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
@@ -2518,6 +2893,27 @@
                 const periodo = (inicio ? inicio : '...') + ' → ' + (fim ? fim : '...');
                 badges.push(
                     `<span class="filter-badge period-badge">📅 ${periodo} <span class="remove" onclick="limparFiltros()">✕</span></span>`
+                    );
+            }
+
+            if (!calculoAutoAtivo) {
+                badges.push(
+                    `<span class="filter-badge" style="background:rgba(199,125,255,0.12);border-color:rgba(199,125,255,0.15);color:#C77DFF;">📊 Cálculo Manual</span>`
+                    );
+            }
+
+            if (previsaoManualAtiva) {
+                const dataExibida = previsaoManualData ?
+                    new Date(previsaoManualData).toLocaleDateString('pt-BR') :
+                    'Não definida';
+                badges.push(
+                    `<span class="filter-badge admin-badge">📅 Previsão Manual: ${dataExibida}</span>`
+                    );
+            }
+
+            if (ritmoManualAtivo && ritmoManualValor !== null) {
+                badges.push(
+                    `<span class="filter-badge ritmo-badge">📊 Ritmo Manual: ${ritmoManualValor} lojas/dia</span>`
                     );
             }
 
@@ -2790,22 +3186,53 @@
         function chartStatusUF(data) {
             destroyChart('statusUFChart');
             const ufs = [...new Set(data.map(r => r.UF).filter(Boolean))].sort();
-            const statuses = [...new Set(data.map(r => r.STATUS || 'N/D').filter(Boolean))];
+
+            if (ufs.length === 0) {
+                document.getElementById('statusUFChart').style.display = 'none';
+                return;
+            }
+            document.getElementById('statusUFChart').style.display = 'block';
+
+            const statusConfig = [
+                { key: 'CONCLUÍDA', label: 'Concluída', color: chartColors.status1 || '#6BCB77' },
+                { key: 'AGUARDANDO', label: 'Aguardando Agend.', color: chartColors.status2 || '#FFD93D' },
+                { key: 'AGENDADA', label: 'Agendada', color: chartColors.status3 || '#6DD5FA' }
+            ];
+
+            const getStatusCategory = (status) => {
+                const s = String(status || '').toUpperCase();
+                if (s.includes('CONCLU')) return 'CONCLUÍDA';
+                if (s.includes('AGUARDANDO') || s.includes('PENDENTE') || s.includes('PENDENCIADA')) return 'AGUARDANDO';
+                if (s.includes('AGENDADA')) return 'AGENDADA';
+                return 'AGUARDANDO';
+            };
+
             const matrix = {};
-            data.forEach(r => {
-                const uf = r.UF || 'N/D';
-                const st = r.STATUS || 'N/D';
-                if (!matrix[st]) matrix[st] = {};
-                matrix[st][uf] = (matrix[st][uf] || 0) + 1;
+            ufs.forEach(uf => {
+                matrix[uf] = {};
+                statusConfig.forEach(sc => matrix[uf][sc.key] = 0);
             });
 
-            const colorPalette = [chartColors.status1, chartColors.status2, chartColors.status3, chartColors.line];
-            const datasets = statuses.map((st, i) => ({
-                label: st,
-                data: ufs.map(uf => (matrix[st] && matrix[st][uf]) || 0),
-                backgroundColor: colorPalette[i % colorPalette.length] || '#888',
-                borderRadius: 4,
-                borderSkipped: false
+            data.forEach(r => {
+                const uf = r.UF || 'N/D';
+                const statusCat = getStatusCategory(r.STATUS);
+                if (matrix[uf] && matrix[uf][statusCat] !== undefined) {
+                    matrix[uf][statusCat]++;
+                }
+            });
+
+            const datasets = statusConfig.map(sc => ({
+                label: sc.label,
+                data: ufs.map(uf => {
+                    const total = statusConfig.reduce((sum, s) => sum + (matrix[uf][s.key] || 0), 0);
+                    if (total === 0) return 0;
+                    return Math.round((matrix[uf][sc.key] || 0) / total * 100);
+                }),
+                backgroundColor: sc.color,
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 1,
+                borderRadius: 2,
+                _textColor: '#fff'
             }));
 
             const ctx = document.getElementById('statusUFChart').getContext('2d');
@@ -2813,23 +3240,39 @@
                 type: 'bar',
                 data: { labels: ufs, datasets },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         datalabels: {
-                            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                            display: (ctx) => { const value = ctx.dataset.data[ctx.dataIndex]; return value > 0; },
                             color: '#fff',
-                            font: { weight: 'bold', size: 11 },
-                            formatter: v => v,
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value) => value + '%',
                             anchor: 'center',
-                            align: 'center'
+                            align: 'center',
+                            offset: 0
                         },
-                        legend: { display: true, position: 'top', labels: { color: '#fff', boxWidth: 14,
-                                font: { size: 11 } } }
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: { color: '#fff', boxWidth: 14, padding: 10, font: { size: 11 } }
+                        }
                     },
                     scales: {
-                        x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } }
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#fff', font: { size: 11 }, callback: function(value) { return value +
+                                    '%'; } },
+                            grid: { color: 'rgba(255,255,255,0.07)' },
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: { color: '#fff', font: { size: 12, weight: 'bold' } },
+                            grid: { display: false }
+                        }
                     }
                 }
             });
@@ -2872,6 +3315,10 @@
                 return dia + '/' + m + '/' + y.slice(2);
             });
 
+            const corAbaixo = chartColors.bar1 || '#6DD5FA';
+            const corAcima = chartColors.bar2 || '#6BCB77';
+            const corLinha = chartColors.bar3 || '#FFD93D';
+
             const ctx = document.getElementById('mediaConcluidaChart').getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'bar',
@@ -2881,8 +3328,8 @@
                         type: 'bar',
                         label: 'Lojas concluídas',
                         data: values,
-                        backgroundColor: values.map(v => v >= mediaDiaria ? chartColors.bar2 + 'CC' :
-                            chartColors.bar1 + '88'),
+                        backgroundColor: values.map(v => v >= mediaDiaria ? corAcima + 'CC' : corAbaixo +
+                            '88'),
                         borderRadius: 6,
                         datalabels: {
                             display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
@@ -2896,7 +3343,7 @@
                         type: 'line',
                         label: 'Média diária (' + mediaDiaria + ' lojas/dia)',
                         data: linhaMedia,
-                        borderColor: chartColors.bar3,
+                        borderColor: corLinha,
                         backgroundColor: 'transparent',
                         borderWidth: 2.5,
                         borderDash: [8, 4],
@@ -2949,6 +3396,9 @@
             }
             document.getElementById('gapChart').style.display = 'block';
 
+            const corPlanejado = chartColors.gap1 || '#6DD5FA';
+            const corRealizado = chartColors.gap2 || '#6BCB77';
+
             const planejado = ufs.map(uf => {
                 return data.filter(r => r.UF === uf).reduce((s, r) => s + safeNumber(r['QTDE PDVs total']), 0);
             });
@@ -2964,15 +3414,15 @@
                     datasets: [{
                         label: 'PDVs Planejados',
                         data: planejado,
-                        backgroundColor: chartColors.gap1 + '88',
-                        borderColor: chartColors.gap1,
+                        backgroundColor: corPlanejado + '88',
+                        borderColor: corPlanejado,
                         borderWidth: 2,
                         borderRadius: 4,
                     }, {
                         label: 'PDVs Realizados',
                         data: realizado,
-                        backgroundColor: chartColors.gap2 + '88',
-                        borderColor: chartColors.gap2,
+                        backgroundColor: corRealizado + '88',
+                        borderColor: corRealizado,
                         borderWidth: 2,
                         borderRadius: 4,
                     }]
@@ -3135,10 +3585,13 @@
             let acc = 0;
             const acumulado = values.map(v => { acc += v; return acc; });
 
+            const corBarras = chartColors.bar4 || '#C77DFF';
+            const corLinha = chartColors.line || '#FF6B6B';
+
             const ctx = document.getElementById('authChart').getContext('2d');
             const grad = ctx.createLinearGradient(0, 0, 0, 300);
-            grad.addColorStop(0, chartColors.bar4 + 'D9');
-            grad.addColorStop(1, chartColors.bar4 + '44');
+            grad.addColorStop(0, corBarras + 'D9');
+            grad.addColorStop(1, corBarras + '44');
 
             const chart = new Chart(ctx, {
                 type: 'bar',
@@ -3149,7 +3602,7 @@
                         label: 'Lojas agendadas no dia',
                         data: values,
                         backgroundColor: grad,
-                        borderColor: chartColors.bar4,
+                        borderColor: corBarras,
                         borderWidth: 1,
                         borderRadius: 6,
                         order: 2,
@@ -3165,11 +3618,11 @@
                         type: 'line',
                         label: 'Acumulado',
                         data: acumulado,
-                        borderColor: chartColors.line,
+                        borderColor: corLinha,
                         backgroundColor: 'transparent',
                         borderWidth: 2.5,
                         pointRadius: 4,
-                        pointBackgroundColor: chartColors.line,
+                        pointBackgroundColor: corLinha,
                         tension: .4,
                         yAxisID: 'y2',
                         order: 1,
@@ -3184,9 +3637,9 @@
                     },
                     scales: {
                         x: { ticks: { color: '#fff', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { ticks: { color: chartColors.bar4 }, grid: { color: 'rgba(255,255,255,.07)' },
+                        y: { ticks: { color: corBarras }, grid: { color: 'rgba(255,255,255,.07)' },
                             beginAtZero: true },
-                        y2: { position: 'right', ticks: { color: chartColors.line }, grid: { display: false },
+                        y2: { position: 'right', ticks: { color: corLinha }, grid: { display: false },
                             beginAtZero: true }
                     }
                 }
@@ -3665,6 +4118,7 @@
         // ============================================================
 
         let tipoFundo = 'degradê';
+        let aplicandoCores = false;
 
         function togglePresentation() { document.body.classList.toggle('presentation-mode'); }
         window.togglePresentation = togglePresentation;
@@ -3677,7 +4131,7 @@
             arrow.textContent = open ? '▼' : '▲';
         }
 
-        function setTipoFundo(tipo) {
+        function setTipoFundo(tipo, isRemote = false) {
             tipoFundo = tipo;
             document.getElementById('btnSolido').classList.toggle('active', tipo === 'solido');
             document.getElementById('btnDegradê').classList.toggle('active', tipo === 'degradê');
@@ -3686,36 +4140,46 @@
             document.getElementById('corDegradeBase').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('corDegradeFim').style.display = tipo === 'degradê' ? 'flex' : 'none';
             document.getElementById('linhaAngulo').style.display = tipo === 'degradê' ? 'flex' : 'none';
-            aplicarCores();
+            aplicarCores(isRemote);
         }
 
-        function aplicarCores() {
-            if (tipoFundo === 'solido') {
-                const c = document.getElementById('corFundo1').value;
-                document.getElementById('corFundo1Hex').textContent = c;
-                document.body.style.background = c;
-                salvarConfiguracoesSupabase({
-                    tipo_fundo: 'solido',
-                    cor_fundo1: c
-                });
-            } else {
-                const c1 = document.getElementById('corGrad1').value;
-                const c2 = document.getElementById('corGrad2').value;
-                const c3 = document.getElementById('corGrad3').value;
-                const ang = document.getElementById('anguloGrad').value;
-                document.getElementById('corGrad1Hex').textContent = c1;
-                document.getElementById('corGrad2Hex').textContent = c2;
-                document.getElementById('corGrad3Hex').textContent = c3;
-                document.body.style.background =
-                    'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
-                document.body.style.backgroundAttachment = 'fixed';
-                salvarConfiguracoesSupabase({
-                    tipo_fundo: 'degrade',
-                    cor_grad1: c1,
-                    cor_grad2: c2,
-                    cor_grad3: c3,
-                    angulo_grad: parseInt(ang, 10)
-                });
+        function aplicarCores(isRemote = false) {
+            if (aplicandoCores) return;
+            aplicandoCores = true;
+
+            try {
+                if (tipoFundo === 'solido') {
+                    const c = document.getElementById('corFundo1').value;
+                    document.getElementById('corFundo1Hex').textContent = c;
+                    document.body.style.background = c;
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({ tipo_fundo: 'solido', cor_fundo1: c });
+                    }
+                } else {
+                    const c1 = document.getElementById('corGrad1').value;
+                    const c2 = document.getElementById('corGrad2').value;
+                    const c3 = document.getElementById('corGrad3').value;
+                    const ang = document.getElementById('anguloGrad').value;
+                    document.getElementById('corGrad1Hex').textContent = c1;
+                    document.getElementById('corGrad2Hex').textContent = c2;
+                    document.getElementById('corGrad3Hex').textContent = c3;
+                    document.body.style.background =
+                        'linear-gradient(' + ang + 'deg,' + c1 + ',' + c2 + ',' + c3 + ')';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    if (!isRemote) {
+                        salvarConfiguracoesSupabase({
+                            tipo_fundo: 'degrade',
+                            cor_grad1: c1,
+                            cor_grad2: c2,
+                            cor_grad3: c3,
+                            angulo_grad: parseInt(ang, 10)
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao aplicar cores:', e);
+            } finally {
+                setTimeout(() => { aplicandoCores = false; }, 100);
             }
         }
 
@@ -3740,7 +4204,7 @@
             aplicarCores();
         }
 
-        function aplicarCorDestaque(cor) {
+        function aplicarCorDestaque(cor, salvar = true) {
             document.getElementById('corDestaqueHex').textContent = cor;
             document.documentElement.style.setProperty('--destaque', cor);
             document.querySelectorAll('.progress div').forEach(el => {
@@ -3750,7 +4214,9 @@
                 el.style.borderColor = cor + '44';
                 el.style.background = cor + '20';
             });
-            salvarConfiguracoesSupabase({ cor_destaque: cor });
+            if (salvar) {
+                salvarConfiguracoesSupabase({ cor_destaque: cor });
+            }
         }
 
         // ===== LOGO UPLOAD =====
@@ -3781,7 +4247,6 @@
         // ============================================================
         function iniciarRealtime() {
             try {
-                // Realtime para configurações
                 supabaseClient
                     .channel('configuracoes-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
@@ -3790,7 +4255,6 @@
                     })
                     .subscribe();
 
-                // Realtime para dados do dashboard
                 supabaseClient
                     .channel('dashboard-data-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'dashboard_data' }, async () => {
@@ -3802,7 +4266,6 @@
                     })
                     .subscribe();
 
-                // Realtime para usuários
                 supabaseClient
                     .channel('usuarios-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, async () => {
@@ -3819,7 +4282,6 @@
         //  INICIALIZAÇÃO GERAL
         // ============================================================
         async function initApp() {
-            // Testa a conexão primeiro
             const conexaoOK = await testarConexaoSupabase();
 
             if (!conexaoOK) {
@@ -3838,7 +4300,7 @@
                 await carregarConfiguracoesSupabase();
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
-                setTipoFundo('degradê');
+                setTipoFundo('degradê', true);
                 carregarDadosExemplo();
             }
 
@@ -3847,7 +4309,6 @@
             showToast('🚀 Dashboard carregado!', 'info', 2000);
         }
 
-        // Inicializa a aplicação
         initApp();
     </script>
 
