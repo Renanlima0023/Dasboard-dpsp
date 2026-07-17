@@ -1300,7 +1300,6 @@
                     <button class="toolbar-btn primary" id="btnGerenciarUsuarios">👥 Gerenciar Usuários</button>
                     <button class="toolbar-btn success" onclick="exportarPDF()">📄 Exportar PDF</button>
                     <button class="toolbar-btn danger" onclick="limparDadosAntigos()">🗑️ Limpar Dados Antigos</button>
-                    <button class="toolbar-btn info" onclick="recarregarCoresDoBanco()">🔄 Recarregar Cores</button>
                 </div>
                 <div class="toolbar-right">
                     <span class="user-badge">
@@ -1606,13 +1605,6 @@
                             <!-- Fundo dos Gráficos -->
                             <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">🎨 Fundo dos Gráficos</div>
                             <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
-                            
-                            <!-- Botão Recarregar -->
-                            <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;">
-                                <button class="toolbar-btn acao-btn" onclick="recarregarCoresDoBanco()" style="background:rgba(109,213,250,0.1)!important;border-color:rgba(109,213,250,0.2)!important;width:100%;">
-                                    🔄 Recarregar Cores do Banco
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1813,15 +1805,6 @@
         }
 
         // ============================================================
-        //  RECARREGAR CORES DO BANCO - NOVA FUNÇÃO
-        // ============================================================
-        async function recarregarCoresDoBanco() {
-            showToast('🔄 Recarregando cores do banco...', 'info', 2000);
-            await carregarConfiguracoesSupabase();
-            showToast('✅ Cores recarregadas!', 'success', 1500);
-        }
-
-        // ============================================================
         //  CARREGAR CONFIGURAÇÕES - VERSÃO CORRIGIDA
         // ============================================================
         async function carregarConfiguracoesSupabase() {
@@ -1885,7 +1868,7 @@
                         aplicarCorDestaque(config.cor_destaque, false);
                     }
 
-                    // ===== CARREGAR CORES DOS GRÁFICOS =====
+                    // ===== CARREGAR CORES DOS GRÁFICOS - ESSENCIAL =====
                     if (config.chart_colors) {
                         try {
                             const cc = typeof config.chart_colors === 'string' ?
@@ -1894,49 +1877,49 @@
                             console.log('🎨 Cores carregadas do banco:', cc);
 
                             // ===== ATUALIZAR OS CAMPOS DE INPUT =====
-                            if (cc.bar1) { 
+                            if (cc.bar1) {
                                 document.getElementById('chartColor1').value = cc.bar1;
-                                chartColors.bar1 = cc.bar1; 
+                                chartColors.bar1 = cc.bar1;
                             }
-                            if (cc.bar2) { 
+                            if (cc.bar2) {
                                 document.getElementById('chartColor2').value = cc.bar2;
-                                chartColors.bar2 = cc.bar2; 
+                                chartColors.bar2 = cc.bar2;
                             }
-                            if (cc.bar3) { 
+                            if (cc.bar3) {
                                 document.getElementById('chartColor3').value = cc.bar3;
-                                chartColors.bar3 = cc.bar3; 
+                                chartColors.bar3 = cc.bar3;
                             }
-                            if (cc.bar4) { 
+                            if (cc.bar4) {
                                 document.getElementById('chartColor4').value = cc.bar4;
-                                chartColors.bar4 = cc.bar4; 
+                                chartColors.bar4 = cc.bar4;
                             }
-                            if (cc.line) { 
+                            if (cc.line) {
                                 document.getElementById('chartLineColor').value = cc.line;
-                                chartColors.line = cc.line; 
+                                chartColors.line = cc.line;
                             }
-                            if (cc.bg) { 
+                            if (cc.bg) {
                                 document.getElementById('chartBgColor').value = cc.bg;
-                                chartColors.bg = cc.bg; 
+                                chartColors.bg = cc.bg;
                             }
-                            if (cc.gap1) { 
+                            if (cc.gap1) {
                                 document.getElementById('gapColor1').value = cc.gap1;
-                                chartColors.gap1 = cc.gap1; 
+                                chartColors.gap1 = cc.gap1;
                             }
-                            if (cc.gap2) { 
+                            if (cc.gap2) {
                                 document.getElementById('gapColor2').value = cc.gap2;
-                                chartColors.gap2 = cc.gap2; 
+                                chartColors.gap2 = cc.gap2;
                             }
-                            if (cc.status1) { 
+                            if (cc.status1) {
                                 document.getElementById('statusColor1').value = cc.status1;
-                                chartColors.status1 = cc.status1; 
+                                chartColors.status1 = cc.status1;
                             }
-                            if (cc.status2) { 
+                            if (cc.status2) {
                                 document.getElementById('statusColor2').value = cc.status2;
-                                chartColors.status2 = cc.status2; 
+                                chartColors.status2 = cc.status2;
                             }
-                            if (cc.status3) { 
+                            if (cc.status3) {
                                 document.getElementById('statusColor3').value = cc.status3;
-                                chartColors.status3 = cc.status3; 
+                                chartColors.status3 = cc.status3;
                             }
 
                             console.log('✅ Cores aplicadas nos inputs:', chartColors);
@@ -1949,18 +1932,6 @@
                     // Aplica o fundo dos gráficos
                     aplicarCorFundoGraficos();
 
-                    // Força a atualização dos gráficos com as cores carregadas
-                    if (originalData && originalData.length > 0) {
-                        const data = getDataParaExibir();
-                        // Destroi gráficos existentes
-                        Object.keys(charts).forEach(key => {
-                            if (charts[key]) {
-                                try { charts[key].destroy(); } catch(e) {}
-                                delete charts[key];
-                            }
-                        });
-                        atualizarGraficos(data);
-                    }
                 } else {
                     console.log('ℹ️ Nenhuma configuração encontrada, criando padrão...');
                     await criarConfiguracoesPadrao();
@@ -2458,15 +2429,28 @@
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('dashboardContent').style.display = 'block';
 
+            // Atualizar UI primeiro
             atualizarUI(usuario);
 
-            if (originalData.length === 0) {
-                carregarDadosExemplo();
-            } else {
-                aplicarFiltros();
-            }
-
-            showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
+            // Carregar dados e configurações na ordem correta
+            carregarDashboardDataSupabase().then(() => {
+                return carregarConfiguracoesSupabase();
+            }).then(() => {
+                // Só depois de carregar as cores, aplicar os filtros
+                if (originalData && originalData.length > 0) {
+                    aplicarFiltros();
+                } else {
+                    carregarDadosExemplo();
+                }
+                showToast(`✅ Bem-vindo, ${usuario.nome}!`, 'success', 2000);
+            }).catch((e) => {
+                console.error('Erro ao inicializar:', e);
+                if (originalData.length === 0) {
+                    carregarDadosExemplo();
+                } else {
+                    aplicarFiltros();
+                }
+            });
         }
 
         function atualizarUI(usuario) {
@@ -2959,8 +2943,14 @@
 
         function aplicarFiltros() {
             const data = getDataParaExibir();
+
+            // Primeiro atualiza os cards
             atualizarCards(data);
+
+            // Depois atualiza os gráficos (já vai usar as cores carregadas)
             atualizarGraficos(data);
+
+            // Atualiza os filtros e badges
             popularFiltros(originalData);
             atualizarBadgeFiltro();
             atualizarUltimaSincronizacao();
@@ -3231,6 +3221,28 @@
             const wrappers = document.querySelectorAll('.chart-wrapper');
             wrappers.forEach(w => {
                 w.style.background = chartColors.bg;
+            });
+        }
+
+        // ============================================================
+        //  ATUALIZAR GRÁFICOS - VERSÃO CORRIGIDA
+        // ============================================================
+        function atualizarGraficos(data) {
+            // Destroi gráficos existentes
+            Object.keys(charts).forEach(key => {
+                if (charts[key]) {
+                    try { charts[key].destroy(); } catch (e) {}
+                    delete charts[key];
+                }
+            });
+
+            // Recria os gráficos com as cores atuais
+            requestAnimationFrame(() => {
+                chartStatusUF(data);
+                setTimeout(() => chartMediaConcluida(data), 200);
+                setTimeout(() => chartGap(data), 300);
+                setTimeout(() => chartTimeline(data), 400);
+                setTimeout(() => chartAuth(data), 600);
             });
         }
 
@@ -3775,16 +3787,6 @@
             });
 
             charts['authChart'] = chart;
-        }
-
-        function atualizarGraficos(data) {
-            requestAnimationFrame(() => {
-                chartStatusUF(data);
-                setTimeout(() => chartMediaConcluida(data), 200);
-                setTimeout(() => chartGap(data), 300);
-                setTimeout(() => chartTimeline(data), 400);
-                setTimeout(() => chartAuth(data), 600);
-            });
         }
 
         function destroyChart(id) {
@@ -4392,7 +4394,7 @@
         }
 
         // ============================================================
-        //  INICIALIZAÇÃO GERAL
+        //  INICIALIZAÇÃO GERAL - CORRIGIDA
         // ============================================================
         async function initApp() {
             const conexaoOK = await testarConexaoSupabase();
@@ -4405,12 +4407,22 @@
             }
 
             try {
-                await Promise.all([
-                    carregarUsuariosSupabase(),
-                    carregarDashboardDataSupabase()
-                ]);
+                // 1. Carrega usuários
+                await carregarUsuariosSupabase();
 
+                // 2. Carrega dados do dashboard
+                await carregarDashboardDataSupabase();
+
+                // 3. Carrega configurações (cores, etc) - ESSE É O MAIS IMPORTANTE
                 await carregarConfiguracoesSupabase();
+
+                // 4. SÓ DEPOIS de carregar as cores, aplica os filtros e cria os gráficos
+                if (originalData && originalData.length > 0) {
+                    aplicarFiltros();
+                } else {
+                    carregarDadosExemplo();
+                }
+
             } catch (e) {
                 console.error('Erro ao inicializar dados do Supabase:', e);
                 setTipoFundo('degradê', true);
@@ -4422,6 +4434,7 @@
             showToast('🚀 Dashboard carregado!', 'info', 2000);
         }
 
+        // Inicializa a aplicação
         initApp();
     </script>
 
