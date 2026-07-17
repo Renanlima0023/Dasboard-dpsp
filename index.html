@@ -1300,6 +1300,7 @@
                     <button class="toolbar-btn primary" id="btnGerenciarUsuarios">👥 Gerenciar Usuários</button>
                     <button class="toolbar-btn success" onclick="exportarPDF()">📄 Exportar PDF</button>
                     <button class="toolbar-btn danger" onclick="limparDadosAntigos()">🗑️ Limpar Dados Antigos</button>
+                    <button class="toolbar-btn info" onclick="recarregarCoresDoBanco()">🔄 Recarregar Cores</button>
                 </div>
                 <div class="toolbar-right">
                     <span class="user-badge">
@@ -1605,6 +1606,13 @@
                             <!-- Fundo dos Gráficos -->
                             <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">🎨 Fundo dos Gráficos</div>
                             <div class="cor-linha"><label>Fundo Gráfico</label><input type="color" id="chartBgColor" value="#0D1B2A" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#0D1B2A</span></div>
+                            
+                            <!-- Botão Recarregar -->
+                            <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;">
+                                <button class="toolbar-btn acao-btn" onclick="recarregarCoresDoBanco()" style="background:rgba(109,213,250,0.1)!important;border-color:rgba(109,213,250,0.2)!important;width:100%;">
+                                    🔄 Recarregar Cores do Banco
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1629,7 +1637,7 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_zaoYTt6pm46YiN-E333hDw_5_6uSXsr';
 
         // ============================================================
-        //  SUPABASE - USANDO FETCH DIRETO
+        //  SUPABASE - USANDO FETCH DIRETO (MAIS CONFIÁVEL)
         // ============================================================
         async function supabaseFetch(endpoint, options = {}) {
             const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
@@ -1712,16 +1720,18 @@
         }
 
         // ============================================================
-        //  SALVAR DADOS
+        //  SALVAR DADOS - VERSÃO OTIMIZADA
         // ============================================================
         async function salvarDashboardDataSupabase(dados) {
             try {
                 console.log('🔄 Salvando dados no Supabase...');
 
+                // 1. Deleta os dados antigos
                 await supabaseFetch('dashboard_data?id=eq.1', {
                     method: 'DELETE'
                 });
 
+                // 2. Insere os novos dados
                 await supabaseFetch('dashboard_data', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -1743,7 +1753,76 @@
         }
 
         // ============================================================
-        //  CARREGAR CONFIGURAÇÕES
+        //  SALVAR CONFIGURAÇÕES - VERSÃO CORRIGIDA
+        // ============================================================
+        async function salvarConfiguracoesSupabase(parcial) {
+            try {
+                console.log('🔄 Salvando configurações...', parcial);
+
+                // Busca configuração atual
+                const data = await supabaseFetch('configuracoes?select=*&id=eq.1');
+                let config = {};
+
+                if (data && data.length > 0) {
+                    config = data[0];
+                }
+
+                // Faz merge
+                const merged = {
+                    ...config,
+                    ...parcial,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Se chart_colors for objeto, converte para string JSON
+                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
+                    merged.chart_colors = JSON.stringify(parcial.chart_colors);
+                }
+
+                // Remove campos undefined
+                Object.keys(merged).forEach(key => {
+                    if (merged[key] === undefined) delete merged[key];
+                });
+
+                // ===== SALVA COM PATCH =====
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/configuracoes?id=eq.1`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(merged)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                console.log('✅ Configurações salvas com sucesso!');
+                showToast('✅ Configurações salvas!', 'success', 1500);
+                return true;
+
+            } catch (e) {
+                console.error('❌ Erro ao salvar configurações:', e);
+                showToast('❌ Erro ao salvar configurações: ' + e.message, 'error', 3000);
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  RECARREGAR CORES DO BANCO - NOVA FUNÇÃO
+        // ============================================================
+        async function recarregarCoresDoBanco() {
+            showToast('🔄 Recarregando cores do banco...', 'info', 2000);
+            await carregarConfiguracoesSupabase();
+            showToast('✅ Cores recarregadas!', 'success', 1500);
+        }
+
+        // ============================================================
+        //  CARREGAR CONFIGURAÇÕES - VERSÃO CORRIGIDA
         // ============================================================
         async function carregarConfiguracoesSupabase() {
             try {
@@ -1788,81 +1867,103 @@
                         document.getElementById('logoEmpresaPlaceholder').style.display = 'none';
                     }
 
-                    // Cores
+                    // Cores de fundo
                     if (config.tipo_fundo === 'solido') {
                         document.getElementById('corFundo1').value = config.cor_fundo1 || '#1F2A44';
-                        setTipoFundo('solido');
+                        setTipoFundo('solido', true);
                     } else {
                         document.getElementById('corGrad1').value = config.cor_grad1 || '#1F2A44';
                         document.getElementById('corGrad2').value = config.cor_grad2 || '#243B55';
                         document.getElementById('corGrad3').value = config.cor_grad3 || '#3A506B';
                         document.getElementById('anguloGrad').value = config.angulo_grad || 135;
                         document.getElementById('anguloVal').textContent = (config.angulo_grad || 135) + '°';
-                        setTipoFundo('degradê');
+                        setTipoFundo('degradê', true);
                     }
 
                     if (config.cor_destaque) {
                         document.getElementById('corDestaque').value = config.cor_destaque;
-                        aplicarCorDestaque(config.cor_destaque);
+                        aplicarCorDestaque(config.cor_destaque, false);
                     }
 
-                    // ===== CARREGAR TODAS AS CORES DOS GRÁFICOS =====
+                    // ===== CARREGAR CORES DOS GRÁFICOS =====
                     if (config.chart_colors) {
                         try {
                             const cc = typeof config.chart_colors === 'string' ?
                                 JSON.parse(config.chart_colors) : config.chart_colors;
 
-                            if (cc.bar1) { document.getElementById('chartColor1').value = cc.bar1;
-                                chartColors.bar1 = cc.bar1; }
-                            if (cc.bar2) { document.getElementById('chartColor2').value = cc.bar2;
-                                chartColors.bar2 = cc.bar2; }
-                            if (cc.bar3) { document.getElementById('chartColor3').value = cc.bar3;
-                                chartColors.bar3 = cc.bar3; }
-                            if (cc.bar4) { document.getElementById('chartColor4').value = cc.bar4;
-                                chartColors.bar4 = cc.bar4; }
-                            if (cc.line) { document.getElementById('chartLineColor').value = cc.line;
-                                chartColors.line = cc.line; }
-                            if (cc.bg) { document.getElementById('chartBgColor').value = cc.bg;
-                                chartColors.bg = cc.bg; }
-                            if (cc.gap1) { document.getElementById('gapColor1').value = cc.gap1;
-                                chartColors.gap1 = cc.gap1; }
-                            if (cc.gap2) { document.getElementById('gapColor2').value = cc.gap2;
-                                chartColors.gap2 = cc.gap2; }
-                            if (cc.status1) { document.getElementById('statusColor1').value = cc.status1;
-                                chartColors.status1 = cc.status1; }
-                            if (cc.status2) { document.getElementById('statusColor2').value = cc.status2;
-                                chartColors.status2 = cc.status2; }
-                            if (cc.status3) { document.getElementById('statusColor3').value = cc.status3;
-                                chartColors.status3 = cc.status3; }
+                            console.log('🎨 Cores carregadas do banco:', cc);
+
+                            // ===== ATUALIZAR OS CAMPOS DE INPUT =====
+                            if (cc.bar1) { 
+                                document.getElementById('chartColor1').value = cc.bar1;
+                                chartColors.bar1 = cc.bar1; 
+                            }
+                            if (cc.bar2) { 
+                                document.getElementById('chartColor2').value = cc.bar2;
+                                chartColors.bar2 = cc.bar2; 
+                            }
+                            if (cc.bar3) { 
+                                document.getElementById('chartColor3').value = cc.bar3;
+                                chartColors.bar3 = cc.bar3; 
+                            }
+                            if (cc.bar4) { 
+                                document.getElementById('chartColor4').value = cc.bar4;
+                                chartColors.bar4 = cc.bar4; 
+                            }
+                            if (cc.line) { 
+                                document.getElementById('chartLineColor').value = cc.line;
+                                chartColors.line = cc.line; 
+                            }
+                            if (cc.bg) { 
+                                document.getElementById('chartBgColor').value = cc.bg;
+                                chartColors.bg = cc.bg; 
+                            }
+                            if (cc.gap1) { 
+                                document.getElementById('gapColor1').value = cc.gap1;
+                                chartColors.gap1 = cc.gap1; 
+                            }
+                            if (cc.gap2) { 
+                                document.getElementById('gapColor2').value = cc.gap2;
+                                chartColors.gap2 = cc.gap2; 
+                            }
+                            if (cc.status1) { 
+                                document.getElementById('statusColor1').value = cc.status1;
+                                chartColors.status1 = cc.status1; 
+                            }
+                            if (cc.status2) { 
+                                document.getElementById('statusColor2').value = cc.status2;
+                                chartColors.status2 = cc.status2; 
+                            }
+                            if (cc.status3) { 
+                                document.getElementById('statusColor3').value = cc.status3;
+                                chartColors.status3 = cc.status3; 
+                            }
+
+                            console.log('✅ Cores aplicadas nos inputs:', chartColors);
+
                         } catch (e) {
                             console.error('Erro ao parsear chart_colors:', e);
                         }
                     }
 
+                    // Aplica o fundo dos gráficos
                     aplicarCorFundoGraficos();
 
+                    // Força a atualização dos gráficos com as cores carregadas
                     if (originalData && originalData.length > 0) {
                         const data = getDataParaExibir();
+                        // Destroi gráficos existentes
+                        Object.keys(charts).forEach(key => {
+                            if (charts[key]) {
+                                try { charts[key].destroy(); } catch(e) {}
+                                delete charts[key];
+                            }
+                        });
                         atualizarGraficos(data);
                     }
                 } else {
                     console.log('ℹ️ Nenhuma configuração encontrada, criando padrão...');
-                    await supabaseFetch('configuracoes', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: 1,
-                            tipo_fundo: 'degrade',
-                            cor_grad1: '#1F2A44',
-                            cor_grad2: '#243B55',
-                            cor_grad3: '#3A506B',
-                            angulo_grad: 135,
-                            cor_destaque: '#6DD5FA',
-                            calculo_auto: true,
-                            previsao_manual: false,
-                            ritmo_manual: false,
-                            updated_at: new Date().toISOString()
-                        })
-                    });
+                    await criarConfiguracoesPadrao();
                 }
             } catch (e) {
                 console.error('❌ Erro ao carregar configurações:', e);
@@ -1870,44 +1971,46 @@
         }
 
         // ============================================================
-        //  SALVAR CONFIGURAÇÕES
+        //  CRIAR CONFIGURAÇÕES PADRÃO
         // ============================================================
-        async function salvarConfiguracoesSupabase(parcial) {
+        async function criarConfiguracoesPadrao() {
             try {
-                console.log('🔄 Salvando configurações...', parcial);
-
-                const data = await supabaseFetch('configuracoes?select=*&id=eq.1');
-                let config = {};
-
-                if (data && data.length > 0) {
-                    config = data[0];
-                }
-
-                const merged = {
-                    ...config,
-                    ...parcial,
+                const configPadrao = {
+                    id: 1,
+                    tipo_fundo: 'degrade',
+                    cor_grad1: '#1F2A44',
+                    cor_grad2: '#243B55',
+                    cor_grad3: '#3A506B',
+                    angulo_grad: 135,
+                    cor_destaque: '#6DD5FA',
+                    calculo_auto: true,
+                    previsao_manual: false,
+                    ritmo_manual: false,
+                    chart_colors: JSON.stringify({
+                        bar1: '#6DD5FA',
+                        bar2: '#6BCB77',
+                        bar3: '#FFD93D',
+                        bar4: '#C77DFF',
+                        line: '#FF6B6B',
+                        bg: '#0D1B2A',
+                        gap1: '#6DD5FA',
+                        gap2: '#6BCB77',
+                        status1: '#6BCB77',
+                        status2: '#FFD93D',
+                        status3: '#6DD5FA'
+                    }),
                     updated_at: new Date().toISOString()
                 };
 
-                if (parcial.chart_colors && typeof parcial.chart_colors === 'object') {
-                    merged.chart_colors = JSON.stringify(parcial.chart_colors);
-                }
-
-                Object.keys(merged).forEach(key => {
-                    if (merged[key] === undefined) delete merged[key];
+                await supabaseFetch('configuracoes', {
+                    method: 'POST',
+                    body: JSON.stringify(configPadrao)
                 });
 
-                await supabaseFetch('configuracoes?id=eq.1', {
-                    method: 'PATCH',
-                    body: JSON.stringify(merged)
-                });
-
-                console.log('✅ Configurações salvas!');
-                return true;
+                console.log('✅ Configurações padrão criadas!');
+                await carregarConfiguracoesSupabase();
             } catch (e) {
-                console.error('❌ Erro ao salvar configurações:', e);
-                showToast('❌ Erro ao salvar configurações', 'error');
-                return false;
+                console.error('❌ Erro ao criar configurações padrão:', e);
             }
         }
 
@@ -2259,6 +2362,67 @@
             if (originalData.length > 0) {
                 const data = getDataParaExibir();
                 atualizarCards(data);
+            }
+        }
+
+        // ============================================================
+        //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO CORRIGIDA
+        // ============================================================
+        async function atualizarCoresGraficos() {
+            console.log('🔄 Atualizando cores dos gráficos...');
+
+            // Captura todas as cores
+            const novasCores = {
+                bar1: document.getElementById('chartColor1').value,
+                bar2: document.getElementById('chartColor2').value,
+                bar3: document.getElementById('chartColor3').value,
+                bar4: document.getElementById('chartColor4').value,
+                line: document.getElementById('chartLineColor').value,
+                gap1: document.getElementById('gapColor1').value,
+                gap2: document.getElementById('gapColor2').value,
+                status1: document.getElementById('statusColor1').value,
+                status2: document.getElementById('statusColor2').value,
+                status3: document.getElementById('statusColor3').value,
+                bg: document.getElementById('chartBgColor').value
+            };
+
+            // Atualiza as variáveis globais
+            chartColors = { ...chartColors, ...novasCores };
+            console.log('📊 Cores atualizadas:', chartColors);
+
+            // Aplica o fundo
+            aplicarCorFundoGraficos();
+
+            // ===== SALVA NO SUPABASE =====
+            const salvou = await salvarConfiguracoesSupabase({
+                chart_colors: {
+                    bar1: novasCores.bar1,
+                    bar2: novasCores.bar2,
+                    bar3: novasCores.bar3,
+                    bar4: novasCores.bar4,
+                    line: novasCores.line,
+                    bg: novasCores.bg,
+                    gap1: novasCores.gap1,
+                    gap2: novasCores.gap2,
+                    status1: novasCores.status1,
+                    status2: novasCores.status2,
+                    status3: novasCores.status3
+                }
+            });
+
+            if (salvou) {
+                // Destroi gráficos antigos
+                Object.keys(charts).forEach(key => {
+                    if (charts[key]) {
+                        try { charts[key].destroy(); } catch (e) {}
+                        delete charts[key];
+                    }
+                });
+
+                // Recria gráficos
+                const data = getDataParaExibir();
+                atualizarGraficos(data);
+                showToast('🎨 Cores dos gráficos atualizadas!', 'success', 1500);
             }
         }
 
@@ -2638,57 +2802,6 @@
                 reader.readAsArrayBuffer(file);
             });
         });
-
-        // ============================================================
-        //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO COMPLETA
-        // ============================================================
-        function atualizarCoresGraficos() {
-            console.log('🔄 Atualizando cores dos gráficos...');
-
-            chartColors.bar1 = document.getElementById('chartColor1').value;
-            chartColors.bar2 = document.getElementById('chartColor2').value;
-            chartColors.bar3 = document.getElementById('chartColor3').value;
-            chartColors.bar4 = document.getElementById('chartColor4').value;
-            chartColors.line = document.getElementById('chartLineColor').value;
-            chartColors.gap1 = document.getElementById('gapColor1').value;
-            chartColors.gap2 = document.getElementById('gapColor2').value;
-            chartColors.status1 = document.getElementById('statusColor1').value;
-            chartColors.status2 = document.getElementById('statusColor2').value;
-            chartColors.status3 = document.getElementById('statusColor3').value;
-            chartColors.bg = document.getElementById('chartBgColor').value;
-
-            console.log('📊 Cores atualizadas:', chartColors);
-
-            aplicarCorFundoGraficos();
-
-            salvarConfiguracoesSupabase({
-                chart_colors: {
-                    bar1: chartColors.bar1,
-                    bar2: chartColors.bar2,
-                    bar3: chartColors.bar3,
-                    bar4: chartColors.bar4,
-                    line: chartColors.line,
-                    bg: chartColors.bg,
-                    gap1: chartColors.gap1,
-                    gap2: chartColors.gap2,
-                    status1: chartColors.status1,
-                    status2: chartColors.status2,
-                    status3: chartColors.status3
-                }
-            });
-
-            const data = getDataParaExibir();
-
-            Object.keys(charts).forEach(key => {
-                if (charts[key]) {
-                    try { charts[key].destroy(); } catch (e) {}
-                    delete charts[key];
-                }
-            });
-
-            atualizarGraficos(data);
-            showToast('🎨 Cores dos gráficos atualizadas!', 'success', 1500);
-        }
 
         // ============================================================
         //  FUNÇÕES DO DASHBOARD
