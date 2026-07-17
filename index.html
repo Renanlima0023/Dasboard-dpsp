@@ -1568,7 +1568,7 @@
                     </div>
                     <div class="painel-divider"></div>
 
-                    <!-- ===== TODAS AS CORES DOS GRÁFICOS ===== -->
+                    <!-- ===== TODAS AS CORES DOS GRÁFICOS - INCLUINDO LINHA DO TEMPO ===== -->
                     <div class="painel-secao">
                         <div class="painel-secao-titulo">🎨 Cores dos Gráficos</div>
                         <div class="cor-controles">
@@ -1595,7 +1595,15 @@
                             
                             <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
                             
-                            <!-- Lojas Agendadas -->
+                            <!-- ⏳ Linha do Tempo -->
+                            <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">⏳ Linha do Tempo</div>
+                            <div class="cor-linha"><label>Acumulado (área)</label><input type="color" id="timelineAreaColor" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Acumulado (linha)</label><input type="color" id="timelineLineColor" value="#6DD5FA" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#6DD5FA</span></div>
+                            <div class="cor-linha"><label>Autorizações no mês</label><input type="color" id="timelineBarColor" value="#FFD93D" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FFD93D</span></div>
+                            
+                            <div style="margin:8px 0;border-top:1px solid rgba(255,255,255,0.05);"></div>
+                            
+                            <!-- 📅 Lojas Agendadas -->
                             <div style="margin-bottom:8px;opacity:0.5;font-size:11px;text-transform:uppercase;">📅 Lojas Agendadas</div>
                             <div class="cor-linha"><label>Barras Agendadas</label><input type="color" id="chartColor4" value="#C77DFF" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#C77DFF</span></div>
                             <div class="cor-linha"><label>Linha Acumulada</label><input type="color" id="chartLineColor" value="#FF6B6B" class="color-input" oninput="atualizarCoresGraficos()"><span class="hex-label">#FF6B6B</span></div>
@@ -1868,7 +1876,7 @@
                         aplicarCorDestaque(config.cor_destaque, false);
                     }
 
-                    // ===== CARREGAR CORES DOS GRÁFICOS - ESSENCIAL =====
+                    // ===== CARREGAR CORES DOS GRÁFICOS =====
                     if (config.chart_colors) {
                         try {
                             const cc = typeof config.chart_colors === 'string' ?
@@ -1876,7 +1884,7 @@
 
                             console.log('🎨 Cores carregadas do banco:', cc);
 
-                            // ===== ATUALIZAR OS CAMPOS DE INPUT =====
+                            // Média de Lojas
                             if (cc.bar1) {
                                 document.getElementById('chartColor1').value = cc.bar1;
                                 chartColors.bar1 = cc.bar1;
@@ -1889,6 +1897,8 @@
                                 document.getElementById('chartColor3').value = cc.bar3;
                                 chartColors.bar3 = cc.bar3;
                             }
+
+                            // Lojas Agendadas
                             if (cc.bar4) {
                                 document.getElementById('chartColor4').value = cc.bar4;
                                 chartColors.bar4 = cc.bar4;
@@ -1897,10 +1907,8 @@
                                 document.getElementById('chartLineColor').value = cc.line;
                                 chartColors.line = cc.line;
                             }
-                            if (cc.bg) {
-                                document.getElementById('chartBgColor').value = cc.bg;
-                                chartColors.bg = cc.bg;
-                            }
+
+                            // Gap por UF
                             if (cc.gap1) {
                                 document.getElementById('gapColor1').value = cc.gap1;
                                 chartColors.gap1 = cc.gap1;
@@ -1909,6 +1917,8 @@
                                 document.getElementById('gapColor2').value = cc.gap2;
                                 chartColors.gap2 = cc.gap2;
                             }
+
+                            // Status por UF
                             if (cc.status1) {
                                 document.getElementById('statusColor1').value = cc.status1;
                                 chartColors.status1 = cc.status1;
@@ -1920,6 +1930,26 @@
                             if (cc.status3) {
                                 document.getElementById('statusColor3').value = cc.status3;
                                 chartColors.status3 = cc.status3;
+                            }
+
+                            // ===== LINHA DO TEMPO =====
+                            if (cc.timelineArea) {
+                                document.getElementById('timelineAreaColor').value = cc.timelineArea;
+                                chartColors.timelineArea = cc.timelineArea;
+                            }
+                            if (cc.timelineLine) {
+                                document.getElementById('timelineLineColor').value = cc.timelineLine;
+                                chartColors.timelineLine = cc.timelineLine;
+                            }
+                            if (cc.timelineBar) {
+                                document.getElementById('timelineBarColor').value = cc.timelineBar;
+                                chartColors.timelineBar = cc.timelineBar;
+                            }
+
+                            // Fundo
+                            if (cc.bg) {
+                                document.getElementById('chartBgColor').value = cc.bg;
+                                chartColors.bg = cc.bg;
                             }
 
                             console.log('✅ Cores aplicadas nos inputs:', chartColors);
@@ -1968,7 +1998,10 @@
                         gap2: '#6BCB77',
                         status1: '#6BCB77',
                         status2: '#FFD93D',
-                        status3: '#6DD5FA'
+                        status3: '#6DD5FA',
+                        timelineArea: '#6DD5FA',
+                        timelineLine: '#6DD5FA',
+                        timelineBar: '#FFD93D'
                     }),
                     updated_at: new Date().toISOString()
                 };
@@ -2019,7 +2052,10 @@
             gap2: '#6BCB77',
             status1: '#6BCB77',
             status2: '#FFD93D',
-            status3: '#6DD5FA'
+            status3: '#6DD5FA',
+            timelineArea: '#6DD5FA',
+            timelineLine: '#6DD5FA',
+            timelineBar: '#FFD93D'
         };
 
         // ============================================================
@@ -2337,23 +2373,40 @@
         }
 
         // ============================================================
-        //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO CORRIGIDA
+        //  ATUALIZAR CORES DOS GRÁFICOS - VERSÃO COMPLETA
         // ============================================================
         async function atualizarCoresGraficos() {
             console.log('🔄 Atualizando cores dos gráficos...');
 
             // Captura todas as cores
             const novasCores = {
+                // Média de Lojas
                 bar1: document.getElementById('chartColor1').value,
                 bar2: document.getElementById('chartColor2').value,
                 bar3: document.getElementById('chartColor3').value,
+
+                // Lojas Agendadas
                 bar4: document.getElementById('chartColor4').value,
                 line: document.getElementById('chartLineColor').value,
+
+                // Gap por UF
                 gap1: document.getElementById('gapColor1').value,
                 gap2: document.getElementById('gapColor2').value,
+
+                // Status por UF
                 status1: document.getElementById('statusColor1').value,
                 status2: document.getElementById('statusColor2').value,
                 status3: document.getElementById('statusColor3').value,
+
+                // ===== LINHA DO TEMPO =====
+                timelineArea: document.getElementById('timelineAreaColor') ? document.getElementById('timelineAreaColor')
+                    .value : '#6DD5FA',
+                timelineLine: document.getElementById('timelineLineColor') ? document.getElementById('timelineLineColor')
+                    .value : '#6DD5FA',
+                timelineBar: document.getElementById('timelineBarColor') ? document.getElementById('timelineBarColor')
+                    .value : '#FFD93D',
+
+                // Fundo
                 bg: document.getElementById('chartBgColor').value
             };
 
@@ -2377,7 +2430,10 @@
                     gap2: novasCores.gap2,
                     status1: novasCores.status1,
                     status2: novasCores.status2,
-                    status3: novasCores.status3
+                    status3: novasCores.status3,
+                    timelineArea: novasCores.timelineArea,
+                    timelineLine: novasCores.timelineLine,
+                    timelineBar: novasCores.timelineBar
                 }
             });
 
@@ -3584,6 +3640,9 @@
             charts['gapChart'] = chart;
         }
 
+        // ============================================================
+        //  CHART TIMELINE - VERSÃO COM CORES PERSONALIZADAS
+        // ============================================================
         function chartTimeline(data) {
             destroyChart('timelineChart');
             const comData = data.filter(r => r['DATA AUTORIZAÇÃO']);
@@ -3611,10 +3670,18 @@
             const acumulado = sortedMeses.map(m => { acc += porMes[m]; return acc; });
             const mensal = sortedMeses.map(m => porMes[m]);
 
+            // ===== USA CORES ESPECÍFICAS DA LINHA DO TEMPO =====
+            const corArea = document.getElementById('timelineAreaColor') ?
+                document.getElementById('timelineAreaColor').value : chartColors.timelineArea || '#6DD5FA';
+            const corLinha = document.getElementById('timelineLineColor') ?
+                document.getElementById('timelineLineColor').value : chartColors.timelineLine || '#6DD5FA';
+            const corBarras = document.getElementById('timelineBarColor') ?
+                document.getElementById('timelineBarColor').value : chartColors.timelineBar || '#FFD93D';
+
             const ctx = document.getElementById('timelineChart').getContext('2d');
             const grad = ctx.createLinearGradient(0, 0, 0, 280);
-            grad.addColorStop(0, chartColors.bar1 + '66');
-            grad.addColorStop(1, chartColors.bar1 + '00');
+            grad.addColorStop(0, corArea + '66');
+            grad.addColorStop(1, corArea + '00');
 
             const chart = new Chart(ctx, {
                 type: 'line',
@@ -3623,22 +3690,22 @@
                     datasets: [{
                         label: 'Acumulado de lojas autorizadas',
                         data: acumulado,
-                        borderColor: chartColors.bar1,
+                        borderColor: corLinha,
                         backgroundColor: grad,
                         fill: true,
                         borderWidth: 2.5,
                         pointRadius: 4,
-                        pointBackgroundColor: chartColors.bar1,
+                        pointBackgroundColor: corLinha,
                         tension: .4,
                         datalabels: { display: false }
                     }, {
                         label: 'Autorizações no mês',
                         data: mensal,
-                        borderColor: chartColors.bar3,
-                        backgroundColor: 'transparent',
+                        borderColor: corBarras,
+                        backgroundColor: corBarras + '33',
                         borderWidth: 2,
                         pointRadius: 3,
-                        pointBackgroundColor: chartColors.bar3,
+                        pointBackgroundColor: corBarras,
                         tension: .4,
                         yAxisID: 'y2',
                         datalabels: { display: false }
@@ -3652,8 +3719,8 @@
                     },
                     scales: {
                         x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y: { ticks: { color: chartColors.bar1 }, grid: { color: 'rgba(255,255,255,.07)' } },
-                        y2: { position: 'right', ticks: { color: chartColors.bar3 }, grid: { display: false } }
+                        y: { ticks: { color: corLinha }, grid: { color: 'rgba(255,255,255,.07)' } },
+                        y2: { position: 'right', ticks: { color: corBarras }, grid: { display: false } }
                     }
                 }
             });
@@ -4413,10 +4480,10 @@
                 // 2. Carrega dados do dashboard
                 await carregarDashboardDataSupabase();
 
-                // 3. Carrega configurações (cores, etc) - ESSE É O MAIS IMPORTANTE
+                // 3. Carrega configurações (cores, etc)
                 await carregarConfiguracoesSupabase();
 
-                // 4. SÓ DEPOIS de carregar as cores, aplica os filtros e cria os gráficos
+                // 4. Só depois de carregar as cores, aplica os filtros e cria os gráficos
                 if (originalData && originalData.length > 0) {
                     aplicarFiltros();
                 } else {
